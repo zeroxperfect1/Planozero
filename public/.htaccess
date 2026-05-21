@@ -1,9 +1,24 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{REQUEST_FILENAME} !-l
+
+  # No reescribir archivos o directorios que existen físicamente
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d [OR]
+  RewriteCond %{REQUEST_FILENAME} -l
+  RewriteRule ^ - [L]
+
+  # No reescribir la carpeta /api/ (PHP endpoints)
+  RewriteRule ^api/ - [L]
+
+  # No reescribir /uploads/ (archivos de media)
+  RewriteRule ^uploads/ - [L]
+
+  # Todo lo demás → React SPA
   RewriteRule . /index.html [L]
 </IfModule>
+
+# PHP: asegura que los .php se ejecuten correctamente
+<FilesMatch "\.php$">
+  SetHandler application/x-httpd-php
+</FilesMatch>
