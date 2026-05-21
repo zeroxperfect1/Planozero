@@ -4,35 +4,32 @@
 <meta charset="UTF-8">
 <title>Migrar Firestore → MySQL</title>
 <style>
-  body { font-family: monospace; background: #111; color: #0f0; padding: 20px; max-width: 800px; margin: 0 auto; }
+  body { font-family: monospace; background: #111; color: #0f0; padding: 20px; max-width: 900px; margin: 0 auto; }
   h1 { color: #fff; }
-  button { background: #FF5F1F; color: #fff; border: none; padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 6px; margin: 8px 4px; }
+  button { background: #FF5F1F; color: #fff; border: none; padding: 12px 24px; font-size: 15px; cursor: pointer; border-radius: 6px; margin: 6px 4px; }
   button:disabled { background: #555; cursor: not-allowed; }
-  #output { background: #000; padding: 16px; border-radius: 8px; white-space: pre-wrap; max-height: 70vh; overflow-y: auto; font-size: 13px; line-height: 1.6; }
-  .ok { color: #0f0; } .err { color: #f44; } .info { color: #ff0; } .dim { color: #666; }
+  #output { background: #000; padding: 16px; border-radius: 8px; white-space: pre-wrap; max-height: 75vh; overflow-y: auto; font-size: 13px; line-height: 1.7; }
+  .ok { color: #0f0; } .err { color: #f44; } .info { color: #ff0; } .dim { color: #888; }
 </style>
 </head>
 <body>
 <h1>🔄 Migrar Firestore → MySQL</h1>
-<p style="color:#aaa">Este script usa tu sesión de Firebase para migrar los posts al servidor.</p>
 
-<button id="btnPreview" onclick="doMigrate('preview')">🔍 Ver posts en Firestore</button>
-<button id="btnImport" onclick="doMigrate('import')">🚀 Importar a MySQL</button>
+<button onclick="doAction('debug')">🔍 Diagnóstico (buscar dónde están los posts)</button>
+<button id="btnImport" onclick="doAction('import')" disabled>🚀 Importar a MySQL</button>
 
-<div id="output">Presiona "Ver posts en Firestore" para comenzar...</div>
+<div id="output">Presiona "Diagnóstico" para empezar...</div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-const firebaseConfig = {
-  projectId: "gen-lang-client-0646534496",
-  appId: "1:65968928791:web:a2fe505a038f9a10378452",
-  apiKey: "AIzaSyDih4SyurjOi8FSysMGUzr0ARJGlcOmILM",
+const app  = initializeApp({
+  projectId:  "gen-lang-client-0646534496",
+  appId:      "1:65968928791:web:a2fe505a038f9a10378452",
+  apiKey:     "AIzaSyDih4SyurjOi8FSysMGUzr0ARJGlcOmILM",
   authDomain: "gen-lang-client-0646534496.firebaseapp.com",
-};
-
-const app  = initializeApp(firebaseConfig);
+});
 const auth = getAuth(app);
 
 const log = (msg, cls='') => {
@@ -42,66 +39,66 @@ const log = (msg, cls='') => {
 };
 
 let currentUser = null;
+let bestDb = null;
 
 onAuthStateChanged(auth, user => {
   currentUser = user;
-  if (user) {
-    log(`✅ Autenticado como: ${user.email}`, 'ok');
-  } else {
-    log('⚠️  No autenticado — inicia sesión en el Dashboard primero (http://localhost:3000)', 'err');
-    document.getElementById('btnPreview').disabled = true;
-    document.getElementById('btnImport').disabled = true;
-  }
+  if (user) log(`✅ Autenticado como: ${user.email}`, 'ok');
+  else log('⚠️  No autenticado — inicia sesión en el Dashboard (localhost:3000) primero', 'err');
 });
 
-window.doMigrate = async (action) => {
+window.doAction = async (action) => {
   if (!currentUser) { log('❌ No autenticado', 'err'); return; }
-
   document.getElementById('output').innerHTML = '';
-  log(`🔄 Acción: ${action}...\n`, 'info');
 
   try {
     const token = await currentUser.getIdToken(true);
-    log('🔑 Token obtenido OK', 'dim');
+    log(`🔑 Token OK — ejecutando: ${action}\n`, 'dim');
 
-    const url = action === 'preview'
-      ? 'https://planozero.cl/api/migrate-firestore.php?action=preview'
-      : 'https://planozero.cl/api/migrate-firestore.php?action=import';
+    let url = `https://planozero.cl/api/migrate-firestore.php?action=${action}`;
+    if (action === 'import' && bestDb) url += `&db=${encodeURIComponent(bestDb)}`;
 
-    const resp = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+    const text = await resp.text();
 
-    const data = await resp.json();
+    let data;
+    try { data = JSON.parse(text); }
+    catch(e) { log(`❌ Respuesta no JSON:\n${text}`, 'err'); return; }
 
-    if (!resp.ok) {
-      log(`❌ Error del servidor: ${JSON.stringify(data)}`, 'err');
-      return;
-    }
+    if (!resp.ok) { log(`❌ Error ${resp.status}: ${JSON.stringify(data)}`, 'err'); return; }
 
-    if (action === 'preview') {
-      log(`\n📦 Posts encontrados en Firestore: ${data.count}\n`, 'ok');
-      (data.posts || []).forEach((p, i) => {
-        log(`  ${i+1}. [${p.id}] ${p.title}`, 'ok');
-      });
-      if (data.count === 0) {
-        log('\n⚠️  No se encontraron posts. Puede que la colección se llame diferente.', 'err');
+    if (action === 'debug') {
+      log('📊 RESULTADOS DEL DIAGNÓSTICO:\n', 'info');
+      let found = false;
+      for (const r of (data.debug || [])) {
+        const status = r.docs > 0 ? '✅' : (r.error ? '🔴' : '⬜');
+        log(`  ${status}  db: ${r.db.substring(0,20)}… | col: ${r.col} | docs: ${r.docs} | http: ${r.status}`, r.docs > 0 ? 'ok' : 'dim');
+        if (r.error) log(`       error: ${r.error}`, 'err');
+        if (r.preview) {
+          r.preview.forEach(p => log(`       → [${p.id}] campos: ${p.fields.join(', ')}`, 'ok'));
+          bestDb = r.db;
+          found = true;
+        }
+      }
+      if (found) {
+        log(`\n✅ Posts encontrados en db: "${bestDb}"`, 'ok');
+        log('Presiona "Importar a MySQL" para migrar.', 'info');
+        document.getElementById('btnImport').disabled = false;
       } else {
-        log('\n✅ Presiona "Importar a MySQL" para migrar.', 'info');
+        log('\n❌ No se encontraron posts en ninguna base de datos ni colección.', 'err');
+        log('Verifica en Firebase Console: https://console.firebase.google.com/project/gen-lang-client-0646534496/firestore', 'info');
       }
-    } else {
-      log(`\n✅ Importados: ${data.imported}`, 'ok');
-      log(`⏭️  Ya existían (omitidos): ${data.skipped}`, 'dim');
-      if (data.errors?.length) {
-        log(`\n❌ Errores:`, 'err');
-        data.errors.forEach(e => log(`  - ${e}`, 'err'));
-      }
-      log(`\n${data.message}`, 'ok');
-      log('\n🎉 ¡Listo! Recarga el blog en planozero.cl para ver los posts.', 'info');
     }
-  } catch(e) {
-    log(`❌ Error: ${e.message}`, 'err');
-  }
+
+    if (action === 'import') {
+      log(`✅ Importados: ${data.imported}`, 'ok');
+      log(`⏭️  Ya existían: ${data.skipped}`, 'dim');
+      if (data.errors?.length) data.errors.forEach(e => log(`  ❌ ${e}`, 'err'));
+      log(`\n${data.message}`, 'ok');
+      log('🎉 ¡Listo! Recarga planozero.cl para ver los posts.', 'info');
+    }
+
+  } catch(e) { log(`❌ Error JS: ${e.message}`, 'err'); }
 };
 </script>
 </body>
