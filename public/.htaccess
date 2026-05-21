@@ -1,24 +1,20 @@
+# /public_html/.htaccess  — React SPA + PHP API passthrough
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
 
-  # No reescribir archivos o directorios que existen físicamente
+  # 1. Excluir explícitamente /api/ — pasar directamente a PHP
+  RewriteRule ^api(/.*)?$ - [L]
+
+  # 2. Excluir /uploads/ — archivos estáticos
+  RewriteRule ^uploads(/.*)?$ - [L]
+
+  # 3. Si el archivo o directorio existe, servirlo directo
   RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d [OR]
-  RewriteCond %{REQUEST_FILENAME} -l
+  RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # No reescribir la carpeta /api/ (PHP endpoints)
-  RewriteRule ^api/ - [L]
-
-  # No reescribir /uploads/ (archivos de media)
-  RewriteRule ^uploads/ - [L]
-
-  # Todo lo demás → React SPA
-  RewriteRule . /index.html [L]
+  # 4. Todo lo demás → React SPA
+  RewriteRule ^ /index.html [L]
 </IfModule>
-
-# PHP: asegura que los .php se ejecuten correctamente
-<FilesMatch "\.php$">
-  SetHandler application/x-httpd-php
-</FilesMatch>
