@@ -617,16 +617,16 @@ const ContactForm = () => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center py-12 text-center space-y-6"
+        className="flex flex-col items-center justify-center py-6 text-center space-y-3"
       >
-        <div className="w-20 h-20 bg-[#FF5F1F]/10 rounded-full flex items-center justify-center text-[#FF5F1F]">
-          <CheckCircle2 className="w-10 h-10" />
+        <div className="w-12 h-12 bg-[#FF5F1F]/10 rounded-full flex items-center justify-center text-[#FF5F1F]">
+          <CheckCircle2 className="w-6 h-6" />
         </div>
-        <div className="space-y-2">
-          <h4 className="text-2xl font-bold">¡Mensaje Recibido!</h4>
-          <p className="text-zinc-400">Gracias por contactarnos. Nuestro equipo revisará tu idea y te responderemos lo antes posible.</p>
+        <div className="space-y-1">
+          <h4 className="text-lg font-bold">¡Mensaje Recibido!</h4>
+          <p className="text-sm text-zinc-400">Nuestro equipo revisará tu idea y te responderemos pronto.</p>
         </div>
-        <Button onClick={() => setSubmitted(false)} variant="outline">
+        <Button onClick={() => setSubmitted(false)} variant="outline" className="text-xs py-2">
           Enviar otro mensaje
         </Button>
       </motion.div>
@@ -634,65 +634,65 @@ const ContactForm = () => {
   }
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-           <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Nombre</label>
+    <form className="space-y-3" onSubmit={handleSubmit}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-1">
+           <label className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Nombre</label>
            <input 
             required
             type="text" 
             value={formData.name}
             onChange={(e) => setFormData({...formData, name: e.target.value})}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 focus:outline-none focus:border-[#FF5F1F] transition-all" 
+            className="w-full text-sm bg-white/5 border border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:border-[#FF5F1F] transition-all" 
            />
         </div>
-        <div className="space-y-2">
-           <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Empresa</label>
+        <div className="space-y-1">
+           <label className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Empresa</label>
            <input 
             type="text" 
             value={formData.company}
             onChange={(e) => setFormData({...formData, company: e.target.value})}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 focus:outline-none focus:border-[#FF5F1F] transition-all" 
+            className="w-full text-sm bg-white/5 border border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:border-[#FF5F1F] transition-all" 
            />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-           <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Cargo</label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-1">
+           <label className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Cargo</label>
            <input 
             type="text" 
             value={formData.position}
             onChange={(e) => setFormData({...formData, position: e.target.value})}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 focus:outline-none focus:border-[#FF5F1F] transition-all" 
+            className="w-full text-sm bg-white/5 border border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:border-[#FF5F1F] transition-all" 
            />
         </div>
-        <div className="space-y-2">
-           <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Email</label>
+        <div className="space-y-1">
+           <label className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Email</label>
            <input 
             required
             type="email" 
             value={formData.email}
             onChange={(e) => setFormData({...formData, email: e.target.value})}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 focus:outline-none focus:border-[#FF5F1F] transition-all" 
+            className="w-full text-sm bg-white/5 border border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:border-[#FF5F1F] transition-all" 
            />
         </div>
       </div>
-      <div className="space-y-2">
-         <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Numero (Opcional)</label>
+      <div className="space-y-1">
+         <label className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Número (Opcional)</label>
          <input 
           type="tel" 
           value={formData.phone}
           onChange={(e) => setFormData({...formData, phone: e.target.value})}
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 focus:outline-none focus:border-[#FF5F1F] transition-all" 
+          className="w-full text-sm bg-white/5 border border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:border-[#FF5F1F] transition-all" 
          />
       </div>
-      <div className="space-y-2">
-         <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Cuéntanos sobre tu idea...</label>
+      <div className="space-y-1">
+         <label className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Cuéntanos sobre tu idea...</label>
          <textarea 
           required
           value={formData.idea}
           onChange={(e) => setFormData({...formData, idea: e.target.value})}
-          className="w-full h-32 bg-white/5 border border-white/10 rounded-xl px-5 py-3 focus:outline-none focus:border-[#FF5F1F] transition-all resize-none" 
+          className="w-full h-20 text-sm bg-white/5 border border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:border-[#FF5F1F] transition-all resize-none" 
          />
       </div>
 
@@ -708,10 +708,10 @@ const ContactForm = () => {
       </div>
 
       {/* Math Captcha */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <label className="text-[10px] font-mono text-[#FF5F1F] uppercase tracking-widest font-bold">Verificación Anti-Spam</label>
-          <p className="text-sm text-zinc-400">¿Cuánto es {captcha.a} + {captcha.b}?</p>
+      <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-row items-center justify-between gap-3">
+        <div className="space-y-0.5">
+          <label className="text-[9px] font-mono text-[#FF5F1F] uppercase tracking-widest font-bold">Anti-Spam</label>
+          <p className="text-xs text-zinc-400">¿Cuánto es {captcha.a} + {captcha.b}?</p>
         </div>
         <input 
           required
@@ -719,11 +719,11 @@ const ContactForm = () => {
           placeholder="Resultado"
           value={captchaInput}
           onChange={(e) => setCaptchaInput(e.target.value)}
-          className="bg-white/5 border border-white/20 rounded-xl px-4 py-2 w-32 focus:outline-none focus:border-[#FF5F1F] text-center font-bold"
+          className="bg-white/5 border border-white/20 rounded-lg px-3 py-1.5 w-24 focus:outline-none focus:border-[#FF5F1F] text-center text-sm font-bold"
         />
       </div>
 
-      <Button className="w-full py-5 text-lg" type="submit" disabled={loading}>
+      <Button className="w-full py-3 text-sm" type="submit" disabled={loading}>
         {loading ? (
           <>
             ENVIANDO...
@@ -1004,49 +1004,49 @@ export default function Home() {
       </main>
 
       {/* Contact Section */}
-      <section id="contacto" className="py-12 bg-zinc-50 dark:bg-zinc-900/50 border-t border-zinc-200 dark:border-zinc-800 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#FF5F1F]/5 blur-[120px] rounded-full -mr-48 -mt-48" />
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-            <div className="space-y-6">
+      <section id="contacto" className="py-8 bg-zinc-50 dark:bg-zinc-900/50 border-t border-zinc-200 dark:border-zinc-800 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF5F1F]/5 blur-[80px] rounded-full -mr-32 -mt-32" />
+        <div className="max-w-5xl mx-auto px-6 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-6 items-start">
+            <div className="space-y-4">
               <div>
-                <span className="text-xs font-mono tracking-widest text-[#FF5F1F] uppercase mb-4 block italic">Let's build together</span>
-                <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-[0.9] italic">
+                <span className="text-[10px] font-mono tracking-widest text-[#FF5F1F] uppercase mb-2 block italic">Let's build together</span>
+                <h2 className="text-2xl md:text-3xl font-black tracking-tighter uppercase leading-[0.9] italic">
                   ¿Tienes un <br />
                   <span className="text-[#FF5F1F]">proyecto?</span>
                 </h2>
-                <p className="mt-3 text-base text-zinc-500 max-w-lg leading-relaxed font-medium">
-                  Estamos listos para decodificar tus ideas y transformarlas en realidades digitales de alto impacto.
+                <p className="mt-2 text-sm text-zinc-500 max-w-xs leading-relaxed font-medium">
+                  Transformamos tus ideas en realidades digitales de alto impacto.
                 </p>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center gap-6 group cursor-pointer">
-                  <div className="w-11 h-11 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 shadow-sm group-hover:border-[#FF5F1F] transition-all">
-                    <Mail className="w-6 h-6 text-[#FF5F1F]" />
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 group cursor-pointer">
+                  <div className="w-9 h-9 rounded-xl bg-white dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 shadow-sm group-hover:border-[#FF5F1F] transition-all shrink-0">
+                    <Mail className="w-4 h-4 text-[#FF5F1F]" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest mb-1">Email</p>
-                    <p className="text-xl font-bold">hola@planozero.cl</p>
+                    <p className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest">Email</p>
+                    <p className="text-sm font-bold">hola@planozero.cl</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-6 group cursor-pointer">
-                  <div className="w-11 h-11 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 shadow-sm group-hover:border-[#FF5F1F] transition-all">
-                    <Phone className="w-6 h-6 text-[#FF5F1F]" />
+                <div className="flex items-center gap-3 group cursor-pointer">
+                  <div className="w-9 h-9 rounded-xl bg-white dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 shadow-sm group-hover:border-[#FF5F1F] transition-all shrink-0">
+                    <Phone className="w-4 h-4 text-[#FF5F1F]" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest mb-1">WhatsApp</p>
-                    <p className="text-xl font-bold">+569 5530 8095</p>
+                    <p className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest">WhatsApp</p>
+                    <p className="text-sm font-bold">+569 5530 8095</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-6 md:p-8 rounded-3xl shadow-xl relative group overflow-hidden">
+            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-4 md:p-6 rounded-2xl shadow-lg relative group overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none opacity-5">
                 <BlueprintLine className="text-zinc-400" />
               </div>
-              <h3 className="text-xl font-black italic tracking-tight mb-4">Inicia tu proyecto</h3>
+              <h3 className="text-sm font-black italic tracking-tight mb-3 uppercase">Inicia tu proyecto</h3>
               <ContactForm />
             </div>
           </div>
