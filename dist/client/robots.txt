@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Block non-beneficial AI training scrapers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+Sitemap: https://www.planozero.cl/sitemap.xml
