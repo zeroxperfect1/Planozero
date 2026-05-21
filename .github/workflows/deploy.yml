@@ -154,7 +154,7 @@ jobs:
           username: deploy@planozero.cl
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/client/
-          server-dir: /planozero.cl/public_html/
+          server-dir: /public_html/
           exclude: |
             **/.git*
             **/.git*/**
@@ -170,7 +170,7 @@ jobs:
           username: deploy@planozero.cl
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./uploads/
-          server-dir: /planozero.cl/public_html/uploads/
+          server-dir: /public_html/uploads/
           dangerous-clean-slate: false
           log-level: minimal
 
@@ -182,7 +182,7 @@ jobs:
           username: deploy@planozero.cl
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./public/api/
-          server-dir: /planozero.cl/public_html/api/
+          server-dir: /public_html/api/
           dangerous-clean-slate: false
           log-level: standard
 
