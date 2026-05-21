@@ -126,5 +126,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+    // --- Collection: Logs (reemplaza logs del servidor Node.js) ---
+    match /logs/{logId} {
+      allow create: if isSignedIn();
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
   }
 }

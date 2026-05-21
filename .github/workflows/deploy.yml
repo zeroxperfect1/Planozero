@@ -68,7 +68,19 @@ jobs:
           dangerous-clean-slate: false
           log-level: minimal
 
-      # 6. Notificación de éxito
+      # 7. Subir scripts PHP (mail, etc.)
+      - name: 🐘 Deploy PHP scripts
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.planozero.cl
+          username: deploy@planozero.cl
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./public/api/
+          server-dir: /public_html/api/
+          dangerous-clean-slate: false
+          log-level: minimal
+
+      # 8. Notificación de éxito
       - name: ✅ Deploy completado
         if: success()
         run: echo "🎉 Deploy exitoso a planozero.cl en $(date)"

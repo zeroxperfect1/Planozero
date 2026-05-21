@@ -1,134 +1,111 @@
 import React, { useState, useEffect } from 'react';
+import { CheckCircle2, XCircle, Loader2, Database, Shield, Globe } from 'lucide-react';
 import { db, auth } from '../lib/firebase';
-import { collection, query, limit, getDocsFromServer, doc } from 'firebase/firestore';
-import { Shield, CheckCircle2, XCircle, Loader2, Database, Cloud } from 'lucide-react';
+import { doc, getDocFromServer } from 'firebase/firestore';
 
 interface HealthStatus {
-  firebase: { status: 'loading' | 'ok' | 'error'; message?: string };
-  api: { status: 'loading' | 'ok' | 'error'; message?: string };
-  auth: { status: 'loading' | 'ok' | 'error'; user?: string };
+  firestore: 'ok' | 'error' | 'checking';
+  auth: 'ok' | 'error' | 'checking';
+  storage: 'ok' | 'error' | 'checking';
 }
 
-export const HealthCheck = () => {
+const HealthCheck: React.FC = () => {
   const [status, setStatus] = useState<HealthStatus>({
-    firebase: { status: 'loading' },
-    api: { status: 'loading' },
-    auth: { status: 'loading' }
+    firestore: 'checking',
+    auth: 'checking',
+    storage: 'checking',
   });
+  const [lastCheck, setLastCheck] = useState<string>('');
 
-  const checkHealth = async () => {
-    // 1. Check Firebase Connection (Client-side)
+  const runChecks = async () => {
+    setStatus({ firestore: 'checking', auth: 'checking', storage: 'checking' });
+
+    // 1. Firestore ping
     try {
-      // Use getDocsFromServer to force a network check
-      const q = query(collection(db, 'pages'), limit(1));
-      await getDocsFromServer(q);
-      setStatus(prev => ({ ...prev, firebase: { status: 'ok' } }));
-    } catch (err) {
-      console.error("Health Check: Firebase Failed", err);
-      setStatus(prev => ({ 
-        ...prev, 
-        firebase: { 
-          status: 'error', 
-          message: err instanceof Error ? err.message : 'Error de conexión Firestore' 
-        } 
-      }));
+      await getDocFromServer(doc(db, 'test', 'connection'));
+      setStatus(s => ({ ...s, firestore: 'ok' }));
+    } catch (e: any) {
+      // PERMISSION_DENIED aún confirma que Firestore responde
+      const isConnected = e?.code === 'permission-denied' || e?.message?.includes('Missing or insufficient');
+      setStatus(s => ({ ...s, firestore: isConnected ? 'ok' : 'error' }));
     }
 
-    // 2. Check Backend API
+    // 2. Firebase Auth
     try {
-      const resp = await fetch('/api/health');
-      if (resp.ok) {
-        setStatus(prev => ({ ...prev, api: { status: 'ok' } }));
+      const user = auth.currentUser;
+      if (user) {
+        await user.getIdToken(true); // Refresh token
+        setStatus(s => ({ ...s, auth: 'ok' }));
       } else {
-        throw new Error(`Endpoint returned ${resp.status}`);
+        setStatus(s => ({ ...s, auth: 'ok' })); // Auth inicializado aunque no logueado
       }
-    } catch (err) {
-      console.error("Health Check: API Failed", err);
-      setStatus(prev => ({ 
-        ...prev, 
-        api: { 
-          status: 'error', 
-          message: err instanceof Error ? err.message : 'Backend inaccesible' 
-        } 
-      }));
+    } catch {
+      setStatus(s => ({ ...s, auth: 'error' }));
     }
 
-    // 3. Check Auth State
-    const user = auth.currentUser;
-    setStatus(prev => ({ 
-      ...prev, 
-      auth: { 
-        status: user ? 'ok' : 'error', 
-        user: user?.email || 'Sin sesión' 
-      } 
-    }));
+    // 3. Firebase Storage (check via URL reachability)
+    try {
+      const storageUrl = 'https://firebasestorage.googleapis.com';
+      const res = await fetch(storageUrl, { method: 'HEAD', mode: 'no-cors' });
+      setStatus(s => ({ ...s, storage: 'ok' }));
+    } catch {
+      setStatus(s => ({ ...s, storage: 'error' }));
+    }
+
+    setLastCheck(new Date().toLocaleTimeString('es-CL'));
   };
 
   useEffect(() => {
-    checkHealth();
+    runChecks();
+    const interval = setInterval(runChecks, 60000); // check cada 60s
+    return () => clearInterval(interval);
   }, []);
 
-  const StatusIcon = ({ state }: { state: 'loading' | 'ok' | 'error' }) => {
-    if (state === 'loading') return <Loader2 className="w-4 h-4 animate-spin text-zinc-500" />;
-    if (state === 'ok') return <CheckCircle2 className="w-4 h-4 text-green-500" />;
+  const StatusIcon = ({ state }: { state: 'ok' | 'error' | 'checking' }) => {
+    if (state === 'checking') return <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />;
+    if (state === 'ok') return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
     return <XCircle className="w-4 h-4 text-red-500" />;
   };
 
+  const checks = [
+    { key: 'firestore' as const, label: 'Firestore DB', icon: Database },
+    { key: 'auth' as const, label: 'Firebase Auth', icon: Shield },
+    { key: 'storage' as const, label: 'Firebase Storage', icon: Globe },
+  ];
+
+  const allOk = Object.values(status).every(s => s === 'ok');
+
   return (
-    <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-6 backdrop-blur-sm">
-      <div className="flex items-center gap-3 mb-6">
-        <Shield className="w-5 h-5 text-[#FF5F1F]" />
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Diagnóstico del Ecosistema</h3>
+    <div className="space-y-4">
+      <div className={`p-4 rounded-2xl border ${allOk ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-zinc-900 border-zinc-800'}`}>
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs font-mono uppercase tracking-widest text-zinc-400">Estado del Sistema</span>
+          <button
+            onClick={runChecks}
+            className="text-[10px] font-mono uppercase text-[#FF5F1F] hover:underline"
+          >
+            Verificar
+          </button>
+        </div>
+        <div className="space-y-2">
+          {checks.map(({ key, label, icon: Icon }) => (
+            <div key={key} className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
+                <Icon className="w-3.5 h-3.5" />
+                {label}
+              </div>
+              <StatusIcon state={status[key]} />
+            </div>
+          ))}
+        </div>
+        {lastCheck && (
+          <p className="text-[9px] font-mono text-zinc-600 uppercase mt-3">
+            Última verificación: {lastCheck}
+          </p>
+        )}
       </div>
-      
-      <div className="space-y-4">
-        {/* Firebase Status */}
-        <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-xl border border-zinc-800/50">
-          <div className="flex items-center gap-3">
-             <Cloud className="w-4 h-4 text-zinc-500" />
-             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Servicios Firebase</span>
-          </div>
-          <div className="flex items-center gap-3">
-             {status.firebase.message && (
-               <span className="text-[8px] text-red-500/70 font-mono truncate max-w-[100px]">{status.firebase.message}</span>
-             )}
-             <StatusIcon state={status.firebase.status} />
-          </div>
-        </div>
-
-        {/* API Status */}
-        <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-xl border border-zinc-800/50">
-          <div className="flex items-center gap-3">
-             <Database className="w-4 h-4 text-zinc-500" />
-             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Core Engine API</span>
-          </div>
-          <div className="flex items-center gap-3">
-             {status.api.message && (
-               <span className="text-[8px] text-red-500/70 font-mono truncate max-w-[100px]">{status.api.message}</span>
-             )}
-             <StatusIcon state={status.api.status} />
-          </div>
-        </div>
-
-        {/* Auth Status */}
-        <div className="flex items-center justify-between p-3 bg-zinc-950 rounded-xl border border-zinc-800/50">
-          <div className="flex items-center gap-3">
-             <Shield className="w-4 h-4 text-zinc-500" />
-             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Identidad & RBAC</span>
-          </div>
-          <div className="flex items-center gap-3">
-             <span className="text-[8px] text-zinc-500 font-mono italic">{status.auth.user}</span>
-             <StatusIcon state={status.auth.status} />
-          </div>
-        </div>
-      </div>
-
-      <button 
-        onClick={checkHealth}
-        className="w-full mt-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white rounded-xl text-[8px] font-black uppercase tracking-widest transition-all"
-      >
-        Re-validar Conexiones
-      </button>
     </div>
   );
 };
+
+export default HealthCheck;

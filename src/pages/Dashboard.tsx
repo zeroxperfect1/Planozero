@@ -72,7 +72,8 @@ import WysiwygEditor from '../components/WysiwygEditor';
 import MediaLibrary from '../components/MediaLibrary';
 import { CMSZoneRenderer, CMSRenderNode } from '../components/CMSRenderer';
 import { LogViewer } from '../components/LogViewer';
-import { HealthCheck } from '../components/HealthCheck';
+import HealthCheck from '../components/HealthCheck';
+
 
 interface Post {
   id: string;
@@ -991,40 +992,35 @@ const Dashboard = () => {
 
   const handleSavePage = async (pageData: Omit<PageLayout, 'id' | 'createdAt'>) => {
     try {
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) throw new Error("No authentication token found");
-
       const isUpdate = editingPage && editingPage.id !== 'new-page' && editingPage.id !== 'default-inicio';
-      const endpoint = isUpdate ? `/api/pages/${editingPage.id}` : '/api/pages';
-      const method = isUpdate ? 'PUT' : 'POST';
 
-      console.log("[Persistence] Enviando datos a la API:", {
-        endpoint,
-        method,
+      console.log('[Persistence] Guardando página directamente en Firestore:', {
+        isUpdate,
         pageTitle: pageData.title,
         nodeCount: pageData.root.children.length
       });
 
-      const response = await fetch(endpoint, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(pageData)
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || `Server responded with ${response.status}`);
+      if (isUpdate && editingPage) {
+        // Update existing page
+        await setDoc(doc(db, 'pages', editingPage.id), {
+          ...pageData,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      } else {
+        // Create new page
+        await addDoc(collection(db, 'pages'), {
+          ...pageData,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
       }
 
       setIsPageEditorOpen(false);
       setEditingPage(null);
       fetchPages();
     } catch (error) {
-       console.error("Error saving page via API:", error);
-       alert("Error al guardar la página: " + (error instanceof Error ? error.message : String(error)));
+      console.error('Error saving page:', error);
+      alert('Error al guardar la página: ' + (error instanceof Error ? error.message : String(error)));
     }
   };
 
@@ -1195,21 +1191,9 @@ const Dashboard = () => {
     try {
       if (confirm(`¿Estás seguro de que deseas eliminar la página "${pageToDelete?.title || 'esta página'}"? Esta acción no se puede deshacer.`)) {
         setIsSaving(true);
-        console.log(`[CRUD] Solicitando eliminación de página: ${id}`);
-        const token = await auth.currentUser?.getIdToken();
-        if (!token) throw new Error("No authentication token found");
+        console.log(`[CRUD] Eliminando página: ${id}`);
 
-        const response = await fetch(`/api/pages/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.error || `Server responded with ${response.status}`);
-        }
+        await deleteDoc(doc(db, 'pages', id));
 
         console.log(`[CRUD] Página ${id} eliminada exitosamente.`);
         setPages(prev => prev.filter(p => p.id !== id));
@@ -1218,8 +1202,8 @@ const Dashboard = () => {
         fetchPages();
       }
     } catch (error) {
-      console.error("Error deleting page:", error);
-      alert("Error al eliminar la página: " + (error instanceof Error ? error.message : String(error)));
+      console.error('Error deleting page:', error);
+      alert('Error al eliminar la página: ' + (error instanceof Error ? error.message : String(error)));
       fetchPages();
     } finally {
       setIsSaving(false);
@@ -1603,16 +1587,10 @@ const Dashboard = () => {
                     if (newTitle && newTitle !== page.title) {
                       setIsSaving(true);
                       try {
-                        const token = await auth.currentUser?.getIdToken();
-                        const response = await fetch(`/api/pages/${page.id}`, {
-                          method: 'PUT',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                          },
-                          body: JSON.stringify({ ...page, title: newTitle })
+                        await updateDoc(doc(db, 'pages', page.id), {
+                          title: newTitle,
+                          updatedAt: serverTimestamp()
                         });
-                        if (!response.ok) throw new Error('Failed to rename');
                         fetchPages();
                       } catch (e) {
                         alert('Error al renombrar: ' + e);
@@ -1631,16 +1609,10 @@ const Dashboard = () => {
                   onClick={async () => {
                     setIsSaving(true);
                     try {
-                      const token = await auth.currentUser?.getIdToken();
-                      const response = await fetch(`/api/pages/${page.id}`, {
-                        method: 'PUT',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ ...page, published: !page.published })
+                      await updateDoc(doc(db, 'pages', page.id), {
+                        published: !page.published,
+                        updatedAt: serverTimestamp()
                       });
-                      if (!response.ok) throw new Error('Failed to toggle status');
                       fetchPages();
                     } catch (e) {
                       alert('Error al cambiar estado: ' + e);
@@ -1724,16 +1696,10 @@ const Dashboard = () => {
                             const val = parseInt(e.target.value);
                             setIsSaving(true);
                             try {
-                               const token = await auth.currentUser?.getIdToken();
-                               const response = await fetch(`/api/pages/${page.id}`, {
-                                 method: 'PUT',
-                                 headers: {
-                                   'Content-Type': 'application/json',
-                                   'Authorization': `Bearer ${token}`
-                                 },
-                                 body: JSON.stringify({ ...page, order: val })
+                               await updateDoc(doc(db, 'pages', page.id), {
+                                 order: val,
+                                 updatedAt: serverTimestamp()
                                });
-                               if (!response.ok) throw new Error('Failed to update order');
                                fetchPages();
                             } catch (error) {
                                console.error(error);
@@ -1748,16 +1714,10 @@ const Dashboard = () => {
                         onClick={async () => {
                           setIsSaving(true);
                           try {
-                             const token = await auth.currentUser?.getIdToken();
-                             const response = await fetch(`/api/pages/${page.id}`, {
-                               method: 'PUT',
-                               headers: {
-                                 'Content-Type': 'application/json',
-                                 'Authorization': `Bearer ${token}`
-                               },
-                               body: JSON.stringify({ ...page, showInNavigation: !page.showInNavigation })
+                             await updateDoc(doc(db, 'pages', page.id), {
+                               showInNavigation: !page.showInNavigation,
+                               updatedAt: serverTimestamp()
                              });
-                             if (!response.ok) throw new Error('Failed to toggle navigation');
                              fetchPages();
                           } catch (error) {
                              console.error(error);

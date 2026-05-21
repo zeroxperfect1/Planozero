@@ -1,7 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Terminal, RefreshCw, Trash2, AlertCircle } from 'lucide-react';
-import { auth } from '../lib/firebase';
+import { db, auth } from '../lib/firebase';
 import { motion, AnimatePresence } from 'motion/react';
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+  addDoc,
+  serverTimestamp,
+  writeBatch,
+  doc
+} from 'firebase/firestore';
 
 interface LogEntry {
   timestamp: string;
@@ -9,68 +20,83 @@ interface LogEntry {
   message: string;
 }
 
+/**
+ * Agrega una entrada al log en Firestore.
+ * Exportada para que server.ts y otros módulos puedan usarla.
+ */
+export const addLog = async (message: string, level: 'info' | 'error' = 'info') => {
+  try {
+    await addDoc(collection(db, 'logs'), {
+      message,
+      level,
+      timestamp: new Date().toISOString(),
+      createdAt: serverTimestamp(),
+      uid: auth.currentUser?.uid || 'system',
+    });
+  } catch (e) {
+    // Fallo silencioso — no crashear si el log falla
+    console.warn('LogViewer: no se pudo guardar log en Firestore', e);
+  }
+};
+
 export function LogViewer() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const user = auth.currentUser;
-      if (!user) throw new Error('No autenticado');
-
-      const idToken = await user.getIdToken();
-      const response = await fetch('/api/admin/logs', {
-        headers: {
-          'Authorization': `Bearer ${idToken}`
-        }
+      const q = query(
+        collection(db, 'logs'),
+        orderBy('createdAt', 'desc'),
+        limit(200)
+      );
+      const snapshot = await getDocs(q);
+      const entries: LogEntry[] = snapshot.docs.map(d => {
+        const data = d.data();
+        return {
+          timestamp: data.timestamp || new Date().toISOString(),
+          level: data.level || 'info',
+          message: data.message || '',
+        };
       });
-
-      if (!response.ok) {
-        throw new Error('No se pudieron obtener los logs');
-      }
-
-      const data = await response.json();
-      setLogs(data.reverse()); // Show newest first
+      setLogs(entries);
     } catch (err: any) {
-      setError(err.message);
+      setError('No se pudieron obtener los logs: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const clearLogs = async () => {
+    if (!confirm('¿Estás seguro de que quieres borrar todos los logs?')) return;
+    try {
+      setLoading(true);
+      const q = query(collection(db, 'logs'), limit(200));
+      const snapshot = await getDocs(q);
+      const batch = writeBatch(db);
+      snapshot.docs.forEach(d => batch.delete(doc(db, 'logs', d.id)));
+      await batch.commit();
+      setLogs([]);
+    } catch (err) {
+      console.error('Error al borrar logs:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const clearLogs = async () => {
-    if (!confirm('¿Estás seguro de que quieres borrar todos los logs?')) return;
-    
-    try {
-      const user = auth.currentUser;
-      if (!user) return;
-      const idToken = await user.getIdToken();
-      
-      await fetch('/api/admin/logs', {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${idToken}`
-        }
-      });
-      setLogs([]);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   useEffect(() => {
     fetchLogs();
-  }, []);
+  }, [fetchLogs]);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Terminal className="w-5 h-5 text-[#FF5F1F]" />
-          <h2 className="text-lg font-black uppercase tracking-tighter text-white">Logs del Servidor</h2>
+          <h2 className="text-lg font-black uppercase tracking-tighter text-white">Logs del Sistema</h2>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -132,9 +158,9 @@ export function LogViewer() {
           </div>
         </div>
       )}
-      
+
       <p className="text-xs text-zinc-500 italic">
-        * Los logs se almacenan en memoria y se limpian al reiniciar el servidor.
+        * Los logs se almacenan en Firestore (colección <code>logs</code>).
       </p>
     </div>
   );
