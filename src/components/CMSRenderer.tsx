@@ -902,14 +902,14 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
 
     if (submitted) {
       return (
-        <section className="py-32 px-6 bg-zinc-950 flex items-center justify-center text-center">
-          <div className="space-y-10 max-w-xl">
-            <div className="w-28 h-28 bg-[#FF5F1F]/10 rounded-full flex items-center justify-center mx-auto text-[#FF5F1F] shadow-[0_0_100px_rgba(255,95,31,0.2)]">
-               <CheckCircle2 className="w-14 h-14" />
+        <section className="py-12 px-6 bg-zinc-950 flex items-center justify-center text-center">
+          <div className="space-y-4 max-w-md">
+            <div className="w-14 h-14 bg-[#FF5F1F]/10 rounded-full flex items-center justify-center mx-auto text-[#FF5F1F]">
+               <CheckCircle2 className="w-7 h-7" />
             </div>
-            <div className="space-y-4">
-              <h2 className="text-5xl md:text-6xl font-black italic uppercase tracking-tighter leading-none">¡Mensaje Recibido!</h2>
-              <p className="text-zinc-400 text-xl font-medium leading-relaxed">Tu blueprint ha sido enviado. Nuestro equipo de arquitectura de marca revisará tu idea y te contactaremos a la brevedad.</p>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-black italic uppercase tracking-tighter leading-none">¡Mensaje Recibido!</h2>
+              <p className="text-zinc-400 text-sm font-medium leading-relaxed">Nuestro equipo revisará tu idea y te contactaremos a la brevedad.</p>
             </div>
             <button 
               onClick={() => { setSubmitted(false); resetCaptcha(); setFormData({name:'', company:'', position:'', email:'', phone:'', idea:''}); }}
@@ -923,122 +923,117 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
     }
 
     return (
-      <section className="py-32 md:py-48 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 px-6 overflow-hidden" id="contacto">
-        <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-32 items-start">
-          <div className="space-y-20 lg:sticky lg:top-48">
+      <section className="py-10 md:py-16 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 px-6 overflow-hidden" id="contacto">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.8fr] gap-8 items-start">
+          <div className="space-y-6 lg:sticky lg:top-24">
             <div className="relative">
-              <div className="absolute -top-16 -left-16 opacity-10 hidden md:block select-none pointer-events-none">
-                 <BlueprintCrosshair className="w-44 h-44 text-[#FF5F1F]" />
-              </div>
-              <h2 className="text-7xl md:text-9xl font-black tracking-tighter uppercase leading-[0.8] italic relative z-10">
+              <h2 className="text-3xl md:text-4xl font-black tracking-tighter uppercase leading-[0.9] italic relative z-10">
                 {part1 || 'Inicia tu'} <br />
                 <span className="text-[#FF5F1F]">{part2 || 'proyecto'}</span>
               </h2>
             </div>
             
-            <div className="space-y-12">
-              <div className="flex items-center gap-10 group">
-                <div className="w-24 h-24 rounded-[36px] bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-sm group-hover:bg-[#FF5F1F] group-hover:border-[#FF5F1F] transition-all duration-700">
-                  <Mail className="w-10 h-10 text-[#FF5F1F] group-hover:text-white transition-all transform group-hover:rotate-12" />
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 group">
+                <div className="w-11 h-11 rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-sm group-hover:bg-[#FF5F1F] group-hover:border-[#FF5F1F] transition-all duration-500 shrink-0">
+                  <Mail className="w-5 h-5 text-[#FF5F1F] group-hover:text-white transition-all" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black font-mono text-zinc-500 uppercase tracking-[0.4em] mb-2 leading-none">Canal de Enlace</p>
-                  <p className="text-3xl font-black tracking-tighter italic leading-none">{email || 'hola@planozero.cl'}</p>
+                  <p className="text-[9px] font-black font-mono text-zinc-500 uppercase tracking-[0.3em] leading-none">Email</p>
+                  <p className="text-sm font-black tracking-tighter">{email || 'hola@planozero.cl'}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-10 group">
-                <div className="w-24 h-24 rounded-[36px] bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-sm group-hover:bg-[#FF5F1F] group-hover:border-[#FF5F1F] transition-all duration-700">
-                  <Phone className="w-10 h-10 text-[#FF5F1F] group-hover:text-white transition-all transform group-hover:scale-110" />
+              <div className="flex items-center gap-4 group">
+                <div className="w-11 h-11 rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-sm group-hover:bg-[#FF5F1F] group-hover:border-[#FF5F1F] transition-all duration-500 shrink-0">
+                  <Phone className="w-5 h-5 text-[#FF5F1F] group-hover:text-white transition-all" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black font-mono text-zinc-500 uppercase tracking-[0.4em] mb-2 leading-none">Contacto Directo</p>
-                  <p className="text-3xl font-black tracking-tighter italic leading-none">{phone || '+569 5530 8095'}</p>
+                  <p className="text-[9px] font-black font-mono text-zinc-500 uppercase tracking-[0.3em] leading-none">WhatsApp</p>
+                  <p className="text-sm font-black tracking-tighter">{phone || '+569 5530 8095'}</p>
                 </div>
               </div>
             </div>
-
-            <div className="pt-20 border-t border-zinc-200 dark:border-zinc-900 font-black italic uppercase tracking-widest text-[#FF5F1F]/40 flex items-center gap-8">
-               <span className="text-sm">Santiago, Chile</span>
-               <div className="w-2 h-2 bg-zinc-300 dark:bg-zinc-800 rounded-full" />
-               <span className="text-sm tracking-tighter">Operación Global</span>
+            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-900 font-black italic uppercase tracking-widest text-[#FF5F1F]/40 flex items-center gap-4 text-xs">
+               <span>Santiago, Chile</span>
+               <div className="w-1.5 h-1.5 bg-zinc-300 dark:bg-zinc-800 rounded-full" />
+               <span>Operación Global</span>
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute inset-0 bg-[#FF5F1F] blur-[250px] opacity-10 rounded-full" />
-            <form onSubmit={handleSubmit} className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-12 md:p-20 rounded-[80px] shadow-[0_60px_120px_-30px_rgba(0,0,0,0.3)] space-y-10">
-              <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-none mb-4">{title || 'Brief del Proyecto'}</h3>
+            <form onSubmit={handleSubmit} className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-5 md:p-8 rounded-2xl shadow-lg space-y-4">
+              <h3 className="text-base font-black italic uppercase tracking-tighter leading-none mb-2">{title || 'Brief del Proyecto'}</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                   <label className="text-[10px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-4 leading-none">Nombre</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                   <label className="text-[9px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-2 leading-none">Nombre</label>
                    <input 
                     required
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
-                    placeholder="Tu nombre completo" 
-                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[28px] px-8 py-5 outline-none focus:border-[#FF5F1F] transition-all font-bold placeholder:text-zinc-600 italic tracking-tighter" 
+                    placeholder="Tu nombre" 
+                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[#FF5F1F] transition-all font-medium placeholder:text-zinc-400" 
                    />
                 </div>
-                <div className="space-y-3">
-                   <label className="text-[10px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-4 leading-none">Empresa</label>
+                <div className="space-y-1">
+                   <label className="text-[9px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-2 leading-none">Empresa</label>
                    <input 
                     value={formData.company}
                     onChange={e => setFormData({...formData, company: e.target.value})}
-                    placeholder="Nombre corporativo" 
-                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[28px] px-8 py-5 outline-none focus:border-[#FF5F1F] transition-all font-bold placeholder:text-zinc-600 italic tracking-tighter" 
+                    placeholder="Empresa" 
+                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[#FF5F1F] transition-all font-medium placeholder:text-zinc-400" 
                    />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                   <label className="text-[10px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-4 leading-none">Cargo</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                   <label className="text-[9px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-2 leading-none">Cargo</label>
                    <input 
                     value={formData.position}
                     onChange={e => setFormData({...formData, position: e.target.value})}
-                    placeholder="Tu rol estratégico" 
-                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[28px] px-8 py-5 outline-none focus:border-[#FF5F1F] transition-all font-bold placeholder:text-zinc-600 italic tracking-tighter" 
+                    placeholder="Tu cargo" 
+                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[#FF5F1F] transition-all font-medium placeholder:text-zinc-400" 
                    />
                 </div>
-                <div className="space-y-3">
-                   <label className="text-[10px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-4 leading-none">Email</label>
+                <div className="space-y-1">
+                   <label className="text-[9px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-2 leading-none">Email</label>
                    <input 
                     required
                     type="email"
                     value={formData.email}
                     onChange={e => setFormData({...formData, email: e.target.value})}
-                    placeholder="contacto@empresa.com" 
-                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[28px] px-8 py-5 outline-none focus:border-[#FF5F1F] transition-all font-bold placeholder:text-zinc-600 italic tracking-tighter" 
+                    placeholder="tu@email.com" 
+                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[#FF5F1F] transition-all font-medium placeholder:text-zinc-400" 
                    />
                 </div>
               </div>
 
-              <div className="space-y-3">
-                 <label className="text-[10px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-4 leading-none">Número de Contacto (Opcional)</label>
+              <div className="space-y-1">
+                 <label className="text-[9px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-2 leading-none">Número (Opcional)</label>
                  <input 
                   value={formData.phone}
                   onChange={e => setFormData({...formData, phone: e.target.value})}
                   placeholder="+56 9 ..." 
-                  className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[28px] px-8 py-5 outline-none focus:border-[#FF5F1F] transition-all font-bold placeholder:text-zinc-600 italic tracking-tighter" 
+                  className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[#FF5F1F] transition-all font-medium placeholder:text-zinc-400" 
                  />
               </div>
 
-              <div className="space-y-3">
-                 <label className="text-[10px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-4 leading-none">Cuéntanos sobre tu idea...</label>
+              <div className="space-y-1">
+                 <label className="text-[9px] font-black font-mono text-zinc-400 uppercase tracking-[0.3em] ml-2 leading-none">Cuéntanos sobre tu idea...</label>
                  <textarea 
                   required
                   value={formData.idea}
                   onChange={e => setFormData({...formData, idea: e.target.value})}
                   placeholder="Describe la visión de tu proyecto" 
-                  className="w-full h-40 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 rounded-[36px] px-8 py-6 outline-none focus:border-[#FF5F1F] resize-none transition-all font-bold placeholder:text-zinc-600 italic tracking-tighter leading-snug" 
+                  className="w-full h-24 text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 outline-none focus:border-[#FF5F1F] resize-none transition-all font-medium placeholder:text-zinc-400 leading-snug" 
                  />
               </div>
 
-              <div className="bg-zinc-50 dark:bg-zinc-800/80 p-8 rounded-[36px] border border-zinc-100 dark:border-zinc-700/50 flex flex-col md:flex-row items-center justify-between gap-6 shadow-inner">
-                 <div className="space-y-2 text-center md:text-left">
-                    <span className="text-[10px] font-black font-mono text-[#FF5F1F] uppercase tracking-[0.5em] leading-none">Verificación de Integridad</span>
-                    <p className="text-xl font-black italic tracking-tighter leading-none">¿Cuánto es {captcha.a} + {captcha.b}?</p>
+              <div className="bg-zinc-50 dark:bg-zinc-800/80 p-3 rounded-xl border border-zinc-200 dark:border-zinc-700/50 flex flex-row items-center justify-between gap-4">
+                 <div className="space-y-0.5">
+                    <span className="text-[9px] font-black font-mono text-[#FF5F1F] uppercase tracking-[0.3em] leading-none">Anti-Spam</span>
+                    <p className="text-sm font-black italic tracking-tighter leading-none">¿Cuánto es {captcha.a} + {captcha.b}?</p>
                  </div>
                  <input 
                   required
@@ -1046,19 +1041,18 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                   value={captchaInput}
                   onChange={e => setCaptchaInput(e.target.value)}
                   placeholder="?"
-                  className="bg-white dark:bg-zinc-950 border-2 border-zinc-100 dark:border-zinc-700 rounded-[20px] px-6 py-4 w-28 text-center font-black text-2xl focus:border-[#FF5F1F] shadow-lg transition-all"
+                  className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 w-20 text-center font-black text-base focus:border-[#FF5F1F] transition-all"
                  />
               </div>
 
               <button 
                 disabled={loading}
-                className="group relative w-full py-8 bg-[#FF5F1F] text-white font-black rounded-[40px] shadow-[0_25px_60px_rgba(255,95,31,0.4)] uppercase tracking-[0.2em] italic text-xl hover:scale-[1.03] active:scale-95 transition-all duration-500 overflow-hidden"
+                className="group relative w-full py-3 bg-[#FF5F1F] text-white font-black rounded-xl shadow-lg uppercase tracking-[0.15em] italic text-sm hover:scale-[1.02] active:scale-95 transition-all duration-300 overflow-hidden"
               >
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                <span className="relative z-10 flex items-center justify-center gap-6">
-                  {loading ? 'DESPACHANDO BRIEF...' : 'ENVIAR MENSAJE'}
-                  {!loading && <Send className="w-8 h-8 group-hover:rotate-12 transition-transform" />}
-                  {loading && <Loader2 className="w-8 h-8 animate-spin" />}
+                <span className="relative z-10 flex items-center justify-center gap-3">
+                  {loading ? 'ENVIANDO...' : 'ENVIAR MENSAJE'}
+                  {!loading && <Send className="w-4 h-4 group-hover:rotate-12 transition-transform" />}
+                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                 </span>
               </button>
             </form>
