@@ -6,7 +6,6 @@ $db        = getDB();
 $method    = $_SERVER['REQUEST_METHOD'];
 $id        = $_GET['id'] ?? null;
 $slug      = $_GET['slug'] ?? null;
-$published = $_GET['published'] ?? null;
 
 switch ($method) {
     case 'GET':
@@ -26,15 +25,23 @@ switch ($method) {
             $post['published'] = (bool)$post['published'];
             jsonOk($post);
         }
-        if ($published !== null) {
-            $stmt = $db->query('SELECT * FROM posts WHERE published = 1 ORDER BY created_at DESC');
-        } else {
-            try { requireAdmin(); } catch (\Throwable $e) {
-                $stmt = $db->query('SELECT * FROM posts WHERE published = 1 ORDER BY created_at DESC');
-                $posts = array_map(fn($p) => array_merge($p, ['published' => (bool)$p['published']]), $stmt->fetchAll());
-                jsonOk($posts);
+
+        // Verificar si es admin sin hacer exit si no lo es
+        $isAdmin = false;
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        if (str_starts_with($authHeader, 'Bearer ')) {
+            $token   = substr($authHeader, 7);
+            $payload = verifyFirebaseToken($token);
+            if ($payload) {
+                $isAdmin = ($payload['email'] ?? '') === ADMIN_EMAIL
+                        || ($payload['user_id'] ?? '') === ADMIN_UID;
             }
+        }
+
+        if ($isAdmin) {
             $stmt = $db->query('SELECT * FROM posts ORDER BY created_at DESC');
+        } else {
+            $stmt = $db->query('SELECT * FROM posts WHERE published = 1 ORDER BY created_at DESC');
         }
         $posts = array_map(fn($p) => array_merge($p, ['published' => (bool)$p['published']]), $stmt->fetchAll());
         jsonOk($posts);
@@ -56,7 +63,7 @@ switch ($method) {
             $body['category'] ?? 'General',
             $body['image'] ?? '',
             $body['keywords'] ?? '',
-            $body['published'] ? 1 : 0,
+            isset($body['published']) ? ($body['published'] ? 1 : 0) : 1,
             $payload['user_id'] ?? '',
             $payload['email'] ?? '',
             nowISO(),
@@ -80,7 +87,7 @@ switch ($method) {
             $body['category'] ?? 'General',
             $body['image'] ?? '',
             $body['keywords'] ?? '',
-            $body['published'] ? 1 : 0,
+            isset($body['published']) ? ($body['published'] ? 1 : 0) : 1,
             nowISO(),
             $id,
         ]);

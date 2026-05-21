@@ -6,7 +6,7 @@ define('DB_PASS', 'W,]wt7x7;KYS');
 define('FIREBASE_PROJECT_ID', 'gen-lang-client-0646534496');
 define('ADMIN_EMAIL', 'raul.mella.castro@gmail.com');
 define('ADMIN_UID', 'uZQFMbDHTvXcCPzKqW37P35vUCt1');
-define('UPLOADS_DIR', dirname(__DIR__, 2) . '/uploads/');
+define('UPLOADS_DIR', dirname(__DIR__) . '/uploads/');
 define('UPLOADS_URL', '/uploads/');
 
 function getDB(): PDO {
@@ -59,7 +59,12 @@ function getGooglePublicKeys(): array {
         return json_decode(file_get_contents($cacheFile), true) ?? [];
     }
     $url = 'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
-    $content = @file_get_contents($url);
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    $content = curl_exec($ch);
+    curl_close($ch);
     if ($content === false) {
         return file_exists($cacheFile) ? json_decode(file_get_contents($cacheFile), true) ?? [] : [];
     }
