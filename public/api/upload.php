@@ -23,11 +23,48 @@ $payload = requireAuth();
 
 if (empty($_FILES['file'])) jsonError('No se recibió archivo');
 
-$file     = $_FILES['file'];
-$allowed  = ['image/jpeg','image/png','image/gif','image/webp','image/svg+xml'];
-$mimeType = mime_content_type($file['tmp_name']);
+$file = $_FILES['file'];
 
-if (!in_array($mimeType, $allowed)) jsonError('Tipo de archivo no permitido. Solo imágenes.');
+/**
+ * Detecta el MIME type por magic bytes (no requiere extensión fileinfo).
+ */
+function detectMimeType(string $tmpPath, string $originalName): string {
+    $extMap = [
+        'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg',
+        'png'  => 'image/png',
+        'gif'  => 'image/gif',
+        'webp' => 'image/webp',
+        'svg'  => 'image/svg+xml',
+    ];
+
+    // Leer primeros 12 bytes para magic bytes
+    $handle = @fopen($tmpPath, 'rb');
+    if ($handle) {
+        $bytes = fread($handle, 12);
+        fclose($handle);
+
+        // JPEG: FF D8 FF
+        if (substr($bytes, 0, 3) === "\xFF\xD8\xFF") return 'image/jpeg';
+        // PNG: 89 50 4E 47 0D 0A 1A 0A
+        if (substr($bytes, 0, 8) === "\x89PNG\r\n\x1a\n") return 'image/png';
+        // GIF
+        if (substr($bytes, 0, 6) === 'GIF87a' || substr($bytes, 0, 6) === 'GIF89a') return 'image/gif';
+        // WebP: RIFF????WEBP
+        if (substr($bytes, 0, 4) === 'RIFF' && substr($bytes, 8, 4) === 'WEBP') return 'image/webp';
+        // SVG (XML/text)
+        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        if ($ext === 'svg') return 'image/svg+xml';
+    }
+
+    // Fallback por extensión
+    $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    return $extMap[$ext] ?? 'application/octet-stream';
+}
+
+$mimeType = detectMimeType($file['tmp_name'], $file['name']);
+$allowed  = ['image/jpeg','image/png','image/gif','image/webp','image/svg+xml'];
+
+if (!in_array($mimeType, $allowed)) jsonError('Tipo de archivo no permitido. Solo imágenes (jpg, png, gif, webp, svg).');
 if ($file['size'] > 10 * 1024 * 1024) jsonError('Archivo demasiado grande. Máximo 10MB.');
 
 if (!is_dir(UPLOADS_DIR)) mkdir(UPLOADS_DIR, 0755, true);
@@ -36,15 +73,15 @@ $ext      = $mimeType === 'image/svg+xml' ? 'svg' : 'webp';
 $filename = time() . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
 $destPath = UPLOADS_DIR . $filename;
 
-// Convertir a WebP si GD lo soporta (no SVG)
+// Convertir a WebP si GD lo soporta
 $converted = false;
-if ($mimeType !== 'image/svg+xml' && function_exists('imagewebp') && function_exists('imagecreatefromjpeg')) {
+if ($mimeType !== 'image/svg+xml' && function_exists('imagewebp')) {
     try {
         $src = match($mimeType) {
-            'image/jpeg' => imagecreatefromjpeg($file['tmp_name']),
-            'image/png'  => imagecreatefrompng($file['tmp_name']),
-            'image/gif'  => imagecreatefromgif($file['tmp_name']),
-            'image/webp' => imagecreatefromwebp($file['tmp_name']),
+            'image/jpeg' => @imagecreatefromjpeg($file['tmp_name']),
+            'image/png'  => @imagecreatefrompng($file['tmp_name']),
+            'image/gif'  => @imagecreatefromgif($file['tmp_name']),
+            'image/webp' => @imagecreatefromwebp($file['tmp_name']),
             default      => null,
         };
         if ($src !== false && $src !== null) {
@@ -53,14 +90,13 @@ if ($mimeType !== 'image/svg+xml' && function_exists('imagewebp') && function_ex
             $converted = true;
         }
     } catch (\Throwable $e) {
-        // GD falló — fallback a mover el archivo original
         $converted = false;
     }
 }
 
 if (!$converted) {
-    // Sin conversión WebP: guardar con extensión original
-    $origExt  = pathinfo($file['name'], PATHINFO_EXTENSION) ?: 'jpg';
+    // Sin WebP: guardar con extensión original
+    $origExt  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION)) ?: 'jpg';
     $filename = time() . '-' . bin2hex(random_bytes(4)) . '.' . $origExt;
     $destPath = UPLOADS_DIR . $filename;
     if (!move_uploaded_file($file['tmp_name'], $destPath)) {
@@ -70,7 +106,7 @@ if (!$converted) {
 
 $url = UPLOADS_URL . $filename;
 
-// Registrar en tabla media (no fatal si falla)
+// Registrar en tabla media
 try {
     $db   = getDB();
     $stmt = $db->prepare('INSERT INTO media (id, name, url, user_id, created_at) VALUES (?, ?, ?, ?, ?)');
