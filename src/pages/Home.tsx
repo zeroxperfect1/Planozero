@@ -1004,25 +1004,25 @@ export default function Home() {
       </main>
 
       {/* Contact Section */}
-      <section id="contacto" className="py-24 bg-zinc-50 dark:bg-zinc-900/50 border-t border-zinc-200 dark:border-zinc-800 relative overflow-hidden">
+      <section id="contacto" className="py-12 bg-zinc-50 dark:bg-zinc-900/50 border-t border-zinc-200 dark:border-zinc-800 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#FF5F1F]/5 blur-[120px] rounded-full -mr-48 -mt-48" />
         <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-            <div className="space-y-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div className="space-y-6">
               <div>
                 <span className="text-xs font-mono tracking-widest text-[#FF5F1F] uppercase mb-4 block italic">Let's build together</span>
-                <h2 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[0.9] italic">
+                <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-[0.9] italic">
                   ¿Tienes un <br />
                   <span className="text-[#FF5F1F]">proyecto?</span>
                 </h2>
-                <p className="mt-8 text-xl text-zinc-500 max-w-lg leading-relaxed font-medium">
+                <p className="mt-3 text-base text-zinc-500 max-w-lg leading-relaxed font-medium">
                   Estamos listos para decodificar tus ideas y transformarlas en realidades digitales de alto impacto.
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-6 group cursor-pointer">
-                  <div className="w-16 h-16 rounded-[24px] bg-white dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 shadow-sm group-hover:border-[#FF5F1F] transition-all">
+                  <div className="w-11 h-11 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 shadow-sm group-hover:border-[#FF5F1F] transition-all">
                     <Mail className="w-6 h-6 text-[#FF5F1F]" />
                   </div>
                   <div>
@@ -1031,7 +1031,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="flex items-center gap-6 group cursor-pointer">
-                  <div className="w-16 h-16 rounded-[24px] bg-white dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 shadow-sm group-hover:border-[#FF5F1F] transition-all">
+                  <div className="w-11 h-11 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700 shadow-sm group-hover:border-[#FF5F1F] transition-all">
                     <Phone className="w-6 h-6 text-[#FF5F1F]" />
                   </div>
                   <div>
@@ -1042,11 +1042,11 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-8 md:p-12 rounded-[48px] shadow-2xl relative group overflow-hidden">
+            <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-6 md:p-8 rounded-3xl shadow-xl relative group overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 pointer-events-none opacity-5">
                 <BlueprintLine className="text-zinc-400" />
               </div>
-              <h3 className="text-3xl font-black italic tracking-tight mb-8">Inicia tu proyecto</h3>
+              <h3 className="text-xl font-black italic tracking-tight mb-4">Inicia tu proyecto</h3>
               <ContactForm />
             </div>
           </div>

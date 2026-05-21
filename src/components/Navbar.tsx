@@ -52,7 +52,8 @@ export const Navbar = () => {
           }))
           .filter((menu: any) => menu.published !== false);
         
-        const combined = [...dynamicPages, ...customMenus].sort((a, b) => (a.order || 0) - (b.order || 0));
+        const blogItem: MenuItem = { name: 'Blog', path: '/blog', order: 50 };
+        const combined = [...dynamicPages, ...customMenus, blogItem].sort((a, b) => (a.order || 0) - (b.order || 0));
 
         if (combined.length > 0) {
           setMenus(combined);
@@ -60,7 +61,8 @@ export const Navbar = () => {
           setMenus([
             { name: 'Servicios', path: '#servicios' },
             { name: 'Experiencia', path: '#experiencia' },
-            { name: 'Proceso', path: '#proceso' }
+            { name: 'Proceso', path: '#proceso' },
+            { name: 'Blog', path: '/blog' },
           ]);
         }
       } catch (e) {
