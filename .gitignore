@@ -11,3 +11,5 @@ public/api/config.php
 
 # PHP API config (contains DB credentials & secrets - do NOT commit)
 public/api/config.php
+
+dist/
