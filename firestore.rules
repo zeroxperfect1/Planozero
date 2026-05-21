@@ -1,0 +1,130 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.uid == "uZQFMbDHTvXcCPzKqW37P35vUCt1" ||
+        request.auth.token.email == "raul.mella.castro@gmail.com"
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- Post Validation ---
+    function isValidPost(data) {
+      return data.title is string && data.title.size() <= 200 &&
+             data.content is string && data.content.size() <= 50000 &&
+             data.excerpt is string && data.excerpt.size() <= 1000 &&
+             (data.get('slug', null) == null || (data.slug is string && data.slug.size() <= 200 && data.slug.matches('^[a-z0-9-]+$'))) &&
+             (data.keywords == null || (data.keywords is string && data.keywords.size() <= 500)) &&
+             data.authorId == request.auth.uid &&
+             data.published is bool;
+    }
+
+    // --- Contact validation ---
+    function isValidContact(data) {
+      return data.name is string && data.name.size() <= 100 &&
+             data.email is string && data.email.size() <= 100 &&
+             data.idea is string && data.idea.size() <= 2000 &&
+             (data.company == null || (data.company is string && data.company.size() <= 100)) &&
+             (data.position == null || (data.position is string && data.position.size() <= 100)) &&
+             (data.phone == null || (data.phone is string && data.phone.size() <= 30)) &&
+             (data.status == "pending") &&
+             data.createdAt == request.time;
+    }
+
+    // --- Collection: Users ---
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // --- Collection: Test (for connection check) ---
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // --- Collection: Media ---
+    function isValidMedia(data) {
+      return data.name is string && data.name.size() <= 255 &&
+             data.url is string && data.url.size() <= 1024 &&
+             data.userId == request.auth.uid &&
+             data.createdAt is string;
+    }
+
+    match /media/{mediaId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidMedia(request.resource.data);
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
+      allow update: if false;
+    }
+
+    // --- Collection: Admins ---
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false; 
+    }
+
+    // --- Collection: Posts ---
+    match /posts/{postId} {
+      // Individual documents
+      allow get: if resource.data.published == true || isOwner(resource.data.authorId) || isAdmin();
+      
+      // Collection queries (must be filtered in the client)
+      allow list: if (resource.data.published == true) || isOwner(resource.data.authorId) || isAdmin();
+      
+      allow create: if isSignedIn() && isValidPost(request.resource.data);
+      
+      allow update: if (isOwner(resource.data.authorId) || isAdmin()) && 
+                       isValidPost(request.resource.data) &&
+                       request.resource.data.authorId == resource.data.authorId;
+      
+      allow delete: if isOwner(resource.data.authorId) || isAdmin();
+    }
+
+    // --- Collection: Contacts ---
+    match /contacts/{contactId} {
+      allow create: if isValidContact(request.resource.data);
+      allow read, update, delete: if isAdmin();
+    }
+
+    // --- Dynamic Content Types ---
+    match /contentTypes/{typeId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // --- Dynamic Items ---
+    match /dynamicContent/{contentId} {
+      allow read: if isSignedIn() || resource.data.published == true;
+      allow write: if isAdmin();
+    }
+
+    // --- Page Layouts ---
+    match /pages/{pageId} {
+      allow read: if isSignedIn() || resource.data.published == true;
+      allow write: if isAdmin();
+    }
+
+    // --- Menus ---
+    match /menus/{menuId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

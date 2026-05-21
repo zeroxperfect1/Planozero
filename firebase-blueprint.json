@@ -1,0 +1,110 @@
+{
+  "entities": {
+    "Post": {
+      "title": "Post",
+      "description": "A blog post or news entry.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "content": { "type": "string" },
+        "excerpt": { "type": "string" },
+        "category": { "type": "string" },
+        "author": { "type": "string" },
+        "image": { "type": "string" },
+        "keywords": { "type": "string" },
+        "published": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "authorId": { "type": "string" }
+      },
+      "required": ["title", "content", "excerpt", "authorId"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile data",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "isAdmin": { "type": "boolean" }
+      }
+    },
+    "ContactRequest": {
+      "title": "Contact Request",
+      "description": "A message submitted through the contact form.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "company": { "type": "string" },
+        "position": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "idea": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "responded", "archived"] },
+        "response": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "respondedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "idea"]
+    },
+    "MediaAsset": {
+      "title": "Media Asset",
+      "description": "An image or file uploaded to the system.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "url": { "type": "string" },
+        "size": { "type": "number" },
+        "type": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" }
+      },
+      "required": ["url", "userId"]
+    },
+    "ContentType": {
+      "title": "Content Type",
+      "description": "Schema definition for a custom content type",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "fields": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "DynamicItem": {
+      "title": "Dynamic Item",
+      "description": "Instance of a dynamic content type",
+      "type": "object",
+      "properties": {
+        "typeId": { "type": "string" },
+        "data": { "type": "object" },
+        "published": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "PageLayout": {
+      "title": "Page Layout",
+      "description": "A page definition with recursive widget tree",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "slug": { "type": "string" },
+        "root": { "type": "object" },
+        "published": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "posts/{postId}": { "schema": "Post", "description": "Blog posts" },
+    "users/{userId}": { "schema": "User", "description": "User profiles" },
+    "contacts/{contactId}": { "schema": "ContactRequest", "description": "Contact form submissions" },
+    "media/{assetId}": { "schema": "MediaAsset", "description": "User media assets" },
+    "contentTypes/{typeId}": { "schema": "ContentType", "description": "Definitions for custom content types" },
+    "dynamicContent/{contentId}": { "schema": "DynamicItem", "description": "Items of custom content types" },
+    "pages/{pageId}": { "schema": "PageLayout", "description": "Page snapshots and CMS layouts" }
+  }
+}

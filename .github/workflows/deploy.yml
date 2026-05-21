@@ -1,0 +1,62 @@
+name: 🚀 Deploy a planozero.cl
+
+on:
+  push:
+    branches:
+      - main          # Se activa al hacer push a main
+  workflow_dispatch:  # Permite ejecutar manualmente desde GitHub
+
+jobs:
+  build-and-deploy:
+    name: Build y Deploy via FTP
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Descargar el código
+      - name: 📥 Checkout del repositorio
+        uses: actions/checkout@v4
+
+      # 2. Configurar Node.js
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Instalar dependencias
+      - name: 📦 Instalar dependencias
+        run: npm ci
+
+      # 4. Compilar el proyecto (genera dist/client)
+      - name: 🔨 Build de producción
+        run: npm run build
+        env:
+          # Variables de Firebase (guardar como Secrets en GitHub)
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_DATABASE_ID: ${{ secrets.VITE_FIREBASE_DATABASE_ID }}
+
+      # 5. Subir via FTP al hosting
+      - name: 📡 Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.planozero.cl
+          username: deploy@planozero.cl
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/client/      # Carpeta compilada de Vite
+          server-dir: /public_html/      # Carpeta raíz en el servidor (ajustar si difiere)
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+          dangerous-clean-slate: false   # true = borra todo antes de subir (¡cuidado!)
+          log-level: standard
+
+      # 6. Notificación de éxito
+      - name: ✅ Deploy completado
+        if: success()
+        run: echo "🎉 Deploy exitoso a planozero.cl en $(date)"
