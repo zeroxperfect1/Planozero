@@ -1,33 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2, XCircle, Loader2, Database, Shield, Globe } from 'lucide-react';
-import { db, auth } from '../lib/firebase';
-import { doc, getDocFromServer } from 'firebase/firestore';
+import { auth } from '../lib/firebase';
+import { api } from '../services/api';
 
 interface HealthStatus {
-  firestore: 'ok' | 'error' | 'checking';
+  api: 'ok' | 'error' | 'checking';
   auth: 'ok' | 'error' | 'checking';
   storage: 'ok' | 'error' | 'checking';
 }
 
 const HealthCheck: React.FC = () => {
   const [status, setStatus] = useState<HealthStatus>({
-    firestore: 'checking',
+    api: 'checking',
     auth: 'checking',
     storage: 'checking',
   });
   const [lastCheck, setLastCheck] = useState<string>('');
 
   const runChecks = async () => {
-    setStatus({ firestore: 'checking', auth: 'checking', storage: 'checking' });
+    setStatus({ api: 'checking', auth: 'checking', storage: 'checking' });
 
-    // 1. Firestore ping
+    // 1. API/MySQL ping
     try {
-      await getDocFromServer(doc(db, 'test', 'connection'));
-      setStatus(s => ({ ...s, firestore: 'ok' }));
+      await api.health.check();
+      setStatus(s => ({ ...s, api: 'ok' }));
     } catch (e: any) {
-      // PERMISSION_DENIED aún confirma que Firestore responde
-      const isConnected = e?.code === 'permission-denied' || e?.message?.includes('Missing or insufficient');
-      setStatus(s => ({ ...s, firestore: isConnected ? 'ok' : 'error' }));
+      setStatus(s => ({ ...s, api: 'error' }));
     }
 
     // 2. Firebase Auth
@@ -46,7 +44,7 @@ const HealthCheck: React.FC = () => {
     // 3. Firebase Storage (check via URL reachability)
     try {
       const storageUrl = 'https://firebasestorage.googleapis.com';
-      const res = await fetch(storageUrl, { method: 'HEAD', mode: 'no-cors' });
+      await fetch(storageUrl, { method: 'HEAD', mode: 'no-cors' });
       setStatus(s => ({ ...s, storage: 'ok' }));
     } catch {
       setStatus(s => ({ ...s, storage: 'error' }));
@@ -68,7 +66,7 @@ const HealthCheck: React.FC = () => {
   };
 
   const checks = [
-    { key: 'firestore' as const, label: 'Firestore DB', icon: Database },
+    { key: 'api' as const, label: 'API / MySQL DB', icon: Database },
     { key: 'auth' as const, label: 'Firebase Auth', icon: Shield },
     { key: 'storage' as const, label: 'Firebase Storage', icon: Globe },
   ];

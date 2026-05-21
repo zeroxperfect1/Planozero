@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { db, auth, handleFirestoreError, OperationType } from '../lib/firebase';
+import { auth } from '../lib/firebase';
 import { handleFileUpload, deleteImageFromFirebase } from '../services/storageService';
-import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, setDoc, serverTimestamp, query, orderBy, where } from 'firebase/firestore';
+import api from '../services/api';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -797,19 +797,12 @@ const Dashboard = () => {
   };
 
   const fetchContacts = async () => {
-    if (!auth.currentUser) return;
     setLoadingContacts(true);
     try {
-      const q = query(collection(db, 'contacts'), orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
-      const contactsData = querySnapshot.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data()
-      })) as ContactRequest[];
-      setContacts(contactsData);
+      const data = await api.contacts.getAll();
+      setContacts(data.map(c => ({ ...c, createdAt: c.created_at })) as any);
     } catch (error) {
-      console.error("Error in fetchContacts:", error);
-      // handleFirestoreError(error, OperationType.LIST, 'contacts');
+      console.error('Error in fetchContacts:', error);
     } finally {
       setLoadingContacts(false);
     }
@@ -860,15 +853,10 @@ const Dashboard = () => {
   const fetchContentTypes = async () => {
     setLoadingTypes(true);
     try {
-      const q = query(collection(db, 'contentTypes'), orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
-      const typesData = querySnapshot.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data()
-      })) as ContentType[];
-      setContentTypes(typesData);
+      const data = await api.contentTypes.getAll();
+      setContentTypes(data as any);
     } catch (error) {
-      console.error("Error fetching content types:", error);
+      console.error('Error fetching content types:', error);
     } finally {
       setLoadingTypes(false);
     }
@@ -877,35 +865,20 @@ const Dashboard = () => {
   const fetchPages = async () => {
     setLoadingPages(true);
     try {
-      const q = query(collection(db, 'pages'), orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
-      const rawPages = querySnapshot.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data()
-      })) as PageLayout[];
-
-      // Strict logic: There can be only ONE page with slug 'inicio'
+      const rawPages = (await api.pages.getAll()) as unknown as PageLayout[];
       const otherPages = rawPages.filter(p => p.slug !== 'inicio');
       const allInicioVersions = rawPages.filter(p => p.slug === 'inicio');
-      
       let pagesData: PageLayout[] = [];
-      
       if (allInicioVersions.length > 0) {
-        // If duplicates exist in DB, pick the published one or the most recent
         const metaInicio = allInicioVersions.find(p => p.published) || allInicioVersions[0];
         pagesData.push(metaInicio);
-        
-        // Note: We ignore other "inicio" documents to keep the UI clean as requested ("dejar solo 1")
       } else {
-        // Fallback to system default if nothing in Firestore
         pagesData.push(DEFAULT_INICIO_DATA);
       }
-      
-      // Combine and set
       pagesData = [...pagesData, ...otherPages];
       setPages(pagesData);
     } catch (error) {
-      console.error("Error fetching pages:", error);
+      console.error('Error fetching pages:', error);
     } finally {
       setLoadingPages(false);
     }
@@ -913,15 +886,10 @@ const Dashboard = () => {
 
   const fetchMenus = async () => {
     try {
-      const q = query(collection(db, 'menus'), orderBy('order', 'asc'));
-      const querySnapshot = await getDocs(q);
-      const menusData = querySnapshot.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data()
-      }));
-      setMenus(menusData);
+      const data = await api.menus.getAll();
+      setMenus(data as any);
     } catch (error) {
-      console.error("Error fetching menus:", error);
+      console.error('Error fetching menus:', error);
     }
   };
 
@@ -940,81 +908,49 @@ const Dashboard = () => {
   const handleSaveMenu = async (menuData: any) => {
     try {
       if (menuData.id) {
-        const menuRef = doc(db, 'menus', menuData.id);
         const { id, ...data } = menuData;
-        await setDoc(menuRef, {
-          ...data,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
+        await api.menus.update(id, data);
       } else {
-        await addDoc(collection(db, 'menus'), {
-          ...menuData,
-          createdAt: serverTimestamp(),
-          order: menus.length
-        });
+        await api.menus.create({ ...menuData, order: menus.length });
       }
       fetchMenus();
     } catch (error) {
-      console.error("Error saving menu:", error);
+      console.error('Error saving menu:', error);
     }
   };
 
   const deleteMenu = async (id: string) => {
     try {
-      await deleteDoc(doc(db, 'menus', id));
+      await api.menus.delete(id);
       fetchMenus();
     } catch (error) {
-      console.error("Error deleting menu:", error);
+      console.error('Error deleting menu:', error);
     }
   };
 
   const handleSaveType = async (typeData: Omit<ContentType, 'id' | 'createdAt'>) => {
     try {
       if (editingType) {
-        const typeRef = doc(db, 'contentTypes', editingType.id);
-        await setDoc(typeRef, {
-          ...typeData,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
+        await api.contentTypes.update(editingType.id, typeData);
       } else {
-        await addDoc(collection(db, 'contentTypes'), {
-          ...typeData,
-          createdAt: serverTimestamp()
-        });
+        await api.contentTypes.create(typeData as any);
       }
       setIsTypeFormOpen(false);
       setEditingType(null);
       fetchContentTypes();
     } catch (error) {
-      console.error("Error saving content type:", error);
+      console.error('Error saving content type:', error);
     }
   };
 
   const handleSavePage = async (pageData: Omit<PageLayout, 'id' | 'createdAt'>) => {
     try {
       const isUpdate = editingPage && editingPage.id !== 'new-page' && editingPage.id !== 'default-inicio';
-
-      console.log('[Persistence] Guardando página directamente en Firestore:', {
-        isUpdate,
-        pageTitle: pageData.title,
-        nodeCount: pageData.root.children.length
-      });
-
       if (isUpdate && editingPage) {
-        // Update existing page
-        await setDoc(doc(db, 'pages', editingPage.id), {
-          ...pageData,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
+        await api.pages.update(editingPage.id, pageData as any);
       } else {
-        // Create new page
-        await addDoc(collection(db, 'pages'), {
-          ...pageData,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
+        await api.pages.create(pageData as any);
       }
-
       setIsPageEditorOpen(false);
       setEditingPage(null);
       fetchPages();
@@ -1060,42 +996,20 @@ const Dashboard = () => {
   };
 
   const fetchPosts = async () => {
-    if (!auth.currentUser) return;
     setLoading(true);
     try {
-      const isAdminUser = auth.currentUser.email === "raul.mella.castro@gmail.com";
-      
-      let q;
-      if (isAdminUser) {
-        q = query(collection(db, 'posts'));
-      } else {
-        q = query(
-          collection(db, 'posts'), 
-          where('authorId', '==', auth.currentUser.uid)
-        );
-      }
-      
-      const querySnapshot = await getDocs(q);
-      const postsData = querySnapshot.docs.map(docSnap => {
-        const data = docSnap.data() as any;
-        return {
-          id: docSnap.id,
-          ...data
-        } as Post;
-      });
-      
-      // Sort in client
-      if (Array.isArray(postsData)) {
-        setPosts(postsData.sort((a, b) => {
-          const dateA = a.createdAt?.seconds || a.createdAt || 0;
-          const dateB = b.createdAt?.seconds || b.createdAt || 0;
-          return (Number(dateB)) - (Number(dateA));
-        }));
-        setCurrentPage(1);
-      }
+      const data = await api.posts.getAll();
+      const sorted = [...data].sort((a, b) =>
+        new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+      );
+      setPosts(sorted.map(p => ({
+        ...p,
+        authorId: p.author_id,
+        createdAt: p.created_at ? { seconds: Math.floor(new Date(p.created_at).getTime() / 1000), toDate: () => new Date(p.created_at) } : null
+      })) as any);
+      setCurrentPage(1);
     } catch (error) {
-      console.error("Error in fetchPosts:", error);
-      // handleFirestoreError(error, OperationType.LIST, 'posts'); // Commented out to prevent throwing and crashing the app
+      console.error('Error in fetchPosts:', error);
     } finally {
       setLoading(false);
     }
@@ -1113,66 +1027,45 @@ const Dashboard = () => {
 
   const handleLogout = () => auth.signOut();
 
-   const handleSubmit = async (e: React.FormEvent) => {
-     e.preventDefault();
-     if (!user) return;
-     setIsSavingPost(true);
- 
-     try {
-       const data = {
-         ...formData,
-         author: user.displayName || 'Anonymous',
-         authorId: user.uid,
-         authorImage: user.photoURL || '',
-         updatedAt: serverTimestamp(),
-       };
- 
-       if (editingPost) {
-         const postRef = doc(db, 'posts', editingPost.id);
-         await updateDoc(postRef, data);
-       } else {
-         await addDoc(collection(db, 'posts'), {
-           ...data,
-           createdAt: serverTimestamp()
-         });
-       }
- 
-       setFormData({
-         title: '',
-         slug: '',
-         content: '',
-         excerpt: '',
-         category: 'Estrategia',
-         image: '',
-         keywords: '',
-         published: false
-       });
-       setIsFormOpen(false);
-       setEditingPost(null);
-       await fetchPosts();
-     } catch (error) {
-       console.error("Error saving post:", error);
-       try {
-         handleFirestoreError(error, editingPost ? OperationType.UPDATE : OperationType.CREATE, 'posts');
-       } catch (err: any) {
-         alert(`Error al guardar: ${err.message}`);
-       }
-     } finally {
-       setIsSavingPost(false);
-     }
-   };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setIsSavingPost(true);
+    try {
+      const postPayload = {
+        title: formData.title,
+        slug: formData.slug,
+        content: formData.content,
+        excerpt: formData.excerpt,
+        category: formData.category,
+        image: formData.image,
+        keywords: formData.keywords,
+        published: formData.published,
+      };
+      if (editingPost) {
+        await api.posts.update(editingPost.id, postPayload);
+      } else {
+        await api.posts.create(postPayload);
+      }
+      setFormData({ title: '', slug: '', content: '', excerpt: '', category: 'Estrategia', image: '', keywords: '', published: false });
+      setIsFormOpen(false);
+      setEditingPost(null);
+      await fetchPosts();
+    } catch (error) {
+      console.error('Error saving post:', error);
+      alert('Error al guardar: ' + (error instanceof Error ? error.message : String(error)));
+    } finally {
+      setIsSavingPost(false);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     try {
-      console.log("Iniciando eliminación de:", id);
-      const postRef = doc(db, 'posts', id);
-      await deleteDoc(postRef);
+      await api.posts.delete(id);
       setPosts(prev => prev.filter(p => p.id !== id));
       setDeletingId(null);
-      console.log("Eliminado exitosamente");
     } catch (error) {
-      console.error("Error al eliminar:", error);
-      handleFirestoreError(error, OperationType.DELETE, `posts/${id}`);
+      console.error('Error al eliminar post:', error);
     }
   };
 
@@ -1191,11 +1084,7 @@ const Dashboard = () => {
     try {
       if (confirm(`¿Estás seguro de que deseas eliminar la página "${pageToDelete?.title || 'esta página'}"? Esta acción no se puede deshacer.`)) {
         setIsSaving(true);
-        console.log(`[CRUD] Eliminando página: ${id}`);
-
-        await deleteDoc(doc(db, 'pages', id));
-
-        console.log(`[CRUD] Página ${id} eliminada exitosamente.`);
+        await api.pages.delete(id);
         setPages(prev => prev.filter(p => p.id !== id));
         setIsPageEditorOpen(false);
         setEditingPage(null);
@@ -1587,10 +1476,7 @@ const Dashboard = () => {
                     if (newTitle && newTitle !== page.title) {
                       setIsSaving(true);
                       try {
-                        await updateDoc(doc(db, 'pages', page.id), {
-                          title: newTitle,
-                          updatedAt: serverTimestamp()
-                        });
+                        await api.pages.patch(page.id, { title: newTitle });
                         fetchPages();
                       } catch (e) {
                         alert('Error al renombrar: ' + e);
@@ -1609,10 +1495,7 @@ const Dashboard = () => {
                   onClick={async () => {
                     setIsSaving(true);
                     try {
-                      await updateDoc(doc(db, 'pages', page.id), {
-                        published: !page.published,
-                        updatedAt: serverTimestamp()
-                      });
+                      await api.pages.patch(page.id, { published: !page.published });
                       fetchPages();
                     } catch (e) {
                       alert('Error al cambiar estado: ' + e);
@@ -1696,10 +1579,7 @@ const Dashboard = () => {
                             const val = parseInt(e.target.value);
                             setIsSaving(true);
                             try {
-                               await updateDoc(doc(db, 'pages', page.id), {
-                                 order: val,
-                                 updatedAt: serverTimestamp()
-                               });
+                               await api.pages.patch(page.id, { order: val });
                                fetchPages();
                             } catch (error) {
                                console.error(error);
@@ -1714,10 +1594,7 @@ const Dashboard = () => {
                         onClick={async () => {
                           setIsSaving(true);
                           try {
-                             await updateDoc(doc(db, 'pages', page.id), {
-                               showInNavigation: !page.showInNavigation,
-                               updatedAt: serverTimestamp()
-                             });
+                             await api.pages.patch(page.id, { showInNavigation: !page.showInNavigation });
                              fetchPages();
                           } catch (error) {
                              console.error(error);
@@ -3159,14 +3036,10 @@ const PageDesigner = ({ onClose, onSave, onDelete, initialData }: { onClose: () 
                    <button 
                     onClick={async () => {
                       try {
-                        await addDoc(collection(db, 'menus'), {
+                        await api.menus.create({
                           name: pageData.title,
-                          path: `/${pageData.slug}`,
-                          megaMenu: false,
-                          children: [],
-                          order: 99,
-                          createdAt: serverTimestamp()
-                        });
+                          items: [{ id: Date.now().toString(), label: pageData.title, href: `/${pageData.slug}` }],
+                        } as any);
                         alert('Página añadida al menú con éxito.');
                       } catch (e) {
                         console.error(e);

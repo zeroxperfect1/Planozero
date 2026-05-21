@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, ChevronRight, Plus } from 'lucide-react';
-import { collection, query, orderBy, getDocs, where } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import api from '../services/api';
 import Logo from './Logo';
 
 interface MenuItem {
@@ -31,45 +30,32 @@ export const Navbar = () => {
     const fetchMenus = async () => {
       try {
         // Fetch pages that should be in navigation
-        const pagesQuery = query(
-          collection(db, 'pages'), 
-          where('published', '==', true),
-          where('showInNavigation', '==', true)
-        );
-        const pagesSnapshot = await getDocs(pagesQuery);
-        const dynamicPages: MenuItem[] = pagesSnapshot.docs.map(doc => {
-          const data = doc.data();
-          return {
+        const allPages = await api.pages.getAll();
+        const dynamicPages: MenuItem[] = allPages
+          .filter((p: any) => p.published && p.showInNavigation)
+          .map((data: any) => ({
             name: data.title.split('|')[0].trim(),
             path: data.slug === 'inicio' ? '/' : `/${data.slug}`,
             order: data.order || 99
-          };
-        });
+          }));
 
-        const menusQuery = query(
-          collection(db, 'menus'), 
-          where('published', '==', true),
-          orderBy('order', 'asc')
-        );
-        const menusSnapshot = await getDocs(menusQuery);
-        const customMenus: MenuItem[] = menusSnapshot.docs
-          .map(doc => {
-            const data = doc.data();
-            return {
-              name: data.name || data.title,
-              path: data.path || data.slug,
-              order: data.order || 0,
-              megaMenu: data.megaMenu,
-              published: data.published,
-              children: (data.children || []).filter((child: any) => child.published !== false)
-            };
-          })
-          .filter(menu => menu.published !== false);
+        const allMenus = await api.menus.getAll();
+        const customMenus: MenuItem[] = allMenus
+          .map((data: any) => ({
+            name: data.name || data.title,
+            path: data.path || data.slug || '#',
+            order: data.order || 0,
+            megaMenu: data.megaMenu,
+            published: data.published,
+            children: Array.isArray(data.items) ? data.items.filter((item: any) => item.published !== false) :
+                      (data.children || []).filter((child: any) => child.published !== false)
+          }))
+          .filter((menu: any) => menu.published !== false);
         
-        const allMenus = [...dynamicPages, ...customMenus].sort((a, b) => (a.order || 0) - (b.order || 0));
+        const combined = [...dynamicPages, ...customMenus].sort((a, b) => (a.order || 0) - (b.order || 0));
 
-        if (allMenus.length > 0) {
-          setMenus(allMenus);
+        if (combined.length > 0) {
+          setMenus(combined);
         } else {
           setMenus([
             { name: 'Servicios', path: '#servicios' },

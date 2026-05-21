@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Logo from '../components/Logo';
 import Footer from '../components/Footer';
-import { doc, getDoc, collection, query, where, limit, getDocs } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
+import api from '../services/api';
 import { motion } from 'motion/react';
 import { ArrowLeft, Clock, Calendar, User, ArrowRight, Share2, Twitter, Linkedin, Link2, X, Check } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
@@ -22,6 +21,7 @@ interface Post {
   category: string;
   image: string;
   keywords?: string;
+  created_at?: string;
   createdAt?: any;
 }
 
@@ -140,52 +140,16 @@ const PostDetail = () => {
       if (!id) return;
       try {
         // Try searching by slug first (optimized for SEO URLs)
-        // Mandatory: Include published constraint to satisfy security rules for guest users
-        const q = query(
-          collection(db, 'posts'), 
-          where('published', '==', true),
-          where('slug', '==', id), 
-          limit(1)
-        );
-        const querySnapshot = await getDocs(q);
-        
-        if (!querySnapshot.empty) {
-          const docSnap = querySnapshot.docs[0];
-          const postData = { id: docSnap.id, ...docSnap.data() } as Post;
+        const postData = await api.posts.getBySlug(id) as unknown as Post;
+        if (postData) {
           setPost(postData);
-          fetchRelatedPosts(postData.category, docSnap.id);
+          fetchRelatedPosts(postData.category, postData.id);
         } else {
-          // Fallback to ID for legacy links or unpublished check
-          // If we are a guest, this might still trigger a permission error if the post isn't published
-          const docRef = doc(db, 'posts', id);
-          try {
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              const postData = { id: docSnap.id, ...docSnap.data() } as Post;
-              setPost(postData);
-              fetchRelatedPosts(postData.category, docSnap.id);
-            } else {
-              setPost(null);
-            }
-          } catch (e: any) {
-            // SILENT: If it's a permission error, it likely means it's not published or doesn't exist
-            // Firestore often returns permission denied if we don't have permission to know if it exists
-            console.warn("Direct doc access failed - post might be draft or non-existent:", id);
-            setPost(null);
-          }
-        }
-      } catch (error: any) {
-        // Only log/handle critical errors, don't crash for missing permissions (common for drafts)
-        const isPermissionError = error?.message?.toLowerCase().includes('permission') || 
-                                 error?.code === 'permission-denied';
-        
-        if (!isPermissionError) {
-          console.error("Critical error fetching post:", error);
-          handleFirestoreError(error, OperationType.GET, `posts/${id}`);
-        } else {
-          console.log("Post access denied (likely draft):", id);
           setPost(null);
         }
+      } catch (error: any) {
+        console.error('Error fetching post:', error);
+        setPost(null);
       } finally {
         setLoading(false);
       }
@@ -193,19 +157,13 @@ const PostDetail = () => {
 
     const fetchRelatedPosts = async (category: string, currentId: string) => {
       try {
-        // Query published posts first (security requirement)
-        const q = query(
-          collection(db, 'posts'),
-          where('published', '==', true)
-        );
-        const querySnapshot = await getDocs(q);
-        const related = querySnapshot.docs
-          .map(doc => ({ id: doc.id, ...doc.data() } as Post))
+        const allPosts = await api.posts.getPublished() as unknown as Post[];
+        const related = allPosts
           .filter(p => p.id !== currentId && p.category === category)
           .slice(0, 3);
         setRelatedPosts(related);
       } catch (error) {
-        console.error("Error fetching related posts:", error);
+        console.error('Error fetching related posts:', error);
       }
     };
 
@@ -240,7 +198,7 @@ const PostDetail = () => {
         {post.image && <meta property="og:image" content={post.image} />}
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="es_CL" />
-        <meta property="article:published_time" content={post.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()} />
+        <meta property="article:published_time" content={post.created_at || post.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()} />
         <meta property="article:author" content={post.author} />
         <meta property="article:section" content={post.category} />
         {post.keywords && <meta name="keywords" content={post.keywords} />}
@@ -253,7 +211,7 @@ const PostDetail = () => {
             "headline": post.title,
             "description": post.excerpt,
             "image": post.image,
-            "datePublished": post.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+            "datePublished": post.created_at || post.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
             "author": {
               "@type": "Person",
               "name": post.author
@@ -292,7 +250,7 @@ const PostDetail = () => {
         >
           <div className="flex items-center gap-4 text-xs font-mono text-[#FF5F1F] mb-6 uppercase tracking-widest">
             <span className="bg-[#FF5F1F]/10 px-3 py-1 rounded-full">{post.category}</span>
-            <div className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {post.date?.toDate?.()?.toLocaleDateString() || post.date}</div>
+            <div className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {post.created_at ? new Date(post.created_at).toLocaleDateString() : (post.date?.toDate?.()?.toLocaleDateString() || post.date)}</div>
           </div>
 
           <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-none mb-12">

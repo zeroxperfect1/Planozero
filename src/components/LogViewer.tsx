@@ -1,18 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Terminal, RefreshCw, Trash2, AlertCircle } from 'lucide-react';
-import { db, auth } from '../lib/firebase';
+import { api } from '../services/api';
 import { motion, AnimatePresence } from 'motion/react';
-import {
-  collection,
-  query,
-  orderBy,
-  limit,
-  getDocs,
-  addDoc,
-  serverTimestamp,
-  writeBatch,
-  doc
-} from 'firebase/firestore';
 
 interface LogEntry {
   timestamp: string;
@@ -21,21 +10,15 @@ interface LogEntry {
 }
 
 /**
- * Agrega una entrada al log en Firestore.
+ * Agrega una entrada al log via API.
  * Exportada para que server.ts y otros módulos puedan usarla.
  */
 export const addLog = async (message: string, level: 'info' | 'error' = 'info') => {
   try {
-    await addDoc(collection(db, 'logs'), {
-      message,
-      level,
-      timestamp: new Date().toISOString(),
-      createdAt: serverTimestamp(),
-      uid: auth.currentUser?.uid || 'system',
-    });
+    await api.logs.add(message, level);
   } catch (e) {
     // Fallo silencioso — no crashear si el log falla
-    console.warn('LogViewer: no se pudo guardar log en Firestore', e);
+    console.warn('LogViewer: no se pudo guardar log', e);
   }
 };
 
@@ -48,20 +31,12 @@ export function LogViewer() {
     setLoading(true);
     setError(null);
     try {
-      const q = query(
-        collection(db, 'logs'),
-        orderBy('createdAt', 'desc'),
-        limit(200)
-      );
-      const snapshot = await getDocs(q);
-      const entries: LogEntry[] = snapshot.docs.map(d => {
-        const data = d.data();
-        return {
-          timestamp: data.timestamp || new Date().toISOString(),
-          level: data.level || 'info',
-          message: data.message || '',
-        };
-      });
+      const data = await api.logs.getAll();
+      const entries: LogEntry[] = data.map((d: any) => ({
+        timestamp: d.created_at || d.timestamp || new Date().toISOString(),
+        level: d.level || 'info',
+        message: d.message || '',
+      }));
       setLogs(entries);
     } catch (err: any) {
       setError('No se pudieron obtener los logs: ' + err.message);
@@ -74,11 +49,7 @@ export function LogViewer() {
     if (!confirm('¿Estás seguro de que quieres borrar todos los logs?')) return;
     try {
       setLoading(true);
-      const q = query(collection(db, 'logs'), limit(200));
-      const snapshot = await getDocs(q);
-      const batch = writeBatch(db);
-      snapshot.docs.forEach(d => batch.delete(doc(db, 'logs', d.id)));
-      await batch.commit();
+      await api.logs.clear();
       setLogs([]);
     } catch (err) {
       console.error('Error al borrar logs:', err);
@@ -160,7 +131,7 @@ export function LogViewer() {
       )}
 
       <p className="text-xs text-zinc-500 italic">
-        * Los logs se almacenan en Firestore (colección <code>logs</code>).
+        * Los logs se almacenan en la base de datos MySQL.
       </p>
     </div>
   );

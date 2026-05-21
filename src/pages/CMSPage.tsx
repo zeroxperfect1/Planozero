@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import api from '../services/api';
 import { motion } from 'motion/react';
 import { 
   Loader2, 
@@ -166,14 +165,9 @@ const CMSPage = () => {
       setError(null);
       
       try {
-        const q = query(
-          collection(db, 'pages'), 
-          where('slug', '==', slug),
-          limit(1)
-        );
-        const snapshot = await getDocs(q);
+        const data = await api.pages.getBySlug(slug);
         
-        if (snapshot.empty) {
+        if (!data) {
           if (slug === 'inicio') {
             setPage(FALLBACK_HOME);
             setError(null);
@@ -181,11 +175,11 @@ const CMSPage = () => {
             setError('Página no encontrada');
           }
         } else {
-          const data = snapshot.docs[0].data() as CMSPageData;
-          if (!data.published) {
+          const pageData = data as CMSPageData;
+          if (!pageData.published) {
             setError('Esta página es un borrador');
           } else {
-            setPage(data);
+            setPage(pageData);
           }
         }
       } catch (err) {

@@ -5,8 +5,7 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Logo from '../components/Logo';
 import Footer from '../components/Footer';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
+import api from '../services/api';
 
 const BlogMeasurement = ({ label, className = "" }: { label: string; className?: string }) => (
   <div className={`flex flex-col items-center gap-1 ${className}`}>
@@ -27,9 +26,11 @@ interface Post {
   date: any;
   author: string;
   authorId?: string;
+  author_email?: string;
   authorImage?: string;
   category: string;
   image: string;
+  created_at?: string;
   createdAt?: any;
 }
 
@@ -47,21 +48,16 @@ const Blog = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        // Query only published posts (mandatory for security rules)
-        const q = query(
-          collection(db, 'posts'), 
-          where('published', '==', true)
-        );
-        const querySnapshot = await getDocs(q);
-        const postsData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Post[];
-        
-        // Sort client-side to avoid needing a composite index in Firestore
-        setPosts(postsData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)));
+        const postsData = await api.posts.getPublished() as unknown as Post[];
+
+        // Sort by created_at descending
+        setPosts(postsData.sort((a, b) => {
+          const dateA = a.created_at ? new Date(a.created_at).getTime() : (a.createdAt?.seconds || 0) * 1000;
+          const dateB = b.created_at ? new Date(b.created_at).getTime() : (b.createdAt?.seconds || 0) * 1000;
+          return dateB - dateA;
+        }));
       } catch (error) {
-        handleFirestoreError(error, OperationType.LIST, 'posts');
+        console.error('Error fetching posts:', error);
       } finally {
         setLoading(false);
       }
@@ -194,7 +190,7 @@ const Blog = () => {
                   <div className="flex items-center gap-4 text-[10px] font-mono text-zinc-400 mb-4 uppercase tracking-widest">
                     <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> 5 MIN DE LECTURA</span>
                     <span>/</span>
-                    <span>{post.date?.toDate?.()?.toLocaleDateString('es-CL') || post.date}</span>
+                    <span>{post.created_at ? new Date(post.created_at).toLocaleDateString('es-CL') : (post.date?.toDate?.()?.toLocaleDateString('es-CL') || post.date)}</span>
                   </div>
 
                   <h2 className="text-2xl font-bold mb-4 group-hover:text-[#FF5F1F] transition-colors leading-tight">

@@ -27,8 +27,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import Logo from '../components/Logo';
 import Footer from '../components/Footer';
-import { db } from '../lib/firebase';
-import { collection, addDoc, serverTimestamp, query, getDocs, orderBy } from 'firebase/firestore';
+import api from '../services/api';
 
 const MegaMenu = ({ items, isOpen, onMouseLeave }: { items: any[], isOpen: boolean, onMouseLeave: () => void }) => (
   <AnimatePresence>
@@ -600,10 +599,9 @@ const ContactForm = () => {
         idea: sanitize(formData.idea)
       };
 
-      await addDoc(collection(db, 'contacts'), {
+      await api.contacts.create({
         ...cleanData,
-        status: 'pending',
-        createdAt: serverTimestamp()
+        status: 'pending'
       });
       setSubmitted(true);
     } catch (error) {
@@ -752,11 +750,15 @@ export default function Home() {
   useEffect(() => {
     const fetchMenus = async () => {
       try {
-        const q = query(collection(db, 'menus'), orderBy('order', 'asc'));
-        const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (data.length > 0) {
-          setMenus(data);
+        const data = await api.menus.getAll();
+        if (data && data.length > 0) {
+          // Map menus to expected format — menus have items array, extract nav items
+          const navItems = data.flatMap((menu: any) =>
+            Array.isArray(menu.items) && menu.items.length > 0
+              ? menu.items
+              : [{ name: menu.name, path: menu.path || '#', order: menu.order || 99 }]
+          );
+          setMenus(navItems.length > 0 ? navItems : data);
         } else {
           // Default fallback
           setMenus([
@@ -768,6 +770,12 @@ export default function Home() {
         }
       } catch (e) {
         console.error(e);
+        setMenus([
+          { name: 'Servicios', path: '#servicios' },
+          { name: 'Experiencia', path: '#experiencia' },
+          { name: 'Proceso', path: '#proceso' },
+          { name: 'Blog', path: '/blog' }
+        ]);
       }
     };
     fetchMenus();

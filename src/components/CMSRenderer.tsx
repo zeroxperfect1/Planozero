@@ -28,8 +28,8 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { db } from '../lib/firebase';
-import { collection, addDoc, serverTimestamp, getDocs, query, where, orderBy, limit as firestoreLimit } from 'firebase/firestore';
+import { auth } from '../lib/firebase';
+import api from '../services/api';
 
 
 export interface CMSNode {
@@ -216,13 +216,12 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
     useEffect(() => {
       const fetchPosts = async () => {
         try {
-          const q = query(
-            collection(db, 'posts'),
-            where('published', '==', true)
-          );
-          const snapshot = await getDocs(q);
-          let data = snapshot.docs.map(d => ({ id: d.id, ...d.data() })) as any[];
-          data = data.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+          let data = await api.posts.getPublished() as any[];
+          data = data.sort((a, b) => {
+            const dateA = a.created_at ? new Date(a.created_at).getTime() : (a.createdAt?.seconds || 0) * 1000;
+            const dateB = b.created_at ? new Date(b.created_at).getTime() : (b.createdAt?.seconds || 0) * 1000;
+            return dateB - dateA;
+          });
           if (category) data = data.filter((p: any) => p.category === category);
           setPosts(data.slice(0, limit || 3));
         } catch (e) {
@@ -888,10 +887,9 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
       }
       setLoading(true);
       try {
-        await addDoc(collection(db, 'contacts'), {
+        await api.contacts.create({
           ...formData,
-          status: 'pending',
-          createdAt: serverTimestamp()
+          status: 'pending'
         });
         setSubmitted(true);
       } catch (error) {

@@ -18,19 +18,9 @@ import {
   Undo2,
   Sparkles
 } from 'lucide-react';
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  deleteDoc, 
-  doc, 
-  limit 
-} from 'firebase/firestore';
-import { db, auth, OperationType, handleFirestoreError } from '../lib/firebase';
+import { auth } from '../lib/firebase';
 import { handleFileUpload as uploadFileToStorage, deleteImageFromFirebase } from '../services/storageService';
+import api from '../services/api';
 import { motion, AnimatePresence } from 'motion/react';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../lib/imageUtils';
@@ -40,10 +30,12 @@ interface MediaAsset {
   id: string;
   name: string;
   url: string;
-  size: number;
-  type: string;
-  createdAt: any;
-  userId: string;
+  size?: number;
+  type?: string;
+  created_at?: string;
+  createdAt?: any;
+  user_id?: string;
+  userId?: string;
 }
 
 interface MediaLibraryProps {
@@ -96,30 +88,18 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
     }
     setLoading(true);
     try {
-      console.log("Fetching media for user:", auth.currentUser.uid);
-      const q = query(
-        collection(db, 'media'),
-        where('userId', '==', auth.currentUser.uid),
-        limit(100)
-      );
-      const querySnapshot = await getDocs(q);
-      console.log("Found assets:", querySnapshot.size);
-      const fetchedAssets = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as MediaAsset[];
-      
-      // Sort in memory to avoid composite index requirement
+      const fetchedAssets = await api.media.getAll() as MediaAsset[];
+      // Sort by created_at descending
       const sortedAssets = [...fetchedAssets].sort((a, b) => {
-        const dateA = new Date(a.createdAt).getTime();
-        const dateB = new Date(b.createdAt).getTime();
+        const dateA = a.created_at ? new Date(a.created_at).getTime() :
+                      a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() :
+                      b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return dateB - dateA;
       });
-      
       setAssets(sortedAssets);
     } catch (error) {
       console.error("Error fetching media:", error);
-      handleFirestoreError(error, OperationType.LIST, 'media');
     } finally {
       setLoading(false);
     }
@@ -171,7 +151,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
         storagePath: path
       };
 
-      await addDoc(collection(db, 'media'), assetData);
+      // No need to addDoc to Firestore — upload.php auto-registers in MySQL
 
       setTimeout(() => {
         setUploading(false);
@@ -280,8 +260,8 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
       // Delete from Storage first
       await deleteImageFromFirebase(asset.url);
       
-      // Delete from Firestore
-      await deleteDoc(doc(db, 'media', asset.id));
+      // Delete from API (MySQL)
+      await api.media.delete(asset.id);
       
       setAssets(assets.filter(a => a.id !== asset.id));
     } catch (error) {
