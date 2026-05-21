@@ -41,20 +41,32 @@ jobs:
           VITE_FIREBASE_DATABASE_ID: ${{ secrets.VITE_FIREBASE_DATABASE_ID }}
 
       # 5. Subir via FTP al hosting
-      - name: 📡 Deploy via FTP
+      - name: 📡 Deploy Frontend via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ftp.planozero.cl
           username: deploy@planozero.cl
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/client/      # Carpeta compilada de Vite
-          server-dir: /public_html/      # Carpeta raíz en el servidor (ajustar si difiere)
+          server-dir: /public_html/      # Carpeta raíz en el servidor
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
-          dangerous-clean-slate: false   # true = borra todo antes de subir (¡cuidado!)
+          dangerous-clean-slate: false
           log-level: standard
+
+      # 6. Subir carpeta uploads/ al servidor
+      - name: 🖼️ Sync carpeta uploads/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.planozero.cl
+          username: deploy@planozero.cl
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./uploads/
+          server-dir: /public_html/uploads/
+          dangerous-clean-slate: false
+          log-level: minimal
 
       # 6. Notificación de éxito
       - name: ✅ Deploy completado
