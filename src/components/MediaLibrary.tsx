@@ -276,7 +276,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 md:p-12 lg:p-20">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-6 md:p-12 lg:p-20">
       <motion.div 
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
@@ -289,7 +289,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-6xl bg-zinc-950 border border-zinc-800 rounded-[48px] overflow-hidden flex flex-col max-h-[90vh] shadow-2xl"
+        className="relative w-full max-w-6xl bg-zinc-950 border border-zinc-800 rounded-3xl md:rounded-[48px] overflow-hidden flex flex-col max-h-[90vh] shadow-2xl"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-zinc-900 bg-zinc-900/50">
@@ -320,10 +320,10 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
 
         {/* Editor or Tabs */}
         {!editingUrl && (
-          <div className="flex border-b border-zinc-900 px-6">
+          <div className="flex overflow-x-auto border-b border-zinc-900 px-6">
             <button 
               onClick={() => setActiveTab('gallery')}
-              className={`px-6 py-4 text-[10px] font-mono uppercase tracking-widest border-b-2 transition-all ${
+              className={`px-4 py-3 sm:px-6 sm:py-4 text-[10px] font-mono uppercase tracking-widest border-b-2 transition-all whitespace-nowrap ${
                 activeTab === 'gallery' ? 'border-[#FF5F1F] text-white' : 'border-transparent text-zinc-500 hover:text-zinc-300'
               }`}
             >
@@ -331,7 +331,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
             </button>
             <button 
               onClick={() => setActiveTab('upload')}
-              className={`px-6 py-4 text-[10px] font-mono uppercase tracking-widest border-b-2 transition-all ${
+              className={`px-4 py-3 sm:px-6 sm:py-4 text-[10px] font-mono uppercase tracking-widest border-b-2 transition-all whitespace-nowrap ${
                 activeTab === 'upload' ? 'border-[#FF5F1F] text-white' : 'border-transparent text-zinc-500 hover:text-zinc-300'
               }`}
             >
@@ -339,7 +339,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
             </button>
             <button 
               onClick={() => setActiveTab('url')}
-              className={`px-6 py-4 text-[10px] font-mono uppercase tracking-widest border-b-2 transition-all ${
+              className={`px-4 py-3 sm:px-6 sm:py-4 text-[10px] font-mono uppercase tracking-widest border-b-2 transition-all whitespace-nowrap ${
                 activeTab === 'url' ? 'border-[#FF5F1F] text-white' : 'border-transparent text-zinc-500 hover:text-zinc-300'
               }`}
             >
@@ -373,7 +373,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
                </div>
 
                {/* Controls Area */}
-               <div className="w-full md:w-80 bg-zinc-900 overflow-y-auto p-6 md:p-8 space-y-8 border-t md:border-t-0 md:border-l border-zinc-800">
+               <div className="w-full md:w-80 bg-zinc-900 overflow-y-auto p-6 md:p-8 space-y-8 border-t md:border-t-0 md:border-l border-zinc-800 max-h-[40vh] md:max-h-none">
                   <div className="space-y-6">
                     <h3 className="text-[10px] font-mono uppercase tracking-widest text-[#FF5F1F]">Ajustes de Imagen</h3>
                     
@@ -704,7 +704,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
     </div>
 
     {/* Footer info */}
-        <div className="p-4 bg-zinc-900/30 border-t border-zinc-900 flex justify-between items-center text-[8px] font-mono text-zinc-600 uppercase tracking-widest px-8">
+        <div className="p-4 bg-zinc-900/30 border-t border-zinc-900 flex flex-wrap gap-1 justify-between items-center text-[8px] font-mono text-zinc-600 uppercase tracking-widest px-8">
           <div className="flex items-center gap-4">
              <span>Almacenamiento Usado: 42.5 MB</span>
              <span>Archivos: {assets.length}</span>

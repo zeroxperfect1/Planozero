@@ -232,7 +232,7 @@ const PostDetail = () => {
         </script>
       </Helmet>
       <main id="main-content" className="max-w-4xl mx-auto px-6 flex-grow">
-        <div className="flex justify-between items-center mb-12">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 md:mb-12">
           <Logo />
           <Link 
             to="/blog" 
@@ -253,15 +253,15 @@ const PostDetail = () => {
             <div className="flex items-center gap-1.5"><Calendar className="w-3 h-3" /> {post.created_at ? new Date(post.created_at).toLocaleDateString() : (post.date?.toDate?.()?.toLocaleDateString() || post.date)}</div>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-none mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tighter uppercase leading-none mb-6 md:mb-12">
             {post.title}
           </h1>
 
-          <div className="relative aspect-[21/9] rounded-[40px] overflow-hidden mb-16 grayscale hover:grayscale-0 transition-all duration-1000">
+          <div className="relative aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] rounded-2xl md:rounded-[40px] overflow-hidden mb-8 md:mb-16 grayscale hover:grayscale-0 transition-all duration-1000">
             <img src={post.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop'} alt={post.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 mb-24">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-24">
             <div className="lg:col-span-1 space-y-8">
               <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800">
                 <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest block mb-4">Escrito por</span>
@@ -327,7 +327,7 @@ const PostDetail = () => {
           {/* Related Posts Section */}
           {relatedPosts.length > 0 && (
             <div className="pt-20 border-t border-zinc-200 dark:border-zinc-800">
-              <div className="flex items-end justify-between mb-12">
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8 md:mb-12">
                 <div className="max-w-md">
                   <span className="text-[10px] font-mono text-[#FF5F1F] tracking-widest uppercase mb-4 block underline underline-offset-8">Continúa Leyendo</span>
                   <h2 className="text-3xl font-black tracking-tighter uppercase">Lectura Sugerida</h2>

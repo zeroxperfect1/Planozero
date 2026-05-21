@@ -111,8 +111,8 @@ const Blog = () => {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]" />
       </div>
 
-      <main id="main-content" className="max-w-7xl mx-auto px-6 relative z-10 flex-grow">
-        <div className="flex justify-between items-center mb-16">
+      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 flex-grow">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-12 md:mb-16">
           <Logo />
           <Link 
             to="/" 
@@ -126,7 +126,7 @@ const Blog = () => {
         <div className="mb-16">
             <div className="max-w-2xl">
               <span className="text-xs font-mono tracking-widest text-[#FF5F1F] uppercase mb-4 block underline underline-offset-8">Journal y Recursos</span>
-              <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
                 Pensamiento <br />
                 <span className="text-[#FF5F1F]">Estratégico</span>
               </h1>
@@ -218,7 +218,7 @@ const Blog = () => {
                         </span>
                       </div>
                     )}
-                    <span className="text-[10px] font-mono text-zinc-500 font-medium tracking-tight whitespace-nowrap">{post.author}</span>
+                    <span className="text-[10px] font-mono text-zinc-500 font-medium tracking-tight truncate max-w-[120px]">{post.author}</span>
                   </div>
                   <Link to={`/blog/${post.slug || post.id}`} className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-[#FF5F1F] hover:border-[#FF5F1F] hover:text-white transition-all transform group-hover:rotate-45 shrink-0 ml-2">
                     <ArrowRight className="w-5 h-5" />

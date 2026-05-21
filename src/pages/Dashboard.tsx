@@ -680,6 +680,7 @@ const Dashboard = () => {
   const [isSavingPost, setIsSavingPost] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -1142,7 +1143,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {[
           { label: 'Artículos', value: posts.length, icon: FileText, desc: 'Contenido Editorial' },
           { label: 'Leads', value: contacts.length, icon: MessageSquare, desc: 'Conversiones Activas' },
@@ -1179,12 +1180,12 @@ const Dashboard = () => {
              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
           </div>
           
-          <div className="relative z-10 p-12 mt-auto space-y-6">
+           <div className="relative z-10 p-6 md:p-12 mt-auto space-y-6">
              <div className="flex items-center gap-4">
                 <div className="w-12 h-1 bg-[#FF5F1F] rounded-full" />
                 <span className="text-[10px] font-mono text-[#FF5F1F] uppercase tracking-[0.5em] font-black">Core_Experience</span>
              </div>
-             <h3 className="text-5xl font-black italic uppercase tracking-tighter leading-none text-white">Página de Inicio</h3>
+             <h3 className="text-3xl md:text-5xl font-black italic uppercase tracking-tighter leading-none text-white">Página de Inicio</h3>
              <p className="text-zinc-400 text-lg leading-relaxed max-w-md font-medium">
                 La puerta principal a tu ecosistema. Orquesta componentes de alta fidelidad y narrativa visual en tiempo real.
              </p>
@@ -1337,7 +1338,7 @@ const Dashboard = () => {
               placeholder="Filtrar por empresa o nombre..."
               value={filterCompany}
               onChange={(e) => setFilterCompany(e.target.value)}
-              className="pl-11 pr-6 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-xs focus:outline-none focus:border-[#FF5F1F] w-64 transition-all"
+              className="pl-11 pr-6 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-xs focus:outline-none focus:border-[#FF5F1F] w-full sm:w-64 transition-all"
             />
           </div>
           <button 
@@ -1350,7 +1351,7 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 flex-grow overflow-hidden min-h-0">
+      <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-3 gap-8 flex-grow overflow-hidden min-h-0">
         {/* List */}
         <div className="lg:col-span-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
           {loadingContacts ? (
@@ -2003,8 +2004,54 @@ const Dashboard = () => {
         <div className="flex items-center gap-2">
            <div className="w-1.5 h-1.5 bg-[#FF5F1F] rounded-full animate-pulse" />
            <span className="text-[8px] font-mono text-zinc-500 uppercase tracking-widest leading-none">Node Sync</span>
+           <button
+             onClick={() => setIsMobileMenuOpen(true)}
+             className="p-2 rounded-lg border border-zinc-700 text-zinc-400 hover:text-white"
+           >
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+           </button>
         </div>
       </header>
+
+      {/* Mobile Drawer */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[200] lg:hidden">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setIsMobileMenuOpen(false)} />
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-zinc-950 border-r border-zinc-800 flex flex-col overflow-y-auto">
+            <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
+              <span className="text-white font-bold text-sm">Menú</span>
+              <button onClick={() => setIsMobileMenuOpen(false)} className="text-zinc-400 hover:text-white p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <nav className="flex-1 p-4 space-y-1">
+              {[
+                { id: 'overview', label: 'Inicio', icon: LayoutDashboard },
+                { id: 'posts', label: 'Publicaciones', icon: FileText },
+                { id: 'messages', label: 'Mensajes', icon: MessageSquare },
+                { id: 'pages', label: 'Páginas', icon: Layout },
+                { id: 'menus', label: 'Menús', icon: List },
+                { id: 'config', label: 'Mi Perfil', icon: Settings },
+                { id: 'logs', label: 'Logs de Errores', icon: Terminal },
+                { id: 'mercado-publico', label: 'Mercado Público', icon: ShoppingBag },
+              ].map((item: any) => (
+                <button
+                  key={item.id}
+                  onClick={() => { setView(item.id); setIsMobileMenuOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-colors ${
+                    view === item.id
+                      ? 'bg-[#FF5F1F] text-white'
+                      : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
+                  }`}
+                >
+                  <item.icon size={18} />
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </nav>
+          </aside>
+        </div>
+      )}
 
       {/* Sidebar */}
       <aside className="w-64 border-r border-zinc-800 hidden lg:flex flex-col overflow-hidden bg-zinc-950/50 backdrop-blur-xl">
@@ -2230,7 +2277,7 @@ const Dashboard = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-zinc-900 border border-zinc-800 w-full max-w-4xl p-6 rounded-[48px] shadow-2xl relative max-h-[90vh] overflow-y-auto"
+              className="bg-zinc-900 border border-zinc-800 w-full max-w-4xl p-6 rounded-3xl md:rounded-[48px] shadow-2xl relative max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-3xl font-black uppercase italic tracking-tighter">{editingPost ? 'Editar Post' : 'Crear Post'}</h2>
@@ -2454,7 +2501,7 @@ const Dashboard = () => {
                   <div className="inline-block px-4 py-1.5 bg-[#FF5F1F]/10 border border-[#FF5F1F]/20 text-[#FF5F1F] text-[10px] font-black uppercase tracking-widest rounded-lg">
                     {formData.category}
                   </div>
-                  <h1 className="text-7xl md:text-9xl font-black uppercase italic tracking-tighter leading-none text-white">
+                  <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-9xl font-black uppercase italic tracking-tighter leading-none text-white">
                     {formData.title || 'Título de tu Post'}
                   </h1>
                   <p className="text-2xl text-zinc-500 font-medium leading-relaxed max-w-2xl italic">
@@ -3143,7 +3190,7 @@ const PageDesigner = ({ onClose, onSave, onDelete, initialData }: { onClose: () 
       )}
 
       {/* Editor Canvas */}
-      <main className={`flex-grow bg-zinc-950 overflow-y-auto custom-scrollbar flex flex-col no-scrollbar transition-all ${isPreview ? 'p-0' : 'p-12'}`}>
+      <main className={`flex-grow bg-zinc-950 overflow-y-auto custom-scrollbar flex flex-col no-scrollbar transition-all ${isPreview ? 'p-0' : 'p-4 md:p-8 lg:p-12'}`}>
          {isPreview ? (
            <div className="bg-zinc-950 text-white min-h-screen">
              <div className="max-w-7xl mx-auto px-6 pt-12 pb-32">
