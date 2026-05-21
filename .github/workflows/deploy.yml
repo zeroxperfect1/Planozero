@@ -89,7 +89,12 @@ jobs:
                   return json_decode(file_get_contents($cacheFile), true) ?? [];
               }
               $url = 'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
-              $content = @file_get_contents($url);
+              $ch = curl_init($url);
+              curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+              curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+              curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+              $content = curl_exec($ch);
+              curl_close($ch);
               if ($content === false) return file_exists($cacheFile) ? json_decode(file_get_contents($cacheFile), true) ?? [] : [];
               file_put_contents($cacheFile, $content);
               return json_decode($content, true) ?? [];
