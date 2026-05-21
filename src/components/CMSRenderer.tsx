@@ -596,7 +596,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
     const services = [
       {
         title: props.s1Title || "Branding",
-        description: props.s1Desc || "Descubrimos la esencia de tu negocio para transformarla en una narrativa visual poderosa. Desde la auditoría de ecosistema y el posicionamiento estratégico, hasta identidades corporativas y manuales de marca que aseguran una presencia coherente y dominante.",
+        description: props.s1Desc || "Decodificamos la esencia de tu negocio para transformarla en una narrativa visual poderosa. Desde la auditoría de ecosistema y el posicionamiento estratégico, hasta sistemas de identidad sensorial y manuales de marca técnicos que aseguran una presencia coherente y dominante.",
         points: (props.s1Points || "Auditoría de Ecosistema y Estrategia;Sistemas de Identidad Visual Escalable;Documentación Técnica de Marca;Narrativa y Posicionamiento de Voz").split(';').map((p: string) => p.trim()),
         icon: iconMap[props.s1Icon] || PenTool
       },

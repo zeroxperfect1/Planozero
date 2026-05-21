@@ -539,7 +539,7 @@ export const DEFAULT_INICIO_DATA: PageLayout = {
         props: {
           part1: 'La arquitectura de tu marca,',
           part2: 'desde lo esencial.',
-          subtitle: 'Estudio de branding y diseño estratégico enfocado en la precisión técnica y la narrativa visual. Descubrimos la esencia de tu negocio para materializarla en arquitecturas digitales que redefinen el estándar de tu industria.',
+          subtitle: 'Estudio de branding y diseño estratégico enfocado en la precisión técnica y la narrativa visual. Decodificamos la esencia de tu negocio para materializarla en arquitecturas digitales que redefinen el estándar de tu industria.',
           ctaText: "LET'S BUILD"
         }
       },
@@ -550,7 +550,7 @@ export const DEFAULT_INICIO_DATA: PageLayout = {
           title: 'Soluciones integrales de diseño',
           subtitle: 'Nuestros Servicios',
           s1Title: 'Branding',
-          s1Desc: 'Descubrimos la esencia de tu negocio para transformarla en una narrativa visual poderosa. Desde la auditoría de ecosistema y el posicionamiento estratégico, hasta identidades corporativas y manuales de marca que aseguran una presencia coherente y dominante.',
+          s1Desc: 'Decodificamos la esencia de tu negocio para transformarla en una narrativa visual poderosa. Desde la auditoría de ecosistema y el posicionamiento estratégico, hasta sistemas de identidad sensorial y manuales de marca técnicos que aseguran una presencia coherente y dominante.',
           s1Points: 'Auditoría de Ecosistema y Estrategia;Sistemas de Identidad Visual Escalable;Documentación Técnica de Marca;Narrativa y Posicionamiento de Voz',
           s1Icon: 'PenTool',
           s2Title: 'DISEÑO UX/UI',
@@ -614,7 +614,7 @@ export const DEFAULT_INICIO_DATA: PageLayout = {
           part1: 'Inicia tu',
           part2: 'proyecto',
           email: 'hola@planozero.cl',
-          phone: '+569 5530 8095'
+          phone: '+569 55308095'
         }
       }
     ] 
