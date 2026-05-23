@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Seed Blog — PlanoZero</title>
+<style>
+  body { font-family: monospace; background: #09090b; color: #e4e4e7; padding: 2rem; max-width: 800px; margin: 0 auto; }
+  h1 { color: #ff5f1f; font-size: 1.2rem; letter-spacing: .2em; text-transform: uppercase; }
+  button { background: #ff5f1f; color: #fff; border: none; padding: .8rem 2rem; font-family: monospace; font-size: .9rem; cursor: pointer; margin: .5rem 0; display: block; width: 100%; text-transform: uppercase; letter-spacing: .1em; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  pre { background: #18181b; padding: 1rem; border-radius: 4px; overflow: auto; font-size: .75rem; max-height: 400px; border: 1px solid #27272a; }
+  .ok { color: #22d3ee; } .err { color: #f87171; } .done { color: #4ade80; }
+</style>
+</head>
+<body>
+<h1>⬛ PlanoZero — Blog Seeder</h1>
+<p style="color:#71717a;font-size:.8rem">Inicia sesión con la cuenta de admin y luego actualiza el autor de los posts ya publicados.</p>
+<button id="btnLogin" onclick="loginGoogle()">① Iniciar Sesión con Google</button>
+<button id="btnUpdate" onclick="updateAuthorInfo()" disabled style="background:#22d3ee;color:#09090b">② Actualizar Autor en todos los Posts</button>
+<button id="btnSeed" onclick="seedPosts()" disabled style="background:#27272a">③ Re-publicar 5 Posts (solo si no existen)</button>
+<pre id="log">Esperando acción...\n</pre>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDih4SyurjOi8FSysMGUzr0ARJGlcOmILM",
+  authDomain: "gen-lang-client-0646534496.firebaseapp.com",
+  projectId: "gen-lang-client-0646534496"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+window._auth = auth;
+
+const NOW = new Date().toISOString();
+
+const POSTS = [
+  {
+    title: "La Arquitectura de tu Marca: Del Logo a la Identidad Sistémica",
+    slug: "arquitectura-de-marca-identidad-sistemica",
+    category: "Branding",
+    image: "/blog/branding.png",
+    keywords: "branding, identidad de marca, sistema de diseño, arquitectura de marca, logo",
+    excerpt: "Un logo no es una marca. Descubre cómo construir sistemas de identidad que sobreviven al tiempo, dominan su industria y generan reconocimiento instantáneo en cualquier punto de contacto.",
+    content: `# La Arquitectura de tu Marca: Del Logo a la Identidad Sistémica
+
+Existe un error conceptual que cometen la mayoría de las empresas cuando piensan en su marca: confunden el **logo** con la **identidad**. El logo es apenas la punta del iceberg. Lo que vive debajo —invisible pero estructurante— es el sistema completo.
+
+## ¿Qué es realmente una arquitectura de marca?
+
+Una arquitectura de marca es el conjunto de decisiones estratégicas y visuales que determinan cómo una organización se presenta al mundo de forma coherente, independientemente del medio, soporte o contexto. Incluye:
+
+- **Identidad visual**: logo, tipografía, paleta cromática, iconografía, fotografía
+- **Identidad verbal**: tono de voz, nomenclatura, mensajes clave, narrativa corporativa
+- **Identidad sensorial**: sonido, textura, olor (en entornos físicos), movimiento (en entornos digitales)
+- **Identidad experiencial**: cómo se siente interactuar con la marca en cada punto de contacto
+
+## El error del logo-centrismo
+
+Las marcas que invierten solo en un logo bonito sin construir el sistema detrás descubren, tarde o temprano, que su identidad se fragmenta. El área de marketing usa una tipografía, el departamento de ventas usa otra. El sitio web tiene un tono formal, las redes sociales uno informal. El resultado: una marca que parece tener múltiples personalidades.
+
+## Los cuatro pilares del sistema de identidad
+
+**1. Posicionamiento estratégico**
+Antes de diseñar cualquier elemento visual, necesitas saber con precisión: ¿quién eres, para quién eres, qué problema resuelves y en qué eres diferente? Sin esto, el diseño es decoración.
+
+**2. Sistema visual escalable**
+Un buen sistema visual funciona en una tarjeta de presentación y en un billboard de 20 metros. Funciona en blanco y negro y en color. Funciona en digital e impreso. Si no funciona en todos estos contextos, no es un sistema robusto.
+
+**3. Manual de normas técnicas**
+El sistema se protege con documentación. Un manual de marca no es un catálogo de ejemplos bonitos: es un documento técnico que define exactamente cómo usar cada elemento, qué está permitido y qué está prohibido.
+
+**4. Gobernanza de la identidad**
+¿Quién aprueba el uso de la marca? ¿Qué pasa cuando un proveedor externo necesita crear materiales? La gobernanza define los procesos que garantizan la coherencia en el tiempo.
+
+## Conclusión
+
+Tu marca es un activo estratégico. Tratarla como tal significa invertir en construir un sistema completo, no solo un símbolo gráfico. Las marcas que dominan su industria no lo hacen por tener el logo más bonito: lo hacen por tener la identidad más coherente.
+
+---
+
+*En PlanoZero construimos arquitecturas de marca desde los fundamentos estratégicos hasta la ejecución técnica. Si quieres que tu marca tenga la solidez de un edificio bien diseñado, [hablemos](/contacto).*`
+  },
+  {
+    title: "UX que Convierte: Diseñando Experiencias que Eliminan la Fricción",
+    slug: "ux-diseno-experiencias-conversion",
+    category: "Diseño UX",
+    image: "/blog/ux-design.png",
+    keywords: "UX design, experiencia de usuario, conversion, usabilidad, prototipado, interfaz",
+    excerpt: "El 88% de los usuarios no regresa a un sitio tras una mala experiencia. Aquí está la metodología que usamos para diseñar interfaces que guían, convencen y convierten sin que el usuario sienta que está siendo guiado.",
+    content: `# UX que Convierte: Diseñando Experiencias que Eliminan la Fricción
+
+El diseño UX no es hacer que las cosas "se vean bien". Es hacer que funcionen tan bien que el usuario olvide que está usando un producto diseñado. La fricción —todo lo que interrumpe, confunde o frustra— es el enemigo número uno de la conversión.
+
+## El costo real de la fricción
+
+Cada segundo de espera innecesario, cada campo de formulario que no necesita estar ahí, cada mensaje de error críptico, cada flujo que requiere tres clics donde debería requerir uno: todo esto tiene un costo medible. Google descubrió que un retraso de 1 segundo en carga móvil reduce las conversiones en un 20%. Amazon calculó que cada 100ms de latencia cuesta un 1% de ventas.
+
+La fricción no es solo molestia: es dinero.
+
+## Los principios que guían nuestro proceso
+
+**Claridad antes que creatividad**
+Una interfaz creativa que confunde es un fracaso. Siempre. La claridad —que el usuario sepa exactamente dónde está, qué puede hacer y qué pasará si lo hace— es el fundamento sobre el cual se puede agregar complejidad y creatividad.
+
+**Jerarquía visual explícita**
+El ojo del usuario sigue patrones predecibles. El diseño debe dirigir ese recorrido hacia lo que importa: la llamada a la acción principal. Todo lo demás es soporte.
+
+**Carga cognitiva mínima**
+Cada decisión que le pides al usuario tomar consume energía mental. Nuestro trabajo es minimizar decisiones innecesarias y hacer que las necesarias sean lo más obvias posible.
+
+**Feedback inmediato**
+El usuario debe saber, en todo momento, que el sistema lo escuchó. Los estados de carga, los mensajes de confirmación, las animaciones de transición no son detalles: son comunicación.
+
+## El proceso en 5 etapas
+
+1. **Investigación**: entrevistas con usuarios, análisis heurístico, revisión de analytics
+2. **Arquitectura de información**: mapa del sitio, flujos de usuario, jerarquía de contenido
+3. **Wireframes**: estructuras de baja fidelidad que prueban la lógica antes del diseño
+4. **Prototipado**: prototipos interactivos que se pueden testear con usuarios reales
+5. **Validación**: pruebas de usabilidad, análisis de resultados, iteración
+
+## Métricas de éxito
+
+Un buen diseño UX se mide. Las métricas que más nos importan: tasa de conversión, tiempo en tarea, tasa de error, Net Promoter Score y tasa de abandono por flujo.
+
+El diseño sin métricas es arte. El UX con métricas es ingeniería.
+
+---
+
+*Si tu producto digital tiene tasas de abandono altas o usuarios que no logran completar los flujos principales, probablemente hay fricción que podemos eliminar. [Conversemos](/contacto).*`
+  },
+  {
+    title: "Experiencia de Marca: Cada Punto de Contacto Construye o Destruye tu Posicionamiento",
+    slug: "experiencia-de-marca-puntos-de-contacto",
+    category: "Experiencia de Marca",
+    image: "/blog/experiencia-marca.png",
+    keywords: "experiencia de marca, brand experience, puntos de contacto, customer journey, touchpoints",
+    excerpt: "Tu marca no es lo que tú dices que es. Es lo que tus clientes sienten cada vez que interactúan con ella. Desde el primer anuncio hasta el servicio post-venta: cada punto de contacto es una oportunidad o una amenaza.",
+    content: `# Experiencia de Marca: Cada Punto de Contacto Construye o Destruye tu Posicionamiento
+
+Amazon no construyó su reputación solo con publicidad. La construyó con millones de cajas llegando a tiempo, con devoluciones sin complicaciones, con emails que dicen exactamente lo que necesitas saber en el momento exacto. Su marca *es* su experiencia.
+
+## Qué es realmente la experiencia de marca
+
+La experiencia de marca (brand experience) es la suma de todas las percepciones, emociones y reacciones que un cliente tiene al interactuar con tu empresa en cualquier contexto. No es solo el diseño de tu sitio web o el packaging de tu producto: es la voz de quien contesta el teléfono, el tiempo que tarda tu sitio en cargar, el olor de tu tienda, la forma en que redactas tus emails de confirmación.
+
+## El mapa de puntos de contacto
+
+Para gestionar la experiencia de marca, primero hay que mapearla. Un mapa de touchpoints típico incluye:
+
+**Antes de la compra:**
+- Publicidad y redes sociales
+- Boca a boca y reseñas
+- Sitio web y landing pages
+- Proceso de cotización o prueba gratuita
+
+**Durante la compra:**
+- Interfaz de e-commerce o punto de venta físico
+- Proceso de pago y confirmación
+- Comunicaciones transaccionales
+
+**Después de la compra:**
+- Onboarding y activación
+- Soporte al cliente
+- Programas de lealtad
+- Comunicaciones de retención y reactivación
+
+## El principio de la coherencia emocional
+
+Cada punto de contacto debe comunicar los mismos valores fundamentales de la marca, aunque el tono y el formato sean diferentes. Una marca que proyecta innovación y modernidad en su sitio web, pero envía emails genéricos con tipografía Times New Roman y errores de ortografía, está rompiendo la coherencia emocional que construyó tanto esfuerzo en crear.
+
+## Cómo auditar tu experiencia de marca
+
+1. **Haz el journey completo como cliente**: desde la primera búsqueda en Google hasta el servicio post-venta
+2. **Documenta cada punto de contacto**: cómo se ve, cómo se siente, qué comunica
+3. **Identifica las brechas**: dónde la experiencia no cumple con lo que la marca promete
+4. **Prioriza las mejoras**: no todo se puede resolver de una vez; identifica los puntos de mayor impacto
+
+## El ROI de la experiencia de marca
+
+Las empresas que sistemáticamente entregan experiencias superiores tienen un 5.7x mayor retorno para sus accionistas que sus competidoras. La experiencia de marca no es un gasto: es la inversión con mayor retorno a largo plazo que puedes hacer.
+
+---
+
+*En PlanoZero auditamos y rediseñamos la experiencia de marca completa, desde la estrategia hasta cada punto de contacto. [Agenda una consulta](/contacto).*`
+  },
+  {
+    title: "Marketing Digital en 2025: Las Estrategias que Realmente Mueven Conversiones",
+    slug: "marketing-digital-2025-estrategias-conversion",
+    category: "Marketing Digital",
+    image: "/blog/marketing-digital.png",
+    keywords: "marketing digital, conversiones, estrategia digital, SEO, contenido, redes sociales, 2025",
+    excerpt: "Mientras todos hablan de las mismas tendencias, las marcas que ganan implementan estrategias con criterio, datos y una comprensión profunda de su audiencia. Esto es lo que realmente funciona en 2025.",
+    content: `# Marketing Digital en 2025: Las Estrategias que Realmente Mueven Conversiones
+
+El marketing digital tiene un problema de ruido. Cada semana aparece una nueva plataforma, una nueva tendencia, un nuevo gurú. Mientras tanto, las empresas gastan presupuesto en tácticas de moda sin entender si están generando resultados reales.
+
+En 2025, ganar en marketing digital no requiere estar en todas partes: requiere estar en los lugares correctos con la estrategia correcta.
+
+## La falacia del contenido omnipresente
+
+"Debes publicar todos los días en todas las plataformas." Este consejo ha generado una industria de contenido vacío, de baja calidad, diseñado para el algoritmo y no para el humano que lo consume. El resultado: audiencias sobreestimuladas que ignoran la mayoría de lo que ven.
+
+La estrategia que funciona es la opuesta: **menos contenido, más profundidad, más valor**.
+
+## Las cuatro palancas del marketing digital que sí convierten
+
+**1. SEO de intención, no de volumen**
+El SEO evolucionó. Ya no se trata de rankear para palabras con alto volumen de búsqueda: se trata de capturar a personas en el momento exacto en que tienen la intención de comprar, comparar o aprender. El keyword research moderno mapea la intención detrás de cada búsqueda.
+
+**2. Email marketing como canal de relación**
+El email tiene un ROI promedio de $36 por cada $1 invertido, según Litmus. Pero la mayoría de las empresas lo usa mal: newsletters genéricas que nadie lee. El email que convierte es el que llega en el momento correcto, con el mensaje correcto, a la persona correcta. Automatización y segmentación son la clave.
+
+**3. Contenido largo que posiciona autoridad**
+Los artículos de más de 2.000 palabras, los videos de más de 10 minutos, los podcasts de 45 minutos: el contenido extenso, cuando es genuinamente valioso, posiciona a la marca como autoridad en su industria. Y la autoridad percibida es uno de los predictores más fuertes de la decisión de compra B2B.
+
+**4. Retargeting quirúrgico**
+La mayoría de las personas que visitan tu sitio no compran en la primera visita. El retargeting bien implementado —con audiencias segmentadas según el comportamiento específico, no solo "visitó el sitio"— puede recuperar entre un 15% y 30% de ese tráfico.
+
+## El stack de analytics que necesitas
+
+Antes de gastar un peso más en media paga, asegúrate de tener correctamente implementado:
+- Google Analytics 4 con eventos de conversión definidos
+- Google Search Console para visibilidad orgánica
+- Hotjar o Microsoft Clarity para análisis de comportamiento en página
+- Un CRM que conecte el marketing con las ventas reales
+
+Sin datos correctos, el marketing digital es solo intuición disfrazada de estrategia.
+
+---
+
+*Ayudamos a empresas a construir estrategias de marketing digital basadas en datos y orientadas a resultados reales. [Hablemos](/contacto).*`
+  },
+  {
+    title: "Sistema de Diseño: La Ventaja Competitiva Silenciosa de las Marcas Premium",
+    slug: "sistema-de-diseno-ventaja-competitiva-marcas-premium",
+    category: "Estrategia",
+    image: "/blog/sistema-diseno.png",
+    keywords: "sistema de diseño, design system, componentes, tokens, consistencia, marcas premium, escalabilidad",
+    excerpt: "Las marcas que escalan rápido sin perder coherencia tienen algo en común: un sistema de diseño robusto. No es un lujo de grandes corporaciones: es la infraestructura que separa a las marcas que crecen de las que se fragmentan.",
+    content: `# Sistema de Diseño: La Ventaja Competitiva Silenciosa de las Marcas Premium
+
+Airbnb, Google, Apple, Shopify. Marcas que operan en decenas de mercados, con cientos de productos diferentes, manteniendo una coherencia visual y experiencial impecable. ¿Cuál es el secreto? No es talento extraordinario en cada equipo. Es infraestructura: un sistema de diseño que garantiza la coherencia sin necesitar supervisión constante.
+
+## ¿Qué es un sistema de diseño?
+
+Un sistema de diseño es un conjunto documentado de principios, componentes y guías que permiten a cualquier persona de la organización crear productos y materiales que se vean y funcionen como parte de la misma marca.
+
+No es solo una guía de estilo. Es una infraestructura viva que incluye:
+
+- **Design tokens**: los valores atómicos del sistema (colores, tipografías, espaciados, radios, sombras)
+- **Biblioteca de componentes**: elementos de UI reutilizables (botones, formularios, tarjetas, modales)
+- **Patrones de interacción**: cómo se comportan los componentes en diferentes contextos
+- **Documentación**: principios, reglas de uso, ejemplos de qué hacer y qué no hacer
+- **Código**: implementación en el o los frameworks que usa el equipo de desarrollo
+
+## El costo de no tener un sistema
+
+Imagina que tu empresa lanza un nuevo producto digital cada año. Sin un sistema de diseño, cada equipo empieza de cero: escoge tipografías, define colores, diseña botones. El resultado es inevitablemente inconsistente. Los clientes no lo ven como un nuevo producto: lo ven como una empresa desorganizada.
+
+Con un sistema de diseño, el mismo lanzamiento tarda la mitad del tiempo, cuesta menos, y el resultado es coherente con todo lo demás que la marca ha construido.
+
+## Los tres niveles de madurez
+
+**Nivel 1 — Guía de estilo**: documento estático con especificaciones visuales. Útil pero limitado.
+
+**Nivel 2 — Biblioteca de componentes**: componentes interactivos reutilizables en Figma y código. Reduce la inconsistencia y acelera el trabajo de diseño.
+
+**Nivel 3 — Sistema vivo**: tokens centralizados, componentes versionados, documentación automatizada, gobernanza definida. Escala con la organización.
+
+## Cuándo invertir en un sistema de diseño
+
+La señal más clara de que necesitas un sistema es cuando empiezas a ver inconsistencias entre productos, cuando el onboarding de nuevos diseñadores o desarrolladores toma demasiado tiempo, o cuando pequeños cambios de branding (como actualizar el color primario) requieren semanas de trabajo.
+
+Si tu empresa está creciendo, es mejor construir el sistema antes de que la deuda de diseño se acumule.
+
+## El ROI del sistema
+
+Etsy documentó una reducción del 40% en tiempo de diseño tras implementar su sistema. IBM reportó un ahorro de $75 millones en el primer año de Northstar. Spotify eliminó inconsistencias en 15 plataformas diferentes con Encore.
+
+El sistema de diseño no es un proyecto de diseño: es una inversión de ingeniería con retorno medible.
+
+---
+
+*Diseñamos e implementamos sistemas de diseño para marcas que quieren crecer sin perder coherencia. Desde los tokens hasta el código. [Cuéntanos tu proyecto](/contacto).*`
+  }
+];
+
+window.POSTS = POSTS;
+
+window.loginGoogle = async function() {
+  const log = document.getElementById('log');
+  try {
+    log.innerHTML += '<span class="ok">Abriendo popup de Google...\n</span>';
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(window._auth, provider);
+    window._token = await result.user.getIdToken();
+    window._user = result.user;
+    const name = result.user.displayName || result.user.email;
+    const photo = result.user.photoURL || '';
+    log.innerHTML += '<span class="done">✓ Sesión iniciada como: ' + name + '\n</span>';
+    if (photo) log.innerHTML += '<span class="ok">  📸 Foto de perfil: ' + photo.substring(0,60) + '...\n</span>';
+    document.getElementById('btnUpdate').disabled = false;
+    document.getElementById('btnSeed').disabled = false;
+    document.getElementById('btnLogin').disabled = true;
+  } catch(e) {
+    log.innerHTML += '<span class="err">✗ Error: ' + e.message + '\n</span>';
+  }
+};
+
+window.updateAuthorInfo = async function() {
+  const log = document.getElementById('log');
+  const btn = document.getElementById('btnUpdate');
+  btn.disabled = true;
+  btn.textContent = 'Actualizando...';
+
+  const user = window._auth.currentUser;
+  const authorName  = user.displayName || user.email;
+  const authorImage = user.photoURL || '';
+  const authorEmail = user.email;
+  const authorId    = user.uid;
+
+  log.innerHTML += '\n<span class="ok">→ Buscando posts existentes...\n</span>';
+
+  try {
+    const token = await user.getIdToken(true);
+    const res = await fetch('/api/posts.php', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const posts = await res.json();
+    if (!Array.isArray(posts)) throw new Error('Respuesta inesperada: ' + JSON.stringify(posts));
+
+    log.innerHTML += '<span class="done">  ✓ ' + posts.length + ' posts encontrados\n</span>';
+    log.innerHTML += '<span class="ok">→ Autor a asignar: ' + authorName + '\n</span>';
+
+    let updated = 0;
+    for (const post of posts) {
+      try {
+        const t = await user.getIdToken(true);
+        const r = await fetch('/api/posts.php?id=' + post.id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + t },
+          body: JSON.stringify({
+            author:      authorName,
+            authorImage: authorImage,
+            author_id:   authorId,
+            author_email: authorEmail
+          })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'HTTP ' + r.status);
+        updated++;
+        log.innerHTML += '<span class="done">  ✓ "' + post.title.substring(0,45) + '..." actualizado\n</span>';
+      } catch(e) {
+        log.innerHTML += '<span class="err">  ✗ Post ' + post.id + ': ' + e.message + '\n</span>';
+      }
+      log.scrollTop = log.scrollHeight;
+    }
+
+    log.innerHTML += '\n<span class="done">══════════════════════════════\n';
+    log.innerHTML += updated + '/' + posts.length + ' posts actualizados con autor: ' + authorName + '\n</span>';
+    log.innerHTML += '<span class="ok">Recarga /blog para verificar.\n</span>';
+  } catch(e) {
+    log.innerHTML += '<span class="err">✗ Error: ' + e.message + '\n</span>';
+  }
+
+  btn.textContent = '✓ Completado';
+};
+
+window.seedPosts = async function() {
+  const log = document.getElementById('log');
+  const btn = document.getElementById('btnSeed');
+  btn.disabled = true;
+  btn.textContent = 'Publicando...';
+  
+  let created = 0;
+  for (const post of window.POSTS) {
+    try {
+      log.innerHTML += '<span class="ok">→ Creando: ' + post.title.substring(0,50) + '...\n</span>';
+      const token = await window._auth.currentUser.getIdToken(true);
+      
+      const res = await fetch('/api/posts.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          ...post,
+          published: true,
+          author_id: window._auth.currentUser.uid,
+          author_email: window._auth.currentUser.email
+        })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
+      
+      created++;
+      log.innerHTML += '<span class="done">  ✓ Publicado (id: ' + (data.id || 'ok') + ')\n</span>';
+    } catch(e) {
+      log.innerHTML += '<span class="err">  ✗ Error: ' + e.message + '\n</span>';
+    }
+    log.scrollTop = log.scrollHeight;
+  }
+  
+  log.innerHTML += '\n<span class="done">══════════════════════════════\n';
+  log.innerHTML += created + '/5 posts publicados correctamente.\n</span>';
+  
+  if (created > 0) {
+    log.innerHTML += '<span class="ok">Puedes ir a /blog para verlos.\n</span>';
+  }
+  
+  btn.textContent = '✓ Completado';
+};
+</script>
+</body>
+</html>
