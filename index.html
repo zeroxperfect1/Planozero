@@ -34,6 +34,11 @@
     <meta name="theme-color" content="#FF5F1F" />
     <link rel="icon" type="image/svg+xml" href="/logo-planozero.svg" />
 
+    <!-- Google Fonts: Inter, JetBrains Mono, Outfit, Roboto, Roboto Mono + more -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;700&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&family=Roboto+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+
     <!-- Organization + WebSite Schema (static — Googlebot sees this without JS) -->
     <script type="application/ld+json">
     {
@@ -68,10 +73,37 @@
   </head>
   <body>
     <div id="root">
-      <div style="display: flex; align-items: center; justify-content: center; height: 100vh; background: #fff; color: #666; font-family: sans-serif;">
+      <div id="loading-placeholder" style="display: flex; align-items: center; justify-content: center; height: 100vh; background: #09090b; color: #666; font-family: sans-serif;">
         <p>Cargando Agencia Planozero...</p>
       </div>
     </div>
+    <!-- DEBUG: Error overlay (remove after fix) -->
+    <div id="debug-overlay" style="display:none;position:fixed;inset:0;background:#09090b;color:#ff5f1f;font-family:monospace;padding:2rem;z-index:99999;overflow:auto;font-size:13px;"></div>
+    <script>
+      window.__debugLog = function(msg, color) {
+        var el = document.getElementById('debug-overlay');
+        if(el) { el.style.display='block'; el.innerHTML += '<div style="color:'+(color||'#aaa')+'">'+msg+'</div>'; }
+      };
+      window.onerror = function(msg, src, line, col, err) {
+        window.__debugLog('❌ ERROR: ' + msg, '#ff5f1f');
+        window.__debugLog('📁 Archivo: ' + src + ':' + line + ':' + col, '#facc15');
+        if(err && err.stack) window.__debugLog('<pre style="white-space:pre-wrap;color:#f87171">'+err.stack+'</pre>');
+        return false;
+      };
+      window.onunhandledrejection = function(e) {
+        window.__debugLog('❌ PROMISE REJECTION: ' + e.reason, '#ff5f1f');
+        if(e.reason && e.reason.stack) window.__debugLog('<pre style="white-space:pre-wrap;color:#f87171">'+e.reason.stack+'</pre>');
+      };
+      // After 4 seconds, if React hasn't mounted, show status
+      setTimeout(function() {
+        var root = document.getElementById('root');
+        var placeholder = document.getElementById('loading-placeholder');
+        if(placeholder && root && root.contains(placeholder)) {
+          window.__debugLog('⚠️ React no montó después de 4s. El JS puede estar fallando al importar módulos.', '#facc15');
+          window.__debugLog('Revisar: main.tsx → index.css → App.tsx → CMSRenderer.tsx', '#94a3b8');
+        }
+      }, 4000);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
     
     <!-- Google Analytics -->

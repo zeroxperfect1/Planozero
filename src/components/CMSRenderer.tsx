@@ -25,11 +25,88 @@ import {
   Loader2,
   Phone,
   Clock,
-  ArrowRight
+  ArrowRight,
+  TrendingUp,
+  TrendingDown
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { auth } from '../lib/firebase';
 import api from '../services/api';
+// ─── Material UI for MD3 widgets ─────────────────────────────────────────────
+import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
+import MuiButtonBase from '@mui/material/Button';
+import MuiCardBase from '@mui/material/Card';
+import MuiCardMediaBase from '@mui/material/CardMedia';
+import MuiCardContentBase from '@mui/material/CardContent';
+import MuiCardActionsBase from '@mui/material/CardActions';
+import MuiChipBase from '@mui/material/Chip';
+import MuiAlertBase from '@mui/material/Alert';
+import MuiAlertTitleBase from '@mui/material/AlertTitle';
+import MuiTextFieldBase from '@mui/material/TextField';
+import MuiDividerBase from '@mui/material/Divider';
+import MuiTypography from '@mui/material/Typography';
+import MuiBox from '@mui/material/Box';
+import MuiStepper from '@mui/material/Stepper';
+import MuiStep from '@mui/material/Step';
+import MuiStepLabel from '@mui/material/StepLabel';
+import MuiStepContent from '@mui/material/StepContent';
+
+// Helper: build MUI theme from CSS variables at render time
+const buildMuiTheme = () => {
+  const style = getComputedStyle(document.documentElement);
+  const get = (v: string, fallback: string) => style.getPropertyValue(v).trim() || fallback;
+  const primary   = get('--color-primary',   '#6750A4');
+  const secondary = get('--color-secondary', '#625B71');
+  const bg        = get('--color-bg',        '#FFFBFE');
+  const surface   = get('--color-surface',   '#FFFBFE');
+  const text      = get('--color-text',      '#1C1B1F');
+  const textMuted = get('--color-text-muted','#49454F');
+  const border    = get('--color-border',    '#CAC4D0');
+  const radiusMd  = parseInt(get('--radius-md', '12'));
+  const radiusLg  = parseInt(get('--radius-lg', '16'));
+  const fontBody  = get('--font-body',    "'Roboto', sans-serif");
+  const fontHead  = get('--font-heading', "'Roboto', sans-serif");
+
+  const isDark = bg.startsWith('#0') || bg.startsWith('#1') || bg.startsWith('#2');
+
+  return createTheme({
+    palette: {
+      mode: isDark ? 'dark' : 'light',
+      primary:    { main: primary },
+      secondary:  { main: secondary },
+      background: { default: bg, paper: surface },
+      text:       { primary: text, secondary: textMuted },
+      divider:    border,
+    },
+    typography: {
+      fontFamily: fontBody,
+      h5: { fontFamily: fontHead },
+      h6: { fontFamily: fontHead },
+    },
+    shape: { borderRadius: radiusMd },
+    components: {
+      MuiButton:  { styleOverrides: { root: { textTransform: 'none', fontWeight: 600, borderRadius: radiusMd } } },
+      MuiCard:    { styleOverrides: { root: { borderRadius: radiusLg } } },
+      MuiChip:    { styleOverrides: { root: { borderRadius: radiusMd } } },
+      MuiTextField: { styleOverrides: { root: { '& .MuiOutlinedInput-root': { borderRadius: radiusMd } } } },
+    },
+  });
+};
+
+// Wrapper that provides MUI theme from design system tokens
+const WithMuiTheme = ({ children }: { children: React.ReactNode }) => {
+  const [theme, setTheme] = useState(() => buildMuiTheme());
+
+  useEffect(() => {
+    // Re-sync theme when CSS tokens change
+    const observer = new MutationObserver(() => setTheme(buildMuiTheme()));
+    const style = document.getElementById('pz-design-tokens');
+    if (style) observer.observe(style, { childList: true, characterData: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
+  return <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>;
+};
 
 
 export interface CMSNode {
@@ -589,21 +666,17 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
 
   // --- New PlanoZero Advanced Widgets ---
 
-  MainHero: ({ title, part1, part2, subtitle, ctaText }) => {
+  MainHero: ({ title, part1, part2, subtitle, ctaText, bgImage }) => {
     const rawX = useMotionValue(0.5);
     const rawY = useMotionValue(0.5);
-    const springCfg = { damping: 28, stiffness: 60 };
-    // Orb follows mouse with strong movement
-    const orbX = useSpring(useTransform(rawX, [0, 1], [-80, 80]), springCfg);
-    const orbY = useSpring(useTransform(rawY, [0, 1], [-60, 60]), springCfg);
-    // Grid drifts slowly
-    const gridX = useSpring(useTransform(rawX, [0, 1], [-15, 15]), springCfg);
-    const gridY = useSpring(useTransform(rawY, [0, 1], [-10, 10]), springCfg);
-    // Decorative elements at mid-depth
-    const deco1X = useSpring(useTransform(rawX, [0, 1], [-25, 25]), springCfg);
-    const deco1Y = useSpring(useTransform(rawY, [0, 1], [-20, 20]), springCfg);
-    const deco2X = useSpring(useTransform(rawX, [0, 1], [20, -20]), springCfg);
-    const deco2Y = useSpring(useTransform(rawY, [0, 1], [15, -15]), springCfg);
+    const springCfg = { damping: 32, stiffness: 50 };
+
+    // Photo parallax — slow, cinematic
+    const bgX = useSpring(useTransform(rawX, [0, 1], [-30, 30]), springCfg);
+    const bgY = useSpring(useTransform(rawY, [0, 1], [-18, 18]), springCfg);
+    // Orb follows cursor
+    const orbX = useSpring(useTransform(rawX, [0, 1], [-60, 60]), springCfg);
+    const orbY = useSpring(useTransform(rawY, [0, 1], [-40, 40]), springCfg);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
       const rect = e.currentTarget.getBoundingClientRect();
@@ -611,77 +684,106 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
       rawY.set((e.clientY - rect.top) / rect.height);
     };
 
+    const heroBg = bgImage || '/hero-bg.png';
+
     return (
       <section
-        className="relative z-10 px-6 lg:px-12 py-28 md:py-40 bg-zinc-950 overflow-hidden min-h-[90vh] flex items-center"
+        className="relative z-10 overflow-hidden min-h-screen flex items-end bg-zinc-950"
         onMouseMove={handleMouseMove}
       >
-        {/* Blueprint grid — slow parallax layer */}
-        <motion.div style={{ x: gridX, y: gridY }} className="absolute inset-0 text-[var(--color-secondary)]/5 pointer-events-none">
-          <BlueprintLine className="w-full h-full" />
+        {/* ── Full-bleed background photo ─────────────────────────────────── */}
+        <motion.div
+          style={{ x: bgX, y: bgY }}
+          className="absolute inset-[-4%] pointer-events-none"
+        >
+          <img
+            src={heroBg}
+            alt=""
+            className="w-full h-full object-cover object-center"
+          />
         </motion.div>
 
-        {/* Orange orb — follows cursor */}
+        {/* ── Cinematic overlay stack ──────────────────────────────────────── */}
+        {/* Grain texture via SVG filter */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 0.035 }}>
+          <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feBlend in="SourceGraphic" mode="multiply"/></filter>
+          <rect width="100%" height="100%" filter="url(#grain)"/>
+        </svg>
+        {/* Bottom-up dark vignette — where text lives */}
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/20 pointer-events-none" />
+        {/* Left vignette for more depth */}
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/80 via-zinc-950/20 to-transparent pointer-events-none" />
+        {/* Top dark fade */}
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/50 to-transparent pointer-events-none" style={{ height: '35%' }} />
+        {/* Brand warm tint */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-[var(--color-primary)]/12 via-transparent to-transparent pointer-events-none" />
+
+        {/* Warm orb — follows cursor, subtle */}
         <motion.div
           style={{ x: orbX, y: orbY }}
-          className="absolute top-1/3 left-1/4 w-[700px] h-[700px] bg-[var(--color-primary)]/6 blur-[200px] rounded-full pointer-events-none"
-        />
-        {/* Cyan orb — counter-moves */}
-        <motion.div
-          style={{ x: deco2X, y: deco2Y }}
-          className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-cyan-400/4 blur-[180px] rounded-full pointer-events-none"
+          className="absolute top-1/2 left-1/3 w-[900px] h-[900px] bg-[var(--color-primary)]/5 blur-[220px] rounded-full pointer-events-none"
         />
 
-        {/* Corner technical annotations */}
-        <div className="absolute top-5 left-6 font-mono text-[7px] text-[var(--color-secondary)]/30 uppercase tracking-widest hidden md:block select-none">X:000.0 / Y:000.0</div>
-        <div className="absolute top-5 right-6 font-mono text-[7px] text-[var(--color-secondary)]/30 uppercase tracking-widest hidden md:block select-none">SYS_STATUS: ONLINE</div>
-        <div className="absolute bottom-5 left-6 font-mono text-[7px] text-[var(--color-secondary)]/20 uppercase tracking-widest hidden md:block select-none">PLANOZERO_VER_2.0</div>
-        <div className="absolute bottom-5 right-6 font-mono text-[7px] text-[var(--color-secondary)]/20 uppercase tracking-widest hidden md:block select-none">SCL:1:1 / DPI:300</div>
+        {/* ── Corner annotations (subtle, low opacity) ─────────────────────── */}
+        <div className="absolute top-6 left-8 font-mono text-[7px] text-white/20 uppercase tracking-widest hidden md:block select-none">PLANOZERO / EST. 2020</div>
+        <div className="absolute top-6 right-8 font-mono text-[7px] text-white/20 uppercase tracking-widest hidden md:block select-none">SCL · CHILE</div>
 
-        {/* Floating decorative elements — mid parallax */}
-        <motion.div style={{ x: deco1X, y: deco1Y }} className="absolute top-10 right-1/4 hidden xl:block text-[var(--color-secondary)]/25">
-          <BlueprintMeasurement label="Scale_Vertical_x2" className="w-40 -rotate-12" />
-        </motion.div>
-        <motion.div style={{ x: deco2X, y: deco1Y }} className="absolute left-4 bottom-20 hidden xl:block text-[var(--color-secondary)]/40">
-          <BlueprintCrosshair />
-        </motion.div>
-        <motion.div style={{ x: deco1X, y: deco2Y }} className="absolute right-8 top-1/2 hidden xl:block text-[var(--color-primary)]/25">
-          <BlueprintCrosshair />
-        </motion.div>
+        {/* ── Text content — bottom-aligned, full width ─────────────────────── */}
+        <div className="relative z-10 w-full px-8 lg:px-16 pb-20 md:pb-28 pt-40">
+          <div className="max-w-[1400px] mx-auto">
 
-        <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 w-full relative z-10">
-          <div className="max-w-4xl text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-400/5 border border-[var(--color-secondary)]/20 text-[9px] font-mono mb-6 md:mb-8 uppercase tracking-[0.3em] font-black text-[var(--color-secondary)]">
+            {/* Eyebrow */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/15 backdrop-blur-sm text-[9px] font-mono mb-8 uppercase tracking-[0.3em] font-black text-[var(--color-secondary)]"
+            >
               <div className="w-1.5 h-1.5 bg-[var(--color-primary)] rounded-full animate-pulse" />
               BRAND STRATEGY / EVOLVE
-            </div>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter leading-[0.92] mb-8 uppercase text-white">
-              {part1 || 'La arquitectura de tu marca,'} <br />
+            </motion.div>
+
+            {/* Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="text-5xl md:text-7xl lg:text-8xl xl:text-[100px] font-black tracking-tighter leading-[0.9] mb-8 uppercase text-white max-w-5xl"
+            >
+              {part1 || 'La arquitectura'}<br />
+              {'de tu marca,'}<br />
               <span className="text-[var(--color-primary)]">{part2 || 'desde lo esencial.'}</span>
-            </h1>
-            <div className="max-w-xl space-y-8">
-              <p className="text-base md:text-xl text-zinc-400 font-medium leading-relaxed">
-                {subtitle || 'Estudio de branding y diseño estratégico enfocado en la precisión técnica y la narrativa visual. Descubrimos la esencia de tu negocio para materializarla en arquitecturas digitales que redefinen el estándar de tu industria.'}
+            </motion.h1>
+
+            {/* Divider + subtitle + CTA in a row */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="flex flex-col lg:flex-row items-start lg:items-end gap-8 lg:gap-16"
+            >
+              <div className="w-12 h-[2px] bg-[var(--color-primary)] flex-shrink-0 mt-2 hidden lg:block" />
+              <p className="text-base md:text-lg text-zinc-300 font-medium leading-relaxed max-w-lg">
+                {subtitle || 'Estudio de branding y diseño estratégico. Decodificamos la esencia de tu negocio para materializarla en arquitecturas digitales que redefinen el estándar de tu industria.'}
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4 flex-shrink-0">
                 <button
                   onClick={() => document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-[var(--color-primary)] text-white px-8 py-4 font-black transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[var(--color-primary-hover)] shadow-[0_0_40px_rgba(255,95,31,0.3)] text-sm uppercase tracking-[0.2em] group"
+                  className="bg-[var(--color-primary)] text-white px-8 py-4 font-black transition-all duration-300 flex items-center gap-2 hover:bg-[var(--color-primary-hover)] shadow-[0_0_40px_rgba(255,95,31,0.4)] text-sm uppercase tracking-[0.2em] group"
                 >
                   {ctaText || "LET'S BUILD"}
                   <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                 </button>
                 <button
                   onClick={() => document.getElementById('servicios')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="border border-zinc-700 hover:border-zinc-400 text-zinc-400 hover:text-white px-8 py-4 font-mono text-[10px] uppercase tracking-[0.3em] transition-all duration-300"
+                  className="border border-white/25 hover:border-white/60 text-white/60 hover:text-white px-8 py-4 font-mono text-[10px] uppercase tracking-[0.3em] transition-all duration-300 backdrop-blur-sm"
                 >
                   VER SERVICIOS →
                 </button>
               </div>
-            </div>
-          </div>
+            </motion.div>
 
-          <BlueprintComputer />
+          </div>
         </div>
       </section>
     );
@@ -1229,6 +1331,180 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
     );
   }
 };
+
+// ─── MATERIAL DESIGN 3 WIDGET COMPONENTS ─────────────────────────────────────
+const MD3_WIDGETS: Record<string, React.FC<any>> = {
+
+  MuiButton: ({ label = 'Botón', variant = 'contained', color = 'primary', href, size = 'medium' }) => (
+    <WithMuiTheme>
+      <MuiBox sx={{ py: 1 }}>
+        <MuiButtonBase
+          variant={(variant as any) || 'contained'}
+          color={(color as any) || 'primary'}
+          size={(size as any) || 'medium'}
+          href={href || undefined}
+          disableElevation={variant === 'contained'}
+        >
+          {label || 'Botón Material'}
+        </MuiButtonBase>
+      </MuiBox>
+    </WithMuiTheme>
+  ),
+
+  MuiCard: ({ title, subtitle, body, image, ctaText, ctaHref, elevation = 2 }) => (
+    <WithMuiTheme>
+      <MuiCardBase elevation={Number(elevation) || 2} sx={{ my: 2 }}>
+        {image && <MuiCardMediaBase component="img" height="200" image={image} alt={title || ''} />}
+        <MuiCardContentBase>
+          {subtitle && (
+            <MuiTypography variant="caption" color="text.secondary" sx={{ letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700, display: 'block', mb: 0.5 }}>
+              {subtitle}
+            </MuiTypography>
+          )}
+          <MuiTypography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>{title || 'Título de la card'}</MuiTypography>
+          {body && <MuiTypography variant="body2" color="text.secondary">{body}</MuiTypography>}
+        </MuiCardContentBase>
+        {ctaText && (
+          <MuiCardActionsBase sx={{ px: 2, pb: 2 }}>
+            <MuiButtonBase size="small" color="primary" href={ctaHref || '#'} variant="contained" disableElevation>
+              {ctaText}
+            </MuiButtonBase>
+          </MuiCardActionsBase>
+        )}
+      </MuiCardBase>
+    </WithMuiTheme>
+  ),
+
+  MuiChip: ({ label = 'Etiqueta', color = 'primary', variant = 'filled' }) => (
+    <WithMuiTheme>
+      <MuiBox sx={{ py: 1 }}>
+        <MuiChipBase label={label} color={(color as any) || 'primary'} variant={(variant as any) || 'filled'} />
+      </MuiBox>
+    </WithMuiTheme>
+  ),
+
+  MuiAlert: ({ message = 'Mensaje de alerta', severity = 'info', variant = 'standard', title }) => (
+    <WithMuiTheme>
+      <MuiAlertBase severity={(severity as any) || 'info'} variant={(variant as any) || 'standard'} sx={{ my: 2 }}>
+        {title && <MuiAlertTitleBase>{title}</MuiAlertTitleBase>}
+        {message}
+      </MuiAlertBase>
+    </WithMuiTheme>
+  ),
+
+  MuiTextField: ({ label = 'Campo', placeholder, helperText, variant = 'outlined', type = 'text' }) => (
+    <WithMuiTheme>
+      <MuiBox sx={{ py: 1 }}>
+        <MuiTextFieldBase
+          label={label}
+          placeholder={placeholder}
+          helperText={helperText}
+          variant={(variant as any) || 'outlined'}
+          type={type || 'text'}
+          fullWidth
+          size="medium"
+        />
+      </MuiBox>
+    </WithMuiTheme>
+  ),
+
+  MuiDivider: ({ text, orientation = 'horizontal' }) => (
+    <WithMuiTheme>
+      <MuiDividerBase orientation={(orientation as any) || 'horizontal'} sx={{ my: 3 }}>
+        {text || undefined}
+      </MuiDividerBase>
+    </WithMuiTheme>
+  ),
+
+  MuiStatsCard: ({ value = '—', label = 'KPI', trend, icon, color = 'primary' }) => {
+    const isPositive = trend && trend.startsWith('+');
+    const isNegative = trend && trend.startsWith('-');
+    return (
+      <WithMuiTheme>
+        <MuiCardBase elevation={2} sx={{ my: 2 }}>
+          <MuiCardContentBase>
+            <MuiBox sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <MuiTypography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                {label}
+              </MuiTypography>
+              {icon && <MuiTypography variant="h5">{icon}</MuiTypography>}
+            </MuiBox>
+            <MuiTypography variant="h4" sx={{ fontWeight: 900, mb: 0.5 }}>
+              {value}
+            </MuiTypography>
+            {trend && (
+              <MuiBox sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                {isPositive && <TrendingUp className="w-3 h-3" style={{ color: '#16a34a' }} />}
+                {isNegative && <TrendingDown className="w-3 h-3" style={{ color: '#dc2626' }} />}
+                <MuiTypography variant="caption" sx={{ color: isPositive ? '#16a34a' : isNegative ? '#dc2626' : 'text.secondary', fontWeight: 600 }}>
+                  {trend}
+                </MuiTypography>
+              </MuiBox>
+            )}
+          </MuiCardContentBase>
+        </MuiCardBase>
+      </WithMuiTheme>
+    );
+  },
+
+  MuiStepper: ({ title, steps = '', active = 0 }) => {
+    const stepList = (steps || '').split('|').filter(Boolean).map((s: string) => {
+      const [stepTitle, ...rest] = s.split(':');
+      return { title: stepTitle?.trim(), desc: rest.join(':').trim() };
+    });
+    return (
+      <WithMuiTheme>
+        <MuiBox sx={{ py: 2 }}>
+          {title && <MuiTypography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>{title}</MuiTypography>}
+          <MuiStepper activeStep={Number(active) || 0} orientation="vertical">
+            {stepList.map((step: any, i: number) => (
+              <MuiStep key={i}>
+                <MuiStepLabel>{step.title || `Paso ${i + 1}`}</MuiStepLabel>
+                {step.desc && (
+                  <MuiStepContent>
+                    <MuiTypography variant="body2" color="text.secondary">{step.desc}</MuiTypography>
+                  </MuiStepContent>
+                )}
+              </MuiStep>
+            ))}
+          </MuiStepper>
+        </MuiBox>
+      </WithMuiTheme>
+    );
+  },
+
+  MuiTimeline: ({ title, items = '' }) => {
+    const itemList = (items || '').split('|').filter(Boolean).map((s: string) => {
+      const parts = s.split(':');
+      return { date: parts[0]?.trim(), title: parts[1]?.trim(), desc: parts.slice(2).join(':').trim() };
+    });
+    return (
+      <WithMuiTheme>
+        <MuiBox sx={{ py: 2 }}>
+          {title && <MuiTypography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>{title}</MuiTypography>}
+          <MuiBox sx={{ position: 'relative', pl: 3 }}>
+            <MuiBox sx={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '2px', bgcolor: 'primary.main', opacity: 0.3 }} />
+            {itemList.map((item: any, i: number) => (
+              <MuiBox key={i} sx={{ mb: 3, position: 'relative' }}>
+                <MuiBox sx={{ position: 'absolute', left: -14, top: 4, width: 10, height: 10, borderRadius: '50%', bgcolor: 'primary.main' }} />
+                {item.date && (
+                  <MuiTypography variant="caption" color="primary" sx={{ fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', mb: 0.25 }}>
+                    {item.date}
+                  </MuiTypography>
+                )}
+                <MuiTypography variant="subtitle2" sx={{ fontWeight: 700 }}>{item.title || `Evento ${i + 1}`}</MuiTypography>
+                {item.desc && <MuiTypography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>{item.desc}</MuiTypography>}
+              </MuiBox>
+            ))}
+          </MuiBox>
+        </MuiBox>
+      </WithMuiTheme>
+    );
+  },
+};
+
+// Merge MD3 widgets into the main WIDGET_COMPONENTS registry
+Object.assign(WIDGET_COMPONENTS, MD3_WIDGETS);
 
 export const CMSZoneRenderer = ({ zone, editing }: { zone: CMSZone, editing?: boolean }) => {
   if (!zone || !zone.children) return null;

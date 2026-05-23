@@ -104,7 +104,9 @@ import {
   Sliders,
   Wand2,
   RefreshCcw,
-  CornerDownRight
+  CornerDownRight,
+  Minus,
+  Monitor
 } from 'lucide-react';
 
 import ReactMarkdown from 'react-markdown';
@@ -359,7 +361,8 @@ const WIDGET_CATEGORIES = {
   INTERACTION: 'Formularios y Feedback',
   SECTIONS: 'Secciones Pre-diseñadas',
   PAGE_EXAMPLES: 'Plantillas de Página',
-  ELEMENTS: 'Elementos de Contenido'
+  ELEMENTS: 'Elementos de Contenido',
+  MATERIAL: '⬛ Material Design 3',
 };
 
 const WIDGET_REGISTRY: Record<string, { label: string, icon: any, schema: any[], category: string }> = {
@@ -702,7 +705,108 @@ const WIDGET_REGISTRY: Record<string, { label: string, icon: any, schema: any[],
       { id: '1', name: 'title', label: 'Título Sección', type: 'text', required: false },
       { id: '2', name: 'urls', label: 'URLs Logos (CSV)', type: 'longtext', required: false }
     ]
-  }
+  },
+
+  // ─── MATERIAL DESIGN 3 WIDGETS ─────────────────────────────────────────────
+  MuiButton: {
+    category: WIDGET_CATEGORIES.MATERIAL,
+    label: 'MD Botón',
+    icon: Zap,
+    schema: [
+      { id: '1', name: 'label',   label: 'Texto del botón',         type: 'text', required: true  },
+      { id: '2', name: 'variant', label: 'Variante (contained/outlined/text)', type: 'text', required: false },
+      { id: '3', name: 'color',   label: 'Color (primary/secondary/error)', type: 'text', required: false },
+      { id: '4', name: 'href',    label: 'Link (URL)',              type: 'text', required: false },
+      { id: '5', name: 'size',    label: 'Tamaño (small/medium/large)', type: 'text', required: false },
+    ]
+  },
+  MuiCard: {
+    category: WIDGET_CATEGORIES.MATERIAL,
+    label: 'MD Card',
+    icon: Square,
+    schema: [
+      { id: '1', name: 'title',    label: 'Título',              type: 'text',      required: true  },
+      { id: '2', name: 'subtitle', label: 'Subtítulo (meta)',    type: 'text',      required: false },
+      { id: '3', name: 'body',     label: 'Descripción',         type: 'longtext',  required: false },
+      { id: '4', name: 'image',    label: 'URL Imagen cabecera', type: 'image',     required: false },
+      { id: '5', name: 'ctaText',  label: 'Texto Botón Acción',  type: 'text',      required: false },
+      { id: '6', name: 'ctaHref',  label: 'Link Botón Acción',   type: 'text',      required: false },
+      { id: '7', name: 'elevation',label: 'Elevación (0-24)',     type: 'number',    required: false },
+    ]
+  },
+  MuiChip: {
+    category: WIDGET_CATEGORIES.MATERIAL,
+    label: 'MD Chip/Etiqueta',
+    icon: Bell,
+    schema: [
+      { id: '1', name: 'label',   label: 'Texto',                   type: 'text', required: true  },
+      { id: '2', name: 'color',   label: 'Color (primary/secondary/default)', type: 'text', required: false },
+      { id: '3', name: 'variant', label: 'Variante (filled/outlined)', type: 'text', required: false },
+    ]
+  },
+  MuiAlert: {
+    category: WIDGET_CATEGORIES.MATERIAL,
+    label: 'MD Alerta',
+    icon: Bell,
+    schema: [
+      { id: '1', name: 'message',  label: 'Mensaje',                   type: 'longtext', required: true  },
+      { id: '2', name: 'severity', label: 'Tipo (success/info/warning/error)', type: 'text', required: false },
+      { id: '3', name: 'variant',  label: 'Variante (filled/outlined/standard)', type: 'text', required: false },
+      { id: '4', name: 'title',    label: 'Título Alerta',             type: 'text',     required: false },
+    ]
+  },
+  MuiTextField: {
+    category: WIDGET_CATEGORIES.MATERIAL,
+    label: 'MD Campo de Texto',
+    icon: Send,
+    schema: [
+      { id: '1', name: 'label',       label: 'Etiqueta',   type: 'text', required: true  },
+      { id: '2', name: 'placeholder', label: 'Placeholder', type: 'text', required: false },
+      { id: '3', name: 'helperText',  label: 'Texto ayuda', type: 'text', required: false },
+      { id: '4', name: 'variant',     label: 'Variante (outlined/filled/standard)', type: 'text', required: false },
+      { id: '5', name: 'type',        label: 'Tipo (text/email/password/number)', type: 'text', required: false },
+    ]
+  },
+  MuiDivider: {
+    category: WIDGET_CATEGORIES.MATERIAL,
+    label: 'MD Divisor',
+    icon: Minus,
+    schema: [
+      { id: '1', name: 'text',        label: 'Texto en divisor (opc.)', type: 'text', required: false },
+      { id: '2', name: 'orientation', label: 'Orientación (horizontal/vertical)', type: 'text', required: false },
+    ]
+  },
+  MuiStatsCard: {
+    category: WIDGET_CATEGORIES.MATERIAL,
+    label: 'MD Tarjeta de Métrica',
+    icon: Monitor,
+    schema: [
+      { id: '1', name: 'value',  label: 'Valor / Número',      type: 'text', required: true  },
+      { id: '2', name: 'label',  label: 'Etiqueta (KPI)',       type: 'text', required: true  },
+      { id: '3', name: 'trend',  label: 'Tendencia (+12% / -3%)', type: 'text', required: false },
+      { id: '4', name: 'icon',   label: 'Emoji o ícono',        type: 'text', required: false },
+      { id: '5', name: 'color',  label: 'Acento (primary/secondary/success)', type: 'text', required: false },
+    ]
+  },
+  MuiStepper: {
+    category: WIDGET_CATEGORIES.MATERIAL,
+    label: 'MD Pasos / Stepper',
+    icon: CheckCircle2,
+    schema: [
+      { id: '1', name: 'title',   label: 'Título del proceso', type: 'text', required: false },
+      { id: '2', name: 'steps',   label: 'Pasos (título:desc separados por |)', type: 'longtext', required: true },
+      { id: '3', name: 'active',  label: 'Paso activo (0-based)', type: 'number', required: false },
+    ]
+  },
+  MuiTimeline: {
+    category: WIDGET_CATEGORIES.MATERIAL,
+    label: 'MD Timeline / Línea de tiempo',
+    icon: CalendarIcon,
+    schema: [
+      { id: '1', name: 'title', label: 'Título de la línea', type: 'text', required: false },
+      { id: '2', name: 'items', label: 'Items (fecha:titulo:desc separados por |)', type: 'longtext', required: true },
+    ]
+  },
 };
 
 const GRID_TEMPLATES = [
