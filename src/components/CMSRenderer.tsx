@@ -1015,7 +1015,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
     </div>
   ),
 
-  ContactPanel: ({ title, part1, part2, email, phone }) => {
+  ContactPanel: ({ title, part1, part2, email, phone, founderImage, founderName, founderRole }) => {
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [formData, setFormData] = useState({
@@ -1090,9 +1090,51 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
     }
 
     return (
-      <section className="py-10 md:py-16 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-900 px-6 overflow-hidden" id="contacto">
+      <section className="py-10 md:py-16 bg-zinc-950 border-t border-zinc-800 px-6 overflow-hidden" id="contacto">
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_1.8fr] gap-8 items-start">
           <div className="space-y-6 lg:sticky lg:top-24">
+
+            {/* ── Founder avatar card ── */}
+            <div className="flex items-center gap-4 p-4 bg-zinc-900 border border-zinc-800 relative overflow-hidden group">
+              {/* Blueprint micro-grid */}
+              <div className="absolute inset-0 text-cyan-400/5 pointer-events-none">
+                <BlueprintLine className="w-full h-full" />
+              </div>
+
+              {/* Photo / initials */}
+              <div className="relative flex-shrink-0 z-10">
+                <div className="w-14 h-14 overflow-hidden border border-zinc-700">
+                  {founderImage ? (
+                    <img
+                      src={founderImage}
+                      alt={founderName || 'Raúl Mella'}
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-[#FF5F1F] font-black text-xl font-mono select-none">
+                      {(founderName || 'Raúl Mella').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                {/* Animated online indicator */}
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 border-2 border-zinc-950 rounded-full bg-[#FF5F1F]">
+                  <div className="absolute inset-0 bg-[#FF5F1F] rounded-full animate-ping opacity-60" />
+                </div>
+              </div>
+
+              {/* Text */}
+              <div className="relative z-10 min-w-0">
+                <div className="font-mono text-[7px] text-cyan-400/50 uppercase tracking-[0.3em] mb-1">
+                  {founderRole || 'FUNDADOR / CEO'}
+                </div>
+                <p className="text-sm font-black text-white tracking-tighter truncate">
+                  {founderName || 'Raúl Mella'}
+                </p>
+                <p className="text-[10px] text-zinc-500 font-medium">Disponible para conversar ↗</p>
+              </div>
+            </div>
+            {/* ──────────────────────── */}
+
             <div className="relative">
               <h2 className="text-3xl md:text-4xl font-black tracking-tighter uppercase leading-[0.9] italic relative z-10">
                 {part1 || 'Inicia tu'} <br />
@@ -1102,8 +1144,8 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
             
             <div className="space-y-4">
               <div className="flex items-center gap-4 group">
-                <div className="w-11 h-11 rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-sm group-hover:bg-[#FF5F1F] group-hover:border-[#FF5F1F] transition-all duration-500 shrink-0">
-                  <Mail className="w-5 h-5 text-[#FF5F1F] group-hover:text-white transition-all" />
+                <div className="w-10 h-10 bg-zinc-900 flex items-center justify-center border border-zinc-800 group-hover:bg-[#FF5F1F] group-hover:border-[#FF5F1F] transition-all duration-300 shrink-0">
+                  <Mail className="w-4 h-4 text-[#FF5F1F] group-hover:text-white transition-all" />
                 </div>
                 <div>
                   <p className="text-[9px] font-black font-mono text-zinc-500 uppercase tracking-[0.3em] leading-none">Email</p>
@@ -1111,8 +1153,8 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                 </div>
               </div>
               <div className="flex items-center gap-4 group">
-                <div className="w-11 h-11 rounded-2xl bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-sm group-hover:bg-[#FF5F1F] group-hover:border-[#FF5F1F] transition-all duration-500 shrink-0">
-                  <Phone className="w-5 h-5 text-[#FF5F1F] group-hover:text-white transition-all" />
+                <div className="w-10 h-10 bg-zinc-900 flex items-center justify-center border border-zinc-800 group-hover:bg-[#FF5F1F] group-hover:border-[#FF5F1F] transition-all duration-300 shrink-0">
+                  <Phone className="w-4 h-4 text-[#FF5F1F] group-hover:text-white transition-all" />
                 </div>
                 <div>
                   <p className="text-[9px] font-black font-mono text-zinc-500 uppercase tracking-[0.3em] leading-none">WhatsApp</p>
