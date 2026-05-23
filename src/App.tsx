@@ -5,6 +5,7 @@ import Blog from './pages/Blog';
 import PostDetail from './pages/PostDetail';
 import Dashboard from './pages/Dashboard';
 import CMSPage from './pages/CMSPage';
+import Portfolio from './pages/Portfolio';
 
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
@@ -56,6 +57,7 @@ export default function App() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<PostDetail />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/portafolio" element={<Portfolio />} />
             <Route path="/:slug" element={<CMSPage />} />
           </Routes>
         </Router>
