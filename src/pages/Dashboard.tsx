@@ -3046,6 +3046,23 @@ Datos:
                <p className="text-[10px] text-zinc-500 truncate">{user.email}</p>
             </div>
           </div>
+          <a
+            href="/portafolio"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between w-full px-4 py-3 mb-4 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-[#FF5F1F]/50 hover:bg-zinc-800 transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 bg-[#FF5F1F]/10 rounded-lg flex items-center justify-center text-[#FF5F1F] group-hover:bg-[#FF5F1F] group-hover:text-white transition-all">
+                <ExternalLink className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <p className="text-xs font-black text-white leading-tight">Portafolio</p>
+                <p className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Privado</p>
+              </div>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-zinc-600 group-hover:text-[#FF5F1F] transition-colors" />
+          </a>
           <button onClick={handleLogout} className="flex items-center gap-2 text-xs text-zinc-500 hover:text-[#FF5F1F] transition-colors">
             <LogOut className="w-4 h-4" /> Cerrar Sesión
           </button>
