@@ -52,25 +52,30 @@ export const Navbar = () => {
           }))
           .filter((menu: any) => menu.published !== false);
         
+        // Ítems de anclaje siempre presentes (secciones del home)
+        const anchorItems: MenuItem[] = [
+          { name: 'Servicios',   path: '#servicios',   order: 10 },
+          { name: 'Experiencia', path: '#experiencia', order: 20 },
+          { name: 'Proceso',     path: '#proceso',     order: 30 },
+        ];
         const blogItem: MenuItem = { name: 'Blog', path: '/blog', order: 50 };
-        const combined = [...dynamicPages, ...customMenus, blogItem].sort((a, b) => (a.order || 0) - (b.order || 0));
 
-        if (combined.length > 0) {
-          setMenus(combined);
-        } else {
-          setMenus([
-            { name: 'Servicios', path: '#servicios' },
-            { name: 'Experiencia', path: '#experiencia' },
-            { name: 'Proceso', path: '#proceso' },
-            { name: 'Blog', path: '/blog' },
-          ]);
-        }
+        // Páginas CMS dinámicas se insertan con order 40 si no tienen uno
+        const combined = [
+          ...anchorItems,
+          ...dynamicPages.map(p => ({ ...p, order: p.order ?? 40 })),
+          ...customMenus,
+          blogItem,
+        ].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        setMenus(combined);
       } catch (e) {
         console.error("Error fetching menus:", e);
         setMenus([
-          { name: 'Servicios', path: '#servicios' },
+          { name: 'Servicios',   path: '#servicios' },
           { name: 'Experiencia', path: '#experiencia' },
-          { name: 'Proceso', path: '#proceso' }
+          { name: 'Proceso',     path: '#proceso' },
+          { name: 'Blog',        path: '/blog' },
         ]);
       }
     };

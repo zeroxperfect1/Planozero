@@ -1,4 +1,5 @@
 import express from 'express';
+import https from 'https';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -129,6 +130,46 @@ async function startServer() {
       }
     }
   });
+
+  // ─── PHP API Proxy ────────────────────────────────────────────────────────
+  // En desarrollo, reenvía todas las llamadas /api/*.php a planozero.cl
+  app.use('/api', (req: any, res: any, next: any) => {
+    if (!req.path.endsWith('.php')) return next();
+
+    const qs = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
+    const targetPath = `/api${req.path}${qs}`;
+
+    const options: https.RequestOptions = {
+      hostname: 'planozero.cl',
+      path: targetPath,
+      method: req.method,
+      headers: {
+        ...req.headers,
+        host: 'planozero.cl',
+        'x-forwarded-host': req.headers.host || 'localhost:3000',
+      },
+    };
+
+    console.log(`[PROXY →] ${req.method} https://planozero.cl${targetPath}`);
+
+    const proxyReq = https.request(options, (proxyRes) => {
+      res.status(proxyRes.statusCode || 200);
+      // Forward response headers (skip hop-by-hop)
+      const skip = new Set(['transfer-encoding', 'connection', 'keep-alive']);
+      Object.entries(proxyRes.headers).forEach(([k, v]) => {
+        if (!skip.has(k) && v) res.setHeader(k, v as string | string[]);
+      });
+      proxyRes.pipe(res, { end: true });
+    });
+
+    proxyReq.on('error', (err) => {
+      console.error('[PROXY ERROR]', err.message);
+      if (!res.headersSent) res.status(502).json({ error: 'Proxy error', message: err.message });
+    });
+
+    req.pipe(proxyReq, { end: true });
+  });
+  // ─────────────────────────────────────────────────────────────────────────
 
   // API Routes
   app.use(express.json());
