@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'motion/react';
 import { 
   Zap,
   Bell,
@@ -123,6 +123,50 @@ const BlueprintComputer = () => (
     </svg>
   </motion.div>
 );
+
+// ─── 3D Tilt Card ─────────────────────────────────────────────────────────────
+const TiltCard3D = ({
+  children,
+  className,
+  glowColor = 'cyan',
+}: {
+  children: React.ReactNode;
+  className?: string;
+  glowColor?: 'cyan' | 'orange';
+}) => {
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const cx = glowColor === 'cyan' ? 'rgba(34,211,238,0.14)' : 'rgba(255,95,31,0.15)';
+  const bx = glowColor === 'cyan' ? 'rgba(34,211,238,0.18)' : 'rgba(255,95,31,0.22)';
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+    const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+    setTilt({ x: dy * -7, y: dx * 7 });
+  };
+
+  return (
+    <div style={{ perspective: '1000px' }}>
+      <motion.div
+        className={className}
+        animate={{
+          rotateX: tilt.x,
+          rotateY: tilt.y,
+          boxShadow:
+            tilt.x !== 0 || tilt.y !== 0
+              ? `0 30px 60px -10px ${cx}, 0 0 0 1px ${bx}`
+              : 'none',
+        }}
+        transition={{ type: 'spring', damping: 22, stiffness: 200 }}
+        onMouseMove={handleMove}
+        onMouseLeave={() => setTilt({ x: 0, y: 0 })}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+};
+// ──────────────────────────────────────────────────────────────────────────────
 
 export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   HeroSplit: ({ title, content, image }) => (
@@ -545,45 +589,103 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
 
   // --- New PlanoZero Advanced Widgets ---
 
-  MainHero: ({ title, part1, part2, subtitle, ctaText }) => (
-    <section className="relative z-10 mb-12 md:mb-24 px-6 lg:px-12 py-32 md:py-40">
-      <div className="absolute top-10 right-1/4 hidden xl:block text-zinc-300">
-        <BlueprintMeasurement label="Scale_Vertical_x2" className="w-40 -rotate-12" />
-      </div>
-      <div className="absolute left-0 bottom-0 hidden xl:block text-zinc-200">
-        <BlueprintCrosshair />
-      </div>
-      
-      <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
-        <div className="max-w-4xl text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-full text-[10px] font-mono mb-6 md:mb-8 border border-zinc-200 dark:border-zinc-700 uppercase tracking-widest font-black">
-            <div className="w-1.5 h-1.5 bg-[#FF5F1F] rounded-full" />
-            BRAND STRATEGY / EVOLVE
-          </div>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter leading-[0.95] md:leading-[0.85] mb-8 uppercase">
-            {part1 || 'La arquitectura de tu marca,'} <br />
-            <span className="text-[#FF5F1F]">{part2 || 'desde lo esencial.'}</span>
-          </h1>
-          <div className="max-w-xl space-y-8 md:space-y-10">
-            <p className="text-lg md:text-2xl text-zinc-500 dark:text-zinc-400 font-medium leading-tight">
-              {subtitle || 'Estudio de branding y diseño estratégico enfocado en la precisión técnica y la narrativa visual. Descubrimos la esencia de tu negocio para materializarla en arquitecturas digitales que redefinen el estándar de tu industria.'}
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <button 
-                onClick={() => document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })}
-                className="bg-[#FF5F1F] text-white px-10 py-5 rounded-full font-medium transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[#E54E10] shadow-lg shadow-[#FF5F1F]/20 text-lg group"
-              >
-                {ctaText || "LET'S BUILD"}
-                <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-              </button>
+  MainHero: ({ title, part1, part2, subtitle, ctaText }) => {
+    const rawX = useMotionValue(0.5);
+    const rawY = useMotionValue(0.5);
+    const springCfg = { damping: 28, stiffness: 60 };
+    // Orb follows mouse with strong movement
+    const orbX = useSpring(useTransform(rawX, [0, 1], [-80, 80]), springCfg);
+    const orbY = useSpring(useTransform(rawY, [0, 1], [-60, 60]), springCfg);
+    // Grid drifts slowly
+    const gridX = useSpring(useTransform(rawX, [0, 1], [-15, 15]), springCfg);
+    const gridY = useSpring(useTransform(rawY, [0, 1], [-10, 10]), springCfg);
+    // Decorative elements at mid-depth
+    const deco1X = useSpring(useTransform(rawX, [0, 1], [-25, 25]), springCfg);
+    const deco1Y = useSpring(useTransform(rawY, [0, 1], [-20, 20]), springCfg);
+    const deco2X = useSpring(useTransform(rawX, [0, 1], [20, -20]), springCfg);
+    const deco2Y = useSpring(useTransform(rawY, [0, 1], [15, -15]), springCfg);
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      rawX.set((e.clientX - rect.left) / rect.width);
+      rawY.set((e.clientY - rect.top) / rect.height);
+    };
+
+    return (
+      <section
+        className="relative z-10 px-6 lg:px-12 py-28 md:py-40 bg-zinc-950 overflow-hidden min-h-[90vh] flex items-center"
+        onMouseMove={handleMouseMove}
+      >
+        {/* Blueprint grid — slow parallax layer */}
+        <motion.div style={{ x: gridX, y: gridY }} className="absolute inset-0 text-cyan-400/5 pointer-events-none">
+          <BlueprintLine className="w-full h-full" />
+        </motion.div>
+
+        {/* Orange orb — follows cursor */}
+        <motion.div
+          style={{ x: orbX, y: orbY }}
+          className="absolute top-1/3 left-1/4 w-[700px] h-[700px] bg-[#FF5F1F]/6 blur-[200px] rounded-full pointer-events-none"
+        />
+        {/* Cyan orb — counter-moves */}
+        <motion.div
+          style={{ x: deco2X, y: deco2Y }}
+          className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-cyan-400/4 blur-[180px] rounded-full pointer-events-none"
+        />
+
+        {/* Corner technical annotations */}
+        <div className="absolute top-5 left-6 font-mono text-[7px] text-cyan-400/30 uppercase tracking-widest hidden md:block select-none">X:000.0 / Y:000.0</div>
+        <div className="absolute top-5 right-6 font-mono text-[7px] text-cyan-400/30 uppercase tracking-widest hidden md:block select-none">SYS_STATUS: ONLINE</div>
+        <div className="absolute bottom-5 left-6 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden md:block select-none">PLANOZERO_VER_2.0</div>
+        <div className="absolute bottom-5 right-6 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden md:block select-none">SCL:1:1 / DPI:300</div>
+
+        {/* Floating decorative elements — mid parallax */}
+        <motion.div style={{ x: deco1X, y: deco1Y }} className="absolute top-10 right-1/4 hidden xl:block text-cyan-400/25">
+          <BlueprintMeasurement label="Scale_Vertical_x2" className="w-40 -rotate-12" />
+        </motion.div>
+        <motion.div style={{ x: deco2X, y: deco1Y }} className="absolute left-4 bottom-20 hidden xl:block text-cyan-400/40">
+          <BlueprintCrosshair />
+        </motion.div>
+        <motion.div style={{ x: deco1X, y: deco2Y }} className="absolute right-8 top-1/2 hidden xl:block text-[#FF5F1F]/25">
+          <BlueprintCrosshair />
+        </motion.div>
+
+        <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 w-full relative z-10">
+          <div className="max-w-4xl text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-400/5 border border-cyan-400/20 text-[9px] font-mono mb-6 md:mb-8 uppercase tracking-[0.3em] font-black text-cyan-400">
+              <div className="w-1.5 h-1.5 bg-[#FF5F1F] rounded-full animate-pulse" />
+              BRAND STRATEGY / EVOLVE
+            </div>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter leading-[0.92] mb-8 uppercase text-white">
+              {part1 || 'La arquitectura de tu marca,'} <br />
+              <span className="text-[#FF5F1F]">{part2 || 'desde lo esencial.'}</span>
+            </h1>
+            <div className="max-w-xl space-y-8">
+              <p className="text-base md:text-xl text-zinc-400 font-medium leading-relaxed">
+                {subtitle || 'Estudio de branding y diseño estratégico enfocado en la precisión técnica y la narrativa visual. Descubrimos la esencia de tu negocio para materializarla en arquitecturas digitales que redefinen el estándar de tu industria.'}
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <button
+                  onClick={() => document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="bg-[#FF5F1F] text-white px-8 py-4 font-black transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[#E54E10] shadow-[0_0_40px_rgba(255,95,31,0.3)] text-sm uppercase tracking-[0.2em] group"
+                >
+                  {ctaText || "LET'S BUILD"}
+                  <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                </button>
+                <button
+                  onClick={() => document.getElementById('servicios')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="border border-zinc-700 hover:border-zinc-400 text-zinc-400 hover:text-white px-8 py-4 font-mono text-[10px] uppercase tracking-[0.3em] transition-all duration-300"
+                >
+                  VER SERVICIOS →
+                </button>
+              </div>
             </div>
           </div>
+
+          <BlueprintComputer />
         </div>
-        
-        <BlueprintComputer />
-      </div>
-    </section>
-  ),
+      </section>
+    );
+  },
 
   ServicesAccordion: ({ title, subtitle, ...props }) => {
     const [active, setActive] = useState<number | null>(0);
@@ -620,38 +722,40 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
     ];
 
     return (
-      <section className="space-y-4 max-w-5xl mx-auto py-24 relative" id="servicios">
+      <section className="max-w-5xl mx-auto py-24 relative px-6" id="servicios">
         <div className="absolute -left-32 top-1/4 rotate-90 hidden xl:block">
-          <BlueprintMeasurement label="Scale_Vertical_x4" className="w-64 text-zinc-400" />
+          <BlueprintMeasurement label="Scale_Vertical_x4" className="w-64 text-cyan-400/30" />
         </div>
         <div className="absolute -right-12 top-0 hidden xl:block">
-          <BlueprintCrosshair className="text-zinc-400" />
+          <BlueprintCrosshair className="text-cyan-400/40" />
         </div>
-        
-        <div className="text-center mb-16 px-4">
-          <span className="text-xs font-mono tracking-widest text-[#FF5F1F] uppercase mb-4 block font-black">{subtitle || 'Nuestros Servicios'}</span>
-          <h2 className="text-4xl md:text-5xl lg:text-7xl font-black mb-8 italic tracking-tighter uppercase leading-none">{title || 'Soluciones integrales de diseño'}</h2>
-          <p className="text-zinc-500 max-w-3xl mx-auto text-xl font-medium leading-relaxed">Soluciones integrales pensadas para elevar tu marca, desde la estrategia inicial hasta la ejecución visual en todos los puntos de contacto.</p>
+        <div className="absolute top-6 right-0 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden lg:block select-none">MODULE_ID: SVC / COUNT: 04</div>
+
+        <div className="text-center mb-14 px-4">
+          <span className="text-[9px] font-mono tracking-[0.4em] text-[#FF5F1F] uppercase mb-4 block font-black">{subtitle || 'Nuestros Servicios'}</span>
+          <h2 className="text-4xl md:text-5xl lg:text-7xl font-black mb-6 italic tracking-tighter uppercase leading-none text-white">{title || 'Soluciones integrales de diseño'}</h2>
+          <p className="text-zinc-500 max-w-3xl mx-auto text-base font-medium leading-relaxed">Soluciones integrales pensadas para elevar tu marca, desde la estrategia inicial hasta la ejecución visual en todos los puntos de contacto.</p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-3">
           {services.map((service, idx) => (
             <div 
               key={idx}
-              className={`border border-zinc-200 dark:border-zinc-800 rounded-[40px] overflow-hidden transition-all duration-700 ${active === idx ? 'bg-zinc-50 dark:bg-zinc-900 shadow-2xl' : 'bg-transparent'}`}
+              className={`border transition-all duration-500 ${active === idx ? 'border-[#FF5F1F]/40 bg-zinc-900' : 'border-zinc-800 bg-zinc-950/50 hover:border-zinc-700'}`}
             >
               <button 
                 className="w-full p-5 md:p-7 flex items-center justify-between text-left focus:outline-none"
                 onClick={() => setActive(active === idx ? null : idx)}
               >
-                <div className="flex items-center gap-10">
-                  <div className={`p-4 rounded-[16px] transition-all duration-500 ${active === idx ? 'bg-[#FF5F1F] text-white rotate-6 scale-110' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'}`}>
-                    <service.icon className="w-6 h-6" />
+                <div className="flex items-center gap-5">
+                  <span className="font-mono text-[8px] text-zinc-600 tracking-widest hidden md:block">[{String(idx + 1).padStart(2, '0')}]</span>
+                  <div className={`p-3 transition-all duration-500 ${active === idx ? 'bg-[#FF5F1F] text-white' : 'bg-zinc-900 text-zinc-500 border border-zinc-800'}`}>
+                    <service.icon className="w-5 h-5" />
                   </div>
-                  <h3 className="text-xl md:text-2xl font-black italic uppercase tracking-tighter leading-none">{service.title}</h3>
+                  <h3 className="text-lg md:text-2xl font-black italic uppercase tracking-tighter leading-none text-white">{service.title}</h3>
                 </div>
-                <div className={`w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 flex items-center justify-center transition-all duration-500 ${active === idx ? 'bg-[#FF5F1F] border-[#FF5F1F] text-white rotate-180' : ''}`}>
-                  {active === idx ? <Minus className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                <div className={`w-8 h-8 border flex items-center justify-center transition-all duration-500 ${active === idx ? 'bg-[#FF5F1F] border-[#FF5F1F] text-white' : 'border-zinc-700 text-zinc-500'}`}>
+                  {active === idx ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                 </div>
               </button>
               
@@ -663,13 +767,13 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <div className="px-8 pb-10 md:px-20 md:pb-12 space-y-8">
-                      <p className="text-zinc-500 text-lg leading-relaxed font-medium">{service.description}</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12">
+                    <div className="px-6 pb-8 md:px-16 md:pb-10 space-y-6 border-t border-zinc-800/50">
+                      <p className="text-zinc-400 text-base leading-relaxed font-medium pt-6">{service.description}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-10">
                         {service.points.map((point, pIdx) => (
-                          <div key={pIdx} className="flex items-center gap-4 group">
-                            <div className="w-2 h-2 bg-[#FF5F1F] rounded-full scale-100 group-hover:scale-150 transition-transform duration-300" />
-                            <span className="text-base font-black uppercase tracking-tighter leading-none">{point}</span>
+                          <div key={pIdx} className="flex items-center gap-3 group">
+                            <div className="w-1.5 h-1.5 bg-[#FF5F1F] flex-shrink-0" />
+                            <span className="text-sm font-black uppercase tracking-tighter leading-none text-zinc-300 group-hover:text-white transition-colors">{point}</span>
                           </div>
                         ))}
                       </div>
@@ -685,50 +789,64 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   },
 
   ExperienceBanner: ({ title, subtitle, points, ctaText }) => (
-    <section className="py-32 px-6 md:px-12 bg-zinc-50 dark:bg-zinc-950/50 border-y border-zinc-100 dark:border-zinc-900" id="experiencia">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-32 items-center max-w-7xl mx-auto">
-        <div className="space-y-12">
+    <section className="py-20 md:py-28 px-6 md:px-12 bg-zinc-900 border-y border-zinc-800 relative overflow-hidden" id="experiencia">
+      {/* Blueprint grid */}
+      <div className="absolute inset-0 text-cyan-400/5 pointer-events-none">
+        <BlueprintLine className="w-full h-full" />
+      </div>
+      <div className="absolute top-4 right-6 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden md:block select-none">MODULE: EXPERIENCE / ID: EXP_01</div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 items-center max-w-7xl mx-auto relative z-10">
+        <div className="space-y-8">
           <div>
-            <span className="text-xs font-mono tracking-[0.4em] text-[#FF5F1F] uppercase mb-4 block font-black">{subtitle || 'NUESTRO BACKGROUND'}</span>
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter leading-none">{title || 'Años de experiencia, una nueva visión.'}</h2>
+            <span className="text-[9px] font-mono tracking-[0.4em] text-[#FF5F1F] uppercase mb-4 block font-black">{subtitle || 'NUESTRO BACKGROUND'}</span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black italic uppercase tracking-tighter leading-none text-white">{title || 'Años de experiencia, una nueva visión.'}</h2>
           </div>
-          <div className="space-y-8 text-zinc-500 text-xl md:text-2xl font-medium leading-relaxed">
+          <div className="space-y-4 text-zinc-400 text-base md:text-lg font-medium leading-relaxed">
             <p>PlanoZero nace como un estudio enfocado en la excelencia visual, pero nuestro equipo cuenta con un historial comprobado en la creación y posicionamiento de marcas exitosas.</p>
-            <p className="text-lg opacity-80">Agenda una sesión estratégica de 30 minutos. Hablaremos de la visión de tu marca y te mostraremos nuestro portafolio adaptado a tu industria.</p>
+            <p className="text-sm opacity-80">Agenda una sesión estratégica de 30 minutos. Hablaremos de la visión de tu marca y te mostraremos nuestro portafolio adaptado a tu industria.</p>
           </div>
-          <button className="bg-[#FF5F1F] text-white px-12 py-6 rounded-full font-black flex items-center justify-center gap-6 shadow-[0_20px_50px_rgba(255,95,31,0.3)] hover:scale-105 active:scale-95 transition-all text-xl uppercase tracking-widest italic leading-none group">
-            <Calendar className="w-7 h-7 group-hover:rotate-12 transition-transform" />
+          <button className="bg-[#FF5F1F] text-white px-8 py-4 font-black flex items-center gap-4 shadow-[0_0_40px_rgba(255,95,31,0.2)] hover:shadow-[0_0_60px_rgba(255,95,31,0.4)] hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-[0.2em] group">
+            <Calendar className="w-5 h-5 group-hover:rotate-12 transition-transform" />
             {ctaText || 'Agendar Sesión'}
           </button>
         </div>
 
         <div className="relative">
-          <div className="absolute inset-0 bg-[#FF5F1F] blur-[180px] opacity-10 rounded-full" />
+          <div className="absolute inset-0 bg-[#FF5F1F]/5 blur-[100px] rounded-full" />
           <motion.div 
-            whileHover={{ y: -15, rotate: -1.5, scale: 1.02 }}
-            className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[56px] p-12 md:p-16 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] overflow-hidden group"
+            whileHover={{ y: -6 }}
+            className="relative bg-zinc-950 border border-zinc-700 p-8 md:p-10 shadow-2xl overflow-hidden group"
           >
-            <div className="flex items-center gap-8 mb-16">
-              <div className="w-20 h-20 bg-[#FF5F1F]/10 rounded-[28px] flex items-center justify-center text-[#FF5F1F]">
-                <Calendar className="w-10 h-10" />
+            {/* Blueprint grid on card */}
+            <div className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
+              <BlueprintLine className="text-cyan-400" />
+            </div>
+            
+            <div className="flex items-center gap-5 mb-8 relative z-10">
+              <div className="w-12 h-12 bg-[#FF5F1F]/10 border border-[#FF5F1F]/30 flex items-center justify-center text-[#FF5F1F]">
+                <Calendar className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-3xl font-black italic uppercase tracking-tighter">Discovery Call</h3>
-                <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-[0.2em] mt-2">Google Meet / Zoom - 30 Min</p>
+                <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">Discovery Call</h3>
+                <p className="text-[9px] text-cyan-400/50 font-mono uppercase tracking-[0.2em] mt-1">Google Meet / Zoom — 30 Min</p>
               </div>
             </div>
             
-            <div className="space-y-8">
-               {(points || 'Presentación de portafolio,Auditoría de marca y objetivos').split(',').map((item: string, i: number) => (
-                  <div key={i} className="flex items-center justify-between p-8 bg-zinc-50 dark:bg-zinc-800/80 rounded-[32px] border border-zinc-100 dark:border-zinc-700/50 hover:border-[#FF5F1F]/50 group/item transition-all duration-500">
-                    <span className="text-xl font-black uppercase tracking-tighter leading-none">{item.trim()}</span>
-                    <ArrowUpRight className="w-6 h-6 text-zinc-400 group-hover/item:text-[#FF5F1F] group-hover/item:translate-x-1 group-hover/item:-translate-y-1 transition-all" />
+            <div className="space-y-2 relative z-10">
+              {(points || 'Presentación de portafolio,Auditoría de marca y objetivos').split(',').map((item: string, i: number) => (
+                <div key={i} className="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 hover:border-[#FF5F1F]/50 group/item transition-all duration-300">
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-[8px] text-cyan-400/40 tracking-widest">[{String(i + 1).padStart(2, '0')}]</span>
+                    <span className="text-sm font-black uppercase tracking-tighter leading-none text-white">{item.trim()}</span>
                   </div>
-               ))}
+                  <ArrowRight className="w-4 h-4 text-zinc-600 group-hover/item:text-[#FF5F1F] transition-colors" />
+                </div>
+              ))}
             </div>
 
-            <div className="absolute top-0 right-0 w-44 h-44 pointer-events-none opacity-20">
-               <BlueprintLine className="text-zinc-300" />
+            <div className="absolute bottom-3 right-3 opacity-30">
+              <BlueprintCrosshair className="text-cyan-400" />
             </div>
           </motion.div>
         </div>
@@ -737,36 +855,45 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   ),
 
   PhilosophyGrid: ({ title, subtitle, part1Title, part1Desc, part2Title, part2Desc }) => (
-    <section className="py-24 md:py-32 relative overflow-hidden px-6">
-      <div className="absolute inset-0 bg-[#FF5F1F]/[0.02] -skew-y-3 pointer-events-none" />
+    <section className="py-20 md:py-28 relative overflow-hidden px-6 bg-zinc-950">
+      {/* Blueprint grid */}
+      <div className="absolute inset-0 text-cyan-400/[0.04] pointer-events-none">
+        <BlueprintLine className="w-full h-full" />
+      </div>
+      <div className="absolute top-4 left-6 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden md:block select-none">MODULE: PHILOSOPHY / ID: PHI_01</div>
       
-      <div className="relative z-10 text-center mb-16 md:mb-24">
-        <span className="text-xs font-mono tracking-[0.4em] text-[#FF5F1F] uppercase mb-5 block font-black">{subtitle || 'NUESTRA FILOSOFÍA'}</span>
-        <h2 className="text-4xl md:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter max-w-5xl mx-auto leading-none">{title || 'Diseñamos desde lo esencial para construir lo extraordinario.'}</h2>
-        <div className="max-w-3xl mx-auto mt-10 space-y-6 text-zinc-500 text-xl font-medium leading-relaxed">
-          <p>PlanoZero no es solo un estudio de diseño; somos arquitectos de identidad. Creemos firmemente que, en un ecosistema saturado de ruido visual, la claridad es el activo más valioso de una marca.</p>
-          <p>Nuestro equipo garantiza que cada decisión visual tenga un propósito comercial real y medible.</p>
+      <div className="relative z-10 text-center mb-12 md:mb-16">
+        <span className="text-[9px] font-mono tracking-[0.4em] text-[#FF5F1F] uppercase mb-5 block font-black">{subtitle || 'NUESTRA FILOSOFÍA'}</span>
+        <h2 className="text-4xl md:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter max-w-5xl mx-auto leading-none text-white">{title || 'Diseñamos desde lo esencial para construir lo extraordinario.'}</h2>
+        <div className="max-w-3xl mx-auto mt-8 text-zinc-400 text-base font-medium leading-relaxed">
+          <p>PlanoZero no es solo un estudio de diseño; somos arquitectos de identidad. En un ecosistema saturado de ruido visual, la claridad es el activo más valioso de una marca.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-7xl mx-auto">
-        <motion.div 
-          whileHover={{ y: -10 }}
-          className="p-12 md:p-16 rounded-[48px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col gap-10 hover:shadow-2xl transition-all duration-700"
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-px max-w-7xl mx-auto border border-zinc-800 relative z-10">
+        <TiltCard3D
+          glowColor="cyan"
+          className="p-10 md:p-14 bg-zinc-900/60 hover:bg-zinc-900 flex flex-col gap-8 relative overflow-hidden group transition-colors duration-300"
         >
-          <div className="text-7xl font-black text-[#FF5F1F]/20 font-mono italic tracking-tighter">01.</div>
-          <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-none">{part1Title || 'Plano: El Blueprint.'}</h3>
-          <p className="text-zinc-500 text-xl leading-relaxed font-medium">{part1Desc || 'La base estructurada, la arquitectura visual y el diseño meticuloso. Representa el plano maestro sobre el cual planificamos y proyectamos el futuro de tu marca.'}</p>
-        </motion.div>
+          <div className="absolute top-4 right-4 opacity-20 group-hover:opacity-50 transition-opacity">
+            <BlueprintCrosshair className="text-cyan-400 w-8 h-8" />
+          </div>
+          <div className="text-6xl font-black text-cyan-400/20 font-mono italic tracking-tighter">01.</div>
+          <h3 className="text-3xl font-black italic uppercase tracking-tighter leading-none text-white">{part1Title || 'Plano: El Blueprint.'}</h3>
+          <p className="text-zinc-500 text-base leading-relaxed font-medium">{part1Desc || 'La base estructurada, la arquitectura visual y el diseño meticuloso. Representa el plano maestro sobre el cual planificamos y proyectamos el futuro de tu marca.'}</p>
+        </TiltCard3D>
 
-        <motion.div 
-          whileHover={{ y: -10 }}
-          className="p-12 md:p-16 rounded-[48px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col gap-10 hover:shadow-2xl transition-all duration-700"
+        <TiltCard3D
+          glowColor="orange"
+          className="p-10 md:p-14 bg-zinc-900/30 hover:bg-zinc-900/60 flex flex-col gap-8 relative overflow-hidden border-l border-zinc-800 group transition-colors duration-300"
         >
-          <div className="text-7xl font-black text-[#FF5F1F]/20 font-mono italic tracking-tighter">02.</div>
-          <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-none">{part2Title || 'Zero: La Esencia.'}</h3>
-          <p className="text-zinc-500 text-xl leading-relaxed font-medium">{part2Desc || 'El lienzo en blanco. Evoca nuestra mentalidad de trabajo: cero fricciones, cero ruido visual, volviendo siempre a lo que es verdaderamente esencial para conectar.'}</p>
-        </motion.div>
+          <div className="absolute top-4 right-4 opacity-20 group-hover:opacity-50 transition-opacity">
+            <BlueprintCrosshair className="text-[#FF5F1F] w-8 h-8" />
+          </div>
+          <div className="text-6xl font-black text-[#FF5F1F]/20 font-mono italic tracking-tighter">02.</div>
+          <h3 className="text-3xl font-black italic uppercase tracking-tighter leading-none text-white">{part2Title || 'Zero: La Esencia.'}</h3>
+          <p className="text-zinc-500 text-base leading-relaxed font-medium">{part2Desc || 'El lienzo en blanco. Evoca nuestra mentalidad de trabajo: cero fricciones, cero ruido visual, volviendo siempre a lo que es verdaderamente esencial para conectar.'}</p>
+        </TiltCard3D>
       </div>
     </section>
   ),
@@ -779,51 +906,91 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
         return { num, title, desc };
       });
 
+    // Animated counter — triggers when section scrolls into view
+    const sectionRef = useRef<HTMLDivElement>(null);
+    const [inView, setInView] = useState(false);
+    const [counts, setCounts] = useState([0, 0, 0, 0]);
+
+    useEffect(() => {
+      const observer = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting && !inView) setInView(true); },
+        { threshold: 0.3 }
+      );
+      if (sectionRef.current) observer.observe(sectionRef.current);
+      return () => observer.disconnect();
+    }, [inView]);
+
+    useEffect(() => {
+      if (!inView) return;
+      steps.forEach((step, i) => {
+        const target = parseInt(step.num, 10) || 0;
+        let current = 0;
+        const start = () => {
+          const tick = () => {
+            current++;
+            setCounts(prev => { const n = [...prev]; n[i] = current; return n; });
+            if (current < target) setTimeout(tick, 80);
+          };
+          setTimeout(tick, i * 200);
+        };
+        start();
+      });
+    }, [inView]); // eslint-disable-line
+
     return (
-      <section className="py-24 md:py-40 px-6 relative overflow-hidden" id="proceso">
-        <div className="absolute top-[30%] right-[-10%] opacity-5 pointer-events-none hidden lg:block scale-150">
-          <BlueprintLine className="w-[800px] h-[800px] text-[#FF5F1F]" />
+      <section className="py-20 md:py-32 px-6 relative overflow-hidden bg-zinc-900 border-y border-zinc-800" id="proceso" ref={sectionRef}>
+        {/* Blueprint grid background */}
+        <div className="absolute inset-0 text-cyan-400/5 pointer-events-none">
+          <BlueprintLine className="w-full h-full" />
         </div>
+        <div className="absolute top-4 right-6 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden md:block select-none">MODULE: PROCESS / STEPS: 04</div>
         
-        <div className="text-center mb-16 md:mb-24">
-          <span className="text-xs font-mono tracking-[0.5em] text-[#FF5F1F] uppercase mb-5 block font-black">{subtitle || 'NUESTRO PROCESO'}</span>
-          <h2 className="text-4xl md:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter leading-none">{title || 'Movimiento Hacia Adelante'}</h2>
+        <div className="text-center mb-14 md:mb-20 relative z-10">
+          <span className="text-[9px] font-mono tracking-[0.5em] text-[#FF5F1F] uppercase mb-5 block font-black">{subtitle || 'NUESTRO PROCESO'}</span>
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter leading-none text-white">{title || 'Movimiento Hacia Adelante'}</h2>
         </div>
 
-        <div className="max-w-7xl mx-auto relative">
-           <div className="absolute top-[4.5rem] left-0 w-full h-[1px] bg-zinc-200 dark:bg-zinc-800 hidden md:flex items-center justify-between px-32 italic text-[8px] font-mono text-zinc-400 font-bold tracking-[0.2em]">
-              <span>X_AXIS_01</span>
-              <span>FLOW_CONV_99</span>
-              <span>FIN_STAGE</span>
-           </div>
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Blueprint connecting line */}
+          <div className="absolute top-[1.75rem] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#FF5F1F]/30 to-transparent hidden md:block" />
+          <div className="absolute top-[1.4rem] left-0 w-full hidden md:flex items-center justify-between px-24">
+            <span className="font-mono text-[7px] text-cyan-400/25 tracking-widest">X_AXIS_01</span>
+            <span className="font-mono text-[7px] text-cyan-400/25 tracking-widest">FLOW_CONV_99</span>
+            <span className="font-mono text-[7px] text-cyan-400/25 tracking-widest">FIN_STAGE</span>
+          </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-4 gap-16 md:gap-12 lg:gap-20">
-             {steps.map((step, i) => (
-               <motion.div 
-                 key={i} 
-                 initial={{ opacity: 0, y: 30 }}
-                 whileInView={{ opacity: 1, y: 0 }}
-                 viewport={{ once: true }}
-                 transition={{ delay: i * 0.2, duration: 0.8 }}
-                 className="relative z-10 text-center md:text-left group"
-               >
-                 <div className="w-20 h-20 rounded-full bg-white dark:bg-zinc-950 border-2 border-[#FF5F1F] flex items-center justify-center font-mono font-bold text-[#FF5F1F] mb-10 shadow-2xl mx-auto md:mx-0 group-hover:scale-110 transition-transform duration-500">
-                    {step.num}
-                 </div>
-                 <h3 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter mb-6 leading-none">{step.title}</h3>
-                 <p className="text-zinc-500 text-lg leading-relaxed font-medium opacity-80">{step.desc}</p>
-               </motion.div>
-             ))}
-           </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8 lg:gap-14">
+            {steps.map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15, duration: 0.7 }}
+                className="relative z-10 text-center md:text-left group"
+              >
+                <motion.div
+                  className="w-14 h-14 bg-zinc-950 border border-[#FF5F1F]/60 flex items-center justify-center font-mono font-bold text-[#FF5F1F] text-sm mb-6 mx-auto md:mx-0 shadow-[0_0_20px_rgba(255,95,31,0.1)] cursor-default"
+                  whileHover={{ backgroundColor: '#FF5F1F', color: '#fff', scale: 1.1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {String(counts[i] || 0).padStart(2, '0')}
+                </motion.div>
+                <h3 className="text-xl md:text-2xl font-black italic uppercase tracking-tighter mb-4 leading-none text-white">{step.title}</h3>
+                <p className="text-zinc-500 text-sm leading-relaxed font-medium">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
     );
   },
 
   PartnersCloud: ({ title, urls }) => (
-    <div className="py-24 border-t border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center gap-12 max-w-7xl mx-auto px-6 mb-24">
-       <p className="font-mono text-xs uppercase tracking-[0.3em] font-black text-[#FF5F1F]">{title || 'CON QUÉ TRABAJAMOS:'}</p>
-       <div className="flex flex-wrap justify-center items-center gap-16 md:gap-24 grayscale opacity-40 hover:opacity-100 hover:grayscale-0 transition-all duration-1000">
+    <div className="py-14 bg-zinc-950 border-y border-zinc-800 flex flex-col items-center justify-center gap-8 px-6 relative overflow-hidden">
+      <div className="absolute inset-0 text-cyan-400/[0.03] pointer-events-none"><BlueprintLine className="w-full h-full" /></div>
+       <p className="font-mono text-[9px] uppercase tracking-[0.4em] font-black text-[#FF5F1F] relative z-10">{title || 'CON QUÉ TRABAJAMOS:'}</p>
+       <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 grayscale opacity-30 hover:opacity-70 hover:grayscale-0 transition-all duration-1000 relative z-10">
           {(urls || 'WordPress, Webflow, Sitefinity, Google Ads, Meta Business, Shopify Partner, AI Studio Google').split(',').map((u: string, i: number) => {
              const lower = u.trim().toLowerCase();
              let slug = lower.replace(/\s+/g, '');
@@ -838,9 +1005,9 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
              if (lower.includes('webflow')) slug = 'webflow';
              
              return (
-               <div key={i} className="flex flex-col items-center gap-3">
-                 <img src={slug ? `https://cdn.simpleicons.org/${slug}/808080` : undefined} alt={u} className="h-10 md:h-12 object-contain" referrerPolicy="no-referrer" />
-                 <span className="text-[8px] font-mono font-bold uppercase tracking-widest text-zinc-500">{u.trim()}</span>
+               <div key={i} className="flex flex-col items-center gap-2">
+                 <img src={slug ? `https://cdn.simpleicons.org/${slug}/808080` : undefined} alt={u} className="h-8 md:h-10 object-contain" referrerPolicy="no-referrer" />
+                 <span className="text-[7px] font-mono font-bold uppercase tracking-widest text-zinc-600">{u.trim()}</span>
                </div>
              );
           })}
