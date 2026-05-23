@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { handleFileUpload, deleteImageFromFirebase } from '../services/storageService';
 import api from '../services/api';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
@@ -64,8 +65,19 @@ import {
   Newspaper,
   RotateCcw,
   ShoppingBag,
-  PenTool
+  PenTool,
+  Sparkles,
+  BookOpen,
+  Target,
+  TrendingUp,
+  AlertTriangle,
+  Type as TypeIcon,
+  Sliders,
+  Wand2,
+  RefreshCcw,
+  CornerDownRight
 } from 'lucide-react';
+
 import ReactMarkdown from 'react-markdown';
 import Logo from '../components/Logo';
 import WysiwygEditor from '../components/WysiwygEditor';
@@ -73,6 +85,48 @@ import MediaLibrary from '../components/MediaLibrary';
 import { CMSZoneRenderer, CMSRenderNode } from '../components/CMSRenderer';
 import { LogViewer } from '../components/LogViewer';
 import HealthCheck from '../components/HealthCheck';
+
+
+// ─── Design System default tokens ────────────────────────────────────────────
+const DEFAULT_DESIGN_TOKENS: Record<string, string> = {
+  '--color-primary':        '#FF5F1F',
+  '--color-primary-hover':  '#E54E10',
+  '--color-secondary':      '#22D3EE',
+  '--color-bg':             '#09090B',
+  '--color-surface':        '#18181B',
+  '--color-surface-raised': '#27272A',
+  '--color-border':         '#27272A',
+  '--color-text':           '#FFFFFF',
+  '--color-text-muted':     '#71717A',
+  '--radius-sm':            '4px',
+  '--radius-md':            '8px',
+  '--radius-lg':            '16px',
+  '--radius-xl':            '32px',
+  '--font-heading':         "'Inter', system-ui, sans-serif",
+  '--font-body':            "'Inter', system-ui, sans-serif",
+  '--font-mono':            "'JetBrains Mono', monospace",
+  '--glow-intensity':       '0.30',
+};
+
+function applyDesignTokens(tokens: Record<string, string>) {
+  let style = document.getElementById('pz-design-tokens') as HTMLStyleElement | null;
+  if (!style) {
+    style = document.createElement('style');
+    style.id = 'pz-design-tokens';
+    document.head.appendChild(style);
+  }
+  const intensity = parseFloat(tokens['--glow-intensity'] ?? '0.30');
+  const primary = tokens['--color-primary'] ?? '#FF5F1F';
+  const sec = tokens['--color-secondary'] ?? '#22D3EE';
+  // Convert hex to rgb for glow
+  const hr = (hex: string) => { const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16); return `${r},${g},${b}`; };
+  const glowPrimary = `0 0 40px rgba(${hr(primary)},${intensity})`;
+  const glowSec     = `0 0 40px rgba(${hr(sec)},${(intensity*0.7).toFixed(2)})`;
+  const cssText = `:root{${Object.entries(tokens)
+    .filter(([k]) => k !== '--glow-intensity')
+    .map(([k,v]) => `${k}:${v}`).join(';')};--glow-primary:${glowPrimary};--glow-secondary:${glowSec};}`;
+  style.textContent = cssText;
+}
 
 
 interface Post {
@@ -712,7 +766,7 @@ const Dashboard = () => {
 
   const totalPages = Math.ceil(filteredPostsByStatus.length / postsPerPage);
 
-  const [view, setView] = useState<'overview' | 'posts' | 'messages' | 'config' | 'content-types' | 'pages' | 'menus' | 'ui-library' | 'logs' | 'mercado-publico'>('overview');
+  const [view, setView] = useState<'overview' | 'posts' | 'messages' | 'config' | 'content-types' | 'pages' | 'menus' | 'ui-library' | 'logs' | 'mercado-publico' | 'design-system'>('overview');
   useEffect(() => {
     setCurrentPage(1);
   }, [view]);
@@ -728,6 +782,20 @@ const Dashboard = () => {
   const [mpType, setMpType] = useState<'licitaciones' | 'compras-agiles'>('licitaciones');
   const [mpCurrentPage, setMpCurrentPage] = useState(1);
   const mpItemsPerPage = 10;
+
+  // ─ Licitación detail + AI analysis state
+  const [selectedMpItem, setSelectedMpItem] = useState<any | null>(null);
+  const [licitacionDetail, setLicitacionDetail] = useState<any | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<{ technical: string; opportunity: string } | null>(null);
+  const [loadingAI, setLoadingAI] = useState(false);
+  const [aiTab, setAiTab] = useState<'technical' | 'opportunity'>('technical');
+
+  // ─ Design System state
+  const [dsTokens, setDsTokens] = useState<Record<string, string>>(DEFAULT_DESIGN_TOKENS);
+  const [dsTab, setDsTab] = useState<'colors' | 'typography' | 'spacing' | 'effects'>('colors');
+  const [dsSaving, setDsSaving] = useState(false);
+  const [dsLoaded, setDsLoaded] = useState(false);
 
   const MP_CATEGORIES_KEYWORDS = {
     'DISEÑO': ['diseño', 'arquitectura', 'gráfico', 'industrial', 'urbanismo', 'paisaje', 'interiores', 'render'],
@@ -776,6 +844,9 @@ const Dashboard = () => {
     if (view === 'mercado-publico') {
       fetchMercadoPublico();
     }
+    if (view === 'design-system' && !dsLoaded) {
+      loadDesignTokens();
+    }
   }, [view, mpType]);
 
   const fetchMercadoPublico = async () => {
@@ -794,6 +865,130 @@ const Dashboard = () => {
       console.error("Error fetching Mercado Público data:", error);
     } finally {
       setLoadingMercadoPublico(false);
+    }
+  };
+
+  // ─ Design System persistence
+  const loadDesignTokens = async () => {
+    try {
+      const snap = await getDoc(doc(db, 'settings', 'design_system'));
+      if (snap.exists()) {
+        const saved = snap.data().tokens as Record<string, string>;
+        setDsTokens(saved);
+        applyDesignTokens(saved);
+      }
+    } catch (e) {
+      console.error('Error loading design tokens:', e);
+    } finally {
+      setDsLoaded(true);
+    }
+  };
+
+  const saveDesignTokens = async () => {
+    setDsSaving(true);
+    try {
+      await setDoc(doc(db, 'settings', 'design_system'), {
+        tokens: dsTokens,
+        updatedAt: serverTimestamp()
+      });
+    } catch (e) {
+      console.error('Error saving design tokens:', e);
+      alert('Error al guardar: ' + (e instanceof Error ? e.message : String(e)));
+    } finally {
+      setDsSaving(false);
+    }
+  };
+
+  const handleTokenChange = (key: string, value: string) => {
+    const next = { ...dsTokens, [key]: value };
+    setDsTokens(next);
+    applyDesignTokens(next);
+  };
+
+  // ─ Fetch full detail + documents for a licitación
+  const fetchLicitacionDetail = async (item: any) => {
+    setSelectedMpItem(item);
+    setLicitacionDetail(null);
+    setAiAnalysis(null);
+    setAiTab('technical');
+    setLoadingDetail(true);
+    try {
+      const ticket = '7E6FB3BF-05A0-41B6-B677-A6959AB7CA8D';
+      const res = await fetch(
+        `https://api.mercadopublico.cl/servicios/v1/publico/licitaciones.json?codigo=${item.CodigoExterno}&ticket=${ticket}`
+      );
+      const data = await res.json();
+      const detail = data?.Listado?.[0];
+      if (detail) {
+        setLicitacionDetail(detail);
+        analyzeWithGemini(detail);
+      }
+    } catch (e) {
+      console.error('Error fetching licitación detail:', e);
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
+  // ─ Gemini AI analysis
+  const analyzeWithGemini = async (detail: any) => {
+    setLoadingAI(true);
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+        setAiAnalysis({
+          technical: '⚠️ Agrega VITE_GEMINI_API_KEY en .env.local para activar el análisis IA.',
+          opportunity: '⚠️ Agrega VITE_GEMINI_API_KEY en .env.local para activar el análisis IA.'
+        });
+        return;
+      }
+
+      const items = (detail.Items?.Listado || [])
+        .map((i: any) => `- ${i.NombreEspecificacion || i.Descripcion || ''} (Cant: ${i.Cantidad || 'N/A'})`)
+        .join('\n');
+
+      const docs = (detail.Adjunto || []).map((d: any) => d.Nombre).join(', ');
+
+      const prompt = `Eres un experto en licitaciones públicas chilenas. Analiza y responde SOLO con JSON válido:
+
+{
+  "technical": "Resumen técnico: qué se contrata, monto, organismo, plazo cierre, requisitos técnicos clave, entregables y condiciones especiales.",
+  "opportunity": "Análisis para PlanoZero (branding, diseño digital, UX/UI, web, marketing): postular SÍ/NO/DEPENDE, fortalezas de PlanoZero, riesgos o requisitos que no cumple, recomendación final y puntuación de oportunidad 1-10 con justificación."
+}
+
+Datos:
+- Nombre: ${detail.Nombre}
+- Código: ${detail.CodigoExterno}
+- Descripción: ${detail.Descripcion || 'No disponible'}
+- Monto Estimado: $${detail.MontoEstimado?.toLocaleString('es-CL') || 'No especificado'} CLP
+- Fecha Cierre: ${detail.FechaCierre ? new Date(detail.FechaCierre).toLocaleDateString('es-CL') : 'N/A'}
+- Organismo: ${detail.Unidad?.NombreOrganismo || 'N/A'} (${detail.Unidad?.RegionUnidad || 'N/A'})
+- Items:\n${items || 'No especificados'}
+- Documentos: ${docs || 'Ninguno'}`;
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: 'application/json', temperature: 0.3 }
+          })
+        }
+      );
+
+      const result = await response.json();
+      const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) setAiAnalysis(JSON.parse(text));
+    } catch (e) {
+      console.error('AI error:', e);
+      setAiAnalysis({
+        technical: 'Error al generar análisis. Verifica tu API key de Gemini.',
+        opportunity: 'Error al generar análisis. Verifica tu API key de Gemini.'
+      });
+    } finally {
+      setLoadingAI(false);
     }
   };
 
@@ -1791,7 +1986,7 @@ const Dashboard = () => {
       mpCurrentPage * mpItemsPerPage
     );
 
-    return (
+    return (<>
     <motion.div
       key="mercado-view"
       initial={{ opacity: 0, x: -10 }}
@@ -1886,6 +2081,13 @@ const Dashboard = () => {
                         <p className="text-sm font-black text-white italic">$ {item.MontoEstimado ? item.MontoEstimado.toLocaleString() : 'N/A'}</p>
                      </div>
                      <div className="flex gap-2">
+                        <button
+                          onClick={() => fetchLicitacionDetail(item)}
+                          title="Analizar con IA"
+                          className="px-4 h-10 flex items-center gap-2 bg-[#FF5F1F]/10 border border-[#FF5F1F]/30 rounded-xl hover:bg-[#FF5F1F] text-[#FF5F1F] hover:text-white transition-all text-[9px] font-black uppercase tracking-widest"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" /> Analizar
+                        </button>
                         <a 
                           href={mpType === 'licitaciones' 
                             ? `https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsSupplier.aspx?idLicitacion=${item.CodigoExterno}`
@@ -1893,9 +2095,9 @@ const Dashboard = () => {
                           }
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-12 h-12 flex items-center justify-center bg-zinc-900 rounded-2xl hover:bg-[#FF5F1F] text-zinc-500 hover:text-white transition-all shadow-xl"
+                          className="w-10 h-10 flex items-center justify-center bg-zinc-900 rounded-xl hover:bg-zinc-800 text-zinc-500 hover:text-white transition-all"
                         >
-                           <ExternalLink className="w-5 h-5" />
+                           <ExternalLink className="w-4 h-4" />
                         </a>
                      </div>
                   </div>
@@ -1931,10 +2133,681 @@ const Dashboard = () => {
         )}
       </div>
     </motion.div>
+
+    {/* ─────────────────────────────────────────────
+         DETAIL PANEL (slide-in desde la derecha)
+    ───────────────────────────────────────────── */}
+    <AnimatePresence>
+      {selectedMpItem && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            onClick={() => { setSelectedMpItem(null); setLicitacionDetail(null); setAiAnalysis(null); }}
+          />
+
+          {/* Panel */}
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 250 }}
+            className="fixed inset-y-0 right-0 w-full max-w-2xl bg-zinc-950 border-l border-zinc-800 z-50 flex flex-col shadow-2xl"
+          >
+            {/* Panel header */}
+            <div className="flex items-start gap-4 p-5 border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-md flex-shrink-0">
+              <button
+                onClick={() => { setSelectedMpItem(null); setLicitacionDetail(null); setAiAnalysis(null); }}
+                className="w-9 h-9 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-xl text-zinc-400 hover:text-white transition-all flex-shrink-0 mt-0.5"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="min-w-0">
+                <span className="font-mono text-[9px] text-[#FF5F1F] uppercase tracking-widest">{selectedMpItem.CodigoExterno}</span>
+                <h2 className="font-black text-white text-base leading-tight mt-0.5 line-clamp-2">{selectedMpItem.Nombre}</h2>
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="text-[8px] text-zinc-500 font-mono uppercase tracking-widest">
+                    Cierre: {selectedMpItem.FechaCierre ? new Date(selectedMpItem.FechaCierre).toLocaleDateString('es-CL') : 'Pendiente'}
+                  </span>
+                  <span className="text-[8px] text-zinc-500 font-mono">|</span>
+                  <span className="text-[8px] text-zinc-500 font-mono uppercase tracking-widest">
+                    ${selectedMpItem.MontoEstimado ? selectedMpItem.MontoEstimado.toLocaleString('es-CL') : 'N/A'} CLP
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Panel body */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-6">
+
+              {/* Documents section */}
+              <div>
+                <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-3 flex items-center gap-2">
+                  <FileText className="w-3.5 h-3.5" /> Documentos adjuntos
+                </h3>
+
+                {loadingDetail ? (
+                  <div className="flex items-center gap-3 p-4 bg-zinc-900 rounded-2xl">
+                    <Loader2 className="w-4 h-4 animate-spin text-[#FF5F1F]" />
+                    <span className="text-xs text-zinc-500 font-mono">Cargando documentos...</span>
+                  </div>
+                ) : licitacionDetail ? (
+                  (licitacionDetail.Adjunto || []).length > 0 ? (
+                    <div className="space-y-2">
+                      {(licitacionDetail.Adjunto || []).map((doc: any, i: number) => (
+                        <a
+                          key={i}
+                          href={doc.URL || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-[#FF5F1F]/50 hover:bg-zinc-800 transition-all group"
+                        >
+                          <div className="w-8 h-8 bg-[#FF5F1F]/10 border border-[#FF5F1F]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <FileText className="w-4 h-4 text-[#FF5F1F]" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold text-white truncate">{doc.Nombre}</p>
+                            {doc.Descripcion && (
+                              <p className="text-[9px] text-zinc-500 truncate">{doc.Descripcion}</p>
+                            )}
+                          </div>
+                          <Download className="w-4 h-4 text-zinc-600 group-hover:text-[#FF5F1F] flex-shrink-0 transition-colors" />
+                        </a>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
+                      <AlertTriangle className="w-4 h-4 text-yellow-500/70 flex-shrink-0" />
+                      <span className="text-xs text-zinc-500">Esta licitación no tiene documentos adjuntos en la API.</span>
+                    </div>
+                  )
+                ) : (
+                  <div className="flex items-center gap-3 p-4 bg-zinc-900 border border-zinc-800 rounded-xl">
+                    <AlertTriangle className="w-4 h-4 text-yellow-500/70 flex-shrink-0" />
+                    <span className="text-xs text-zinc-500">No se pudo cargar el detalle.</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Items section */}
+              {licitacionDetail?.Items?.Listado?.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-3">Items solicitados</h3>
+                  <div className="space-y-1.5">
+                    {licitacionDetail.Items.Listado.slice(0, 8).map((item: any, i: number) => (
+                      <div key={i} className="flex items-start gap-3 p-3 bg-zinc-900 border border-zinc-800 rounded-xl">
+                        <span className="font-mono text-[8px] text-cyan-400/50 tracking-widest mt-0.5 flex-shrink-0">[{String(i + 1).padStart(2, '0')}]</span>
+                        <p className="text-xs text-zinc-300 leading-relaxed">{item.NombreEspecificacion || item.Descripcion || 'Sin descripción'}</p>
+                        {item.Cantidad && (
+                          <span className="text-[8px] font-mono text-zinc-600 flex-shrink-0">x{item.Cantidad}</span>
+                        )}
+                      </div>
+                    ))}
+                    {licitacionDetail.Items.Listado.length > 8 && (
+                      <p className="text-[9px] text-zinc-600 font-mono text-center py-1">... y {licitacionDetail.Items.Listado.length - 8} items más</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* AI Analysis section */}
+              <div>
+                <h3 className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500 mb-3 flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-[#FF5F1F]" /> Análisis IA — Gemini
+                </h3>
+
+                {/* AI Tabs */}
+                <div className="flex bg-zinc-900 border border-zinc-800 rounded-xl p-1 mb-4">
+                  <button
+                    onClick={() => setAiTab('technical')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                      aiTab === 'technical' ? 'bg-zinc-700 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    <BookOpen className="w-3.5 h-3.5" /> Resumen Técnico
+                  </button>
+                  <button
+                    onClick={() => setAiTab('opportunity')}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                      aiTab === 'opportunity' ? 'bg-[#FF5F1F] text-white' : 'text-zinc-500 hover:text-zinc-300'
+                    }`}
+                  >
+                    <Target className="w-3.5 h-3.5" /> Oportunidad
+                  </button>
+                </div>
+
+                {loadingAI ? (
+                  <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col items-center gap-3">
+                    <div className="relative">
+                      <div className="w-10 h-10 border-2 border-zinc-800 border-t-[#FF5F1F] rounded-full animate-spin" />
+                      <Sparkles className="w-4 h-4 text-[#FF5F1F] absolute inset-0 m-auto" />
+                    </div>
+                    <p className="text-[9px] font-mono text-zinc-500 uppercase tracking-[0.3em] animate-pulse">Gemini analizando licitación...</p>
+                  </div>
+                ) : aiAnalysis ? (
+                  <motion.div
+                    key={aiTab}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-5 bg-zinc-900 border border-zinc-800 rounded-2xl"
+                  >
+                    {aiTab === 'technical' ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <BookOpen className="w-4 h-4 text-cyan-400" />
+                          <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">Resumen Técnico</span>
+                        </div>
+                        <p className="text-sm text-zinc-300 leading-relaxed">{aiAnalysis.technical}</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <TrendingUp className="w-4 h-4 text-[#FF5F1F]" />
+                          <span className="text-[10px] font-black text-[#FF5F1F] uppercase tracking-widest">Oportunidad para PlanoZero</span>
+                        </div>
+                        <p className="text-sm text-zinc-300 leading-relaxed">{aiAnalysis.opportunity}</p>
+                      </div>
+                    )}
+                  </motion.div>
+                ) : !licitacionDetail ? null : (
+                  <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-2xl">
+                    <p className="text-xs text-zinc-500">Esperando carga del detalle para iniciar análisis...</p>
+                  </div>
+                )}
+              </div>
+
+              {/* External link */}
+              <a
+                href={`https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsSupplier.aspx?idLicitacion=${selectedMpItem.CodigoExterno}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-3 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-[#FF5F1F]/50 text-zinc-400 hover:text-white text-xs font-bold uppercase tracking-widest transition-all"
+              >
+                <ExternalLink className="w-4 h-4" /> Ver en Mercado Público
+              </a>
+
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+    </>);
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+  //  DESIGN SYSTEM EDITOR
+  // ─────────────────────────────────────────────────────────────────────────
+  const renderDesignSystem = () => {
+    const COLOR_TOKENS = [
+      { key: '--color-primary',        label: 'Color Primario',      desc: 'Botones CTA, acentos activos, highlights' },
+      { key: '--color-primary-hover',  label: 'Primario Hover',      desc: 'Estado hover del color primario' },
+      { key: '--color-secondary',      label: 'Color Secundario',    desc: 'Acentos blueprint (cyan/accent)' },
+      { key: '--color-bg',             label: 'Fondo Principal',     desc: 'Background base del sitio' },
+      { key: '--color-surface',        label: 'Superficie Card',     desc: 'Fondo de cards y paneles' },
+      { key: '--color-surface-raised', label: 'Superficie Elevada',  desc: 'Bordes, inputs y hover states' },
+      { key: '--color-border',         label: 'Borde',               desc: 'Separadores y bordes de cards' },
+      { key: '--color-text',           label: 'Texto Principal',     desc: 'Títulos y cuerpo de texto' },
+      { key: '--color-text-muted',     label: 'Texto Secundario',    desc: 'Descripciones y metadatos' },
+    ];
+
+    const FONT_OPTIONS = [
+      { label: 'Inter',           value: "'Inter', system-ui, sans-serif" },
+      { label: 'Outfit',          value: "'Outfit', system-ui, sans-serif" },
+      { label: 'Space Grotesk',   value: "'Space Grotesk', system-ui, sans-serif" },
+      { label: 'DM Sans',         value: "'DM Sans', system-ui, sans-serif" },
+      { label: 'Syne',            value: "'Syne', system-ui, sans-serif" },
+      { label: 'Playfair Display', value: "'Playfair Display', Georgia, serif" },
+    ];
+
+    const MONO_OPTIONS = [
+      { label: 'JetBrains Mono', value: "'JetBrains Mono', monospace" },
+      { label: 'IBM Plex Mono',  value: "'IBM Plex Mono', monospace" },
+      { label: 'Courier New',    value: "'Courier New', monospace" },
+    ];
+
+    const RADIUS_PRESETS = [
+      { label: 'Sharp',      values: { '--radius-sm': '0px',    '--radius-md': '0px',    '--radius-lg': '0px',    '--radius-xl': '0px' } },
+      { label: 'Suave',      values: { '--radius-sm': '4px',    '--radius-md': '8px',    '--radius-lg': '12px',   '--radius-xl': '20px' } },
+      { label: 'Medio',      values: { '--radius-sm': '6px',    '--radius-md': '12px',   '--radius-lg': '20px',   '--radius-xl': '32px' } },
+      { label: 'Redondeado', values: { '--radius-sm': '10px',   '--radius-md': '18px',   '--radius-lg': '28px',   '--radius-xl': '44px' } },
+      { label: 'Pill',       values: { '--radius-sm': '9999px', '--radius-md': '9999px', '--radius-lg': '9999px', '--radius-xl': '9999px' } },
+    ];
+
+    const TAB_ITEMS = [
+      { id: 'colors',     label: 'Colores',    icon: <Palette className="w-4 h-4" /> },
+      { id: 'typography', label: 'Tipografía', icon: <TypeIcon className="w-4 h-4" /> },
+      { id: 'spacing',    label: 'Bordes',     icon: <Sliders className="w-4 h-4" /> },
+      { id: 'effects',    label: 'Efectos',    icon: <Wand2 className="w-4 h-4" /> },
+    ] as const;
+
+    const glowIntensity = Math.round(parseFloat(dsTokens['--glow-intensity'] ?? '0.30') * 100);
+
+    // ── Live Preview Component ───────────────────────────────────────────────
+    const LivePreview = () => (
+      <div style={{
+        background: dsTokens['--color-bg'] ?? '#09090B',
+        borderRadius: dsTokens['--radius-lg'] ?? '16px',
+        padding: '28px',
+        fontFamily: dsTokens['--font-body'] ?? 'Inter, sans-serif',
+        border: `1px solid ${dsTokens['--color-border'] ?? '#27272A'}`,
+      }}>
+        {/* Label */}
+        <p style={{ fontSize: '9px', letterSpacing: '0.3em', textTransform: 'uppercase', color: dsTokens['--color-text-muted'], fontFamily: dsTokens['--font-mono'], marginBottom: '20px', fontWeight: 700 }}>
+          LIVE PREVIEW — PLANOZERO COMPONENTS
+        </p>
+
+        {/* Typography */}
+        <div style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: `1px solid ${dsTokens['--color-border'] ?? '#27272A'}` }}>
+          <h1 style={{ fontFamily: dsTokens['--font-heading'], color: dsTokens['--color-text'], fontSize: '28px', fontWeight: 900, lineHeight: 1, marginBottom: '6px', textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.03em' }}>
+            Arquitectura de Marca
+          </h1>
+          <p style={{ color: dsTokens['--color-text-muted'], fontSize: '13px', lineHeight: 1.6, marginBottom: '6px' }}>
+            Decodificamos la esencia de tu negocio para transformarla en narrativa visual.
+          </p>
+          <p style={{ fontFamily: dsTokens['--font-mono'], color: dsTokens['--color-secondary'], fontSize: '10px', letterSpacing: '0.1em' }}>
+            const brand = 'planozero'; // v2.0
+          </p>
+        </div>
+
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <button style={{
+            background: dsTokens['--color-primary'],
+            color: '#fff',
+            padding: '10px 20px',
+            borderRadius: dsTokens['--radius-md'] ?? '8px',
+            border: 'none',
+            fontFamily: dsTokens['--font-heading'],
+            fontWeight: 800,
+            fontSize: '10px',
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            boxShadow: `0 0 30px rgba(0,0,0,0.3)`,
+          }}>LET'S BUILD →</button>
+          <button style={{
+            background: 'transparent',
+            color: dsTokens['--color-text'],
+            padding: '10px 20px',
+            borderRadius: dsTokens['--radius-md'] ?? '8px',
+            border: `1px solid ${dsTokens['--color-border']}`,
+            fontFamily: dsTokens['--font-mono'],
+            fontWeight: 700,
+            fontSize: '9px',
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+          }}>VER SERVICIOS</button>
+        </div>
+
+        {/* Card */}
+        <div style={{
+          background: dsTokens['--color-surface'],
+          border: `1px solid ${dsTokens['--color-border']}`,
+          borderRadius: dsTokens['--radius-lg'] ?? '16px',
+          padding: '18px',
+          marginBottom: '14px',
+        }}>
+          <div style={{ color: dsTokens['--color-primary'], fontSize: '9px', fontFamily: dsTokens['--font-mono'], letterSpacing: '0.25em', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 700 }}>01 — BRANDING</div>
+          <h3 style={{ color: dsTokens['--color-text'], fontFamily: dsTokens['--font-heading'], fontSize: '16px', fontWeight: 900, marginBottom: '6px', textTransform: 'uppercase', fontStyle: 'italic' }}>Identidad Visual</h3>
+          <p style={{ color: dsTokens['--color-text-muted'], fontSize: '12px', lineHeight: 1.6 }}>Estrategia visual enfocada en diferenciación y recordación de marca.</p>
+        </div>
+
+        {/* Input */}
+        <input
+          type="text"
+          placeholder="Cuéntanos tu idea de negocio..."
+          readOnly
+          style={{
+            width: '100%',
+            background: dsTokens['--color-surface-raised'],
+            border: `1px solid ${dsTokens['--color-border']}`,
+            borderRadius: dsTokens['--radius-md'] ?? '8px',
+            padding: '10px 14px',
+            color: dsTokens['--color-text-muted'],
+            fontFamily: dsTokens['--font-body'],
+            fontSize: '12px',
+            boxSizing: 'border-box' as const,
+          }}
+        />
+      </div>
+    );
+
+    // ── Color picker helper ─────────────────────────────────────────────────
+    const ColorRow = ({ tokenKey, label, desc }: { tokenKey: string; label: string; desc: string }) => (
+      <div className="flex items-center gap-4 p-3 bg-zinc-900/50 border border-zinc-800 rounded-2xl hover:border-zinc-700 transition-all group">
+        <div className="relative flex-shrink-0">
+          <div
+            className="w-10 h-10 rounded-xl border-2 border-zinc-700 shadow-inner cursor-pointer overflow-hidden"
+            style={{ background: dsTokens[tokenKey] ?? '#888' }}
+          />
+          <input
+            type="color"
+            value={dsTokens[tokenKey] ?? '#888888'}
+            onChange={(e) => handleTokenChange(tokenKey, e.target.value)}
+            className="absolute inset-0 opacity-0 cursor-pointer w-10 h-10"
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-bold text-white truncate">{label}</p>
+          <p className="text-[9px] text-zinc-500 truncate">{desc}</p>
+        </div>
+        <code className="text-[9px] font-mono text-zinc-500 bg-zinc-800 px-2 py-1 rounded-lg flex-shrink-0 group-hover:text-zinc-300 transition-colors">
+          {dsTokens[tokenKey] ?? ''}
+        </code>
+      </div>
+    );
+
+    return (
+      <motion.div key="ds-view" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
+
+        {/* Header */}
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+          <div>
+            <h1 className="text-4xl font-black mb-1 uppercase tracking-tighter italic text-white flex items-center gap-3">
+              <Palette className="w-8 h-8 text-[var(--color-primary)]" />
+              Sistema de Diseño
+            </h1>
+            <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold">PlanoZero Design Tokens — Edita y aplica en tiempo real.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { setDsTokens(DEFAULT_DESIGN_TOKENS); applyDesignTokens(DEFAULT_DESIGN_TOKENS); }}
+              className="flex items-center gap-2 px-5 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white hover:border-zinc-700 transition-all"
+            >
+              <RefreshCcw className="w-3.5 h-3.5" /> Resetear
+            </button>
+            <button
+              onClick={saveDesignTokens}
+              disabled={dsSaving}
+              className="flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:opacity-90 disabled:opacity-50 transition-all shadow-lg"
+            >
+              {dsSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              {dsSaving ? 'Guardando...' : 'Guardar y Aplicar'}
+            </button>
+          </div>
+        </header>
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-6">
+
+          {/* ── Left: Editor Panel ── */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-[40px] overflow-hidden shadow-2xl">
+
+            {/* Tab bar */}
+            <div className="flex border-b border-zinc-800 bg-zinc-950/50">
+              {TAB_ITEMS.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setDsTab(tab.id)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 text-[9px] font-black uppercase tracking-widest transition-all border-b-2 ${
+                    dsTab === tab.id
+                      ? 'border-[var(--color-primary)] text-[var(--color-primary)]'
+                      : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  {tab.icon}
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Tab content */}
+            <div className="p-6">
+              <AnimatePresence mode="wait">
+
+                {/* ─── Colors ─── */}
+                {dsTab === 'colors' && (
+                  <motion.div key="colors" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-2">
+                    <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-600 mb-4 flex items-center gap-2">
+                      <CornerDownRight className="w-3 h-3" /> Haz click en el color para abrir el selector
+                    </p>
+                    {COLOR_TOKENS.map(({ key, label, desc }) => (
+                      <ColorRow key={key} tokenKey={key} label={label} desc={desc} />
+                    ))}
+                  </motion.div>
+                )}
+
+                {/* ─── Typography ─── */}
+                {dsTab === 'typography' && (
+                  <motion.div key="typography" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+
+                    {/* Heading font */}
+                    <div>
+                      <label className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-500 block mb-3">Fuente de Títulos</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {FONT_OPTIONS.map(f => (
+                          <button
+                            key={f.value}
+                            onClick={() => handleTokenChange('--font-heading', f.value)}
+                            style={{ fontFamily: f.value }}
+                            className={`p-3 rounded-xl border text-sm font-bold transition-all text-left ${
+                              dsTokens['--font-heading'] === f.value
+                                ? 'bg-[var(--color-primary)]/10 border-[var(--color-primary)]/50 text-[var(--color-primary)]'
+                                : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-600'
+                            }`}
+                          >
+                            {f.label}
+                            <span className="block text-[9px] font-mono opacity-50 mt-0.5 normal-case" style={{ fontFamily: 'monospace' }}>Aa Bb Cc</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Body font */}
+                    <div>
+                      <label className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-500 block mb-3">Fuente de Cuerpo</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {FONT_OPTIONS.map(f => (
+                          <button
+                            key={f.value}
+                            onClick={() => handleTokenChange('--font-body', f.value)}
+                            style={{ fontFamily: f.value }}
+                            className={`p-3 rounded-xl border text-sm transition-all text-left ${
+                              dsTokens['--font-body'] === f.value
+                                ? 'bg-[var(--color-primary)]/10 border-[var(--color-primary)]/50 text-[var(--color-primary)]'
+                                : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-600'
+                            }`}
+                          >
+                            {f.label}
+                            <span className="block text-[9px] font-mono opacity-50 mt-0.5 normal-case" style={{ fontFamily: 'monospace' }}>Aa Bb Cc</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Mono font */}
+                    <div>
+                      <label className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-500 block mb-3">Fuente Monoespaciada</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {MONO_OPTIONS.map(f => (
+                          <button
+                            key={f.value}
+                            onClick={() => handleTokenChange('--font-mono', f.value)}
+                            style={{ fontFamily: f.value }}
+                            className={`p-3 rounded-xl border text-xs transition-all text-left ${
+                              dsTokens['--font-mono'] === f.value
+                                ? 'bg-[var(--color-primary)]/10 border-[var(--color-primary)]/50 text-[var(--color-primary)]'
+                                : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-zinc-600'
+                            }`}
+                          >
+                            {f.label}
+                            <span className="block text-[9px] opacity-50 mt-0.5">01 const</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Font preview */}
+                    <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-2xl space-y-2">
+                      <p className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Preview tipográfico</p>
+                      <p style={{ fontFamily: dsTokens['--font-heading'], fontWeight: 900, fontSize: '22px', color: 'var(--color-text)', textTransform: 'uppercase', fontStyle: 'italic', letterSpacing: '-0.03em', lineHeight: 1 }}>
+                        PlanoZero Studio
+                      </p>
+                      <p style={{ fontFamily: dsTokens['--font-body'], fontSize: '13px', color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
+                        Diseñamos marcas con propósito y precisión estratégica.
+                      </p>
+                      <p style={{ fontFamily: dsTokens['--font-mono'], fontSize: '10px', color: 'var(--color-secondary)', letterSpacing: '0.1em' }}>
+                        {'const brand = { name: "planozero", v: 2 };'}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ─── Spacing / Radius ─── */}
+                {dsTab === 'spacing' && (
+                  <motion.div key="spacing" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-8">
+
+                    <div>
+                      <label className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-500 block mb-4">Presets de Radio de Esquinas</label>
+                      <div className="grid grid-cols-5 gap-2 mb-6">
+                        {RADIUS_PRESETS.map(preset => (
+                          <button
+                            key={preset.label}
+                            onClick={() => {
+                              const next = { ...dsTokens, ...preset.values };
+                              setDsTokens(next);
+                              applyDesignTokens(next);
+                            }}
+                            className="flex flex-col items-center gap-2 p-3 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-[var(--color-primary)]/50 hover:bg-zinc-800 transition-all group"
+                          >
+                            <div
+                              className="w-10 h-10 border-2 border-zinc-600 group-hover:border-[var(--color-primary)] transition-colors bg-zinc-950"
+                              style={{ borderRadius: preset.values['--radius-md'] }}
+                            />
+                            <span className="text-[9px] font-mono uppercase tracking-widest text-zinc-500 group-hover:text-zinc-300">{preset.label}</span>
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Manual radius inputs */}
+                      <div className="grid grid-cols-2 gap-3">
+                        {(['--radius-sm', '--radius-md', '--radius-lg', '--radius-xl'] as const).map(key => (
+                          <div key={key} className="flex items-center gap-3 p-3 bg-zinc-900/50 border border-zinc-800 rounded-xl">
+                            <div className="w-8 h-8 border-2 border-zinc-700 bg-zinc-950 flex-shrink-0" style={{ borderRadius: dsTokens[key] }} />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">{key.replace('--radius-', 'Radius ')}</p>
+                              <input
+                                type="text"
+                                value={dsTokens[key] ?? ''}
+                                onChange={e => handleTokenChange(key, e.target.value)}
+                                className="bg-transparent text-xs font-bold text-white w-full focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ─── Effects ─── */}
+                {dsTab === 'effects' && (
+                  <motion.div key="effects" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+
+                    <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-2xl">
+                      <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-600 mb-4">Intensidad de Glow / Halos</p>
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={glowIntensity}
+                          onChange={e => handleTokenChange('--glow-intensity', (parseInt(e.target.value) / 100).toFixed(2))}
+                          className="flex-1 accent-[var(--color-primary)]"
+                        />
+                        <div
+                          className="w-10 h-10 rounded-full flex-shrink-0"
+                          style={{
+                            background: dsTokens['--color-primary'],
+                            boxShadow: `0 0 ${glowIntensity * 0.8}px rgba(255,95,31,${glowIntensity / 100})`
+                          }}
+                        />
+                        <span className="text-sm font-black text-white w-12 text-right">{glowIntensity}%</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-2xl space-y-3">
+                        <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-600">Preview de Efectos</p>
+                        <div className="flex gap-4 items-center justify-center py-6">
+                          <div
+                            className="w-16 h-16 rounded-2xl"
+                            style={{
+                              background: dsTokens['--color-primary'],
+                              boxShadow: `0 0 ${glowIntensity}px rgba(255,95,31,${glowIntensity/100})`,
+                            }}
+                          />
+                          <div
+                            className="w-16 h-16 rounded-2xl border-2"
+                            style={{
+                              borderColor: dsTokens['--color-secondary'],
+                              boxShadow: `0 0 ${glowIntensity*0.7}px rgba(34,211,238,${glowIntensity/100*0.7})`,
+                            }}
+                          />
+                          <div
+                            className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-700"
+                            style={{ backdropFilter: 'blur(12px)' }}
+                          />
+                        </div>
+                        <p className="text-[9px] text-zinc-600 font-mono text-center">Primario · Secundario · Glassmorphism</p>
+                      </div>
+                    </div>
+
+                    {/* Token export */}
+                    <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-2xl">
+                      <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-600 mb-3">Exportar CSS Tokens</p>
+                      <pre className="text-[8px] font-mono text-zinc-500 overflow-x-auto whitespace-pre-wrap break-all leading-relaxed">
+                        {`:root {\n${Object.entries(dsTokens).map(([k,v]) => `  ${k}: ${v};`).join('\n')}\n}`}
+                      </pre>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(`:root {\n${Object.entries(dsTokens).map(([k,v]) => `  ${k}: ${v};`).join('\n')}\n}`)}
+                        className="mt-3 flex items-center gap-2 text-[9px] font-mono uppercase tracking-widest text-zinc-500 hover:text-[var(--color-primary)] transition-colors"
+                      >
+                        <Copy className="w-3 h-3" /> Copiar al portapapeles
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* ── Right: Live Preview ── */}
+          <div className="space-y-4">
+            <div className="sticky top-6">
+              <div className="flex items-center gap-2 mb-3 px-1">
+                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-500">Preview en Tiempo Real</p>
+              </div>
+              <LivePreview />
+
+              {/* Token info bar */}
+              <div className="mt-3 p-3 bg-zinc-900 border border-zinc-800 rounded-2xl">
+                <p className="text-[8px] font-mono uppercase tracking-[0.3em] text-zinc-600 mb-2">Tokens activos</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(dsTokens).filter(([k]) => k.startsWith('--color')).map(([k, v]) => (
+                    <div key={k} className="flex items-center gap-1.5 bg-zinc-800 px-2 py-1 rounded-lg">
+                      <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ background: v }} />
+                      <span className="text-[7px] font-mono text-zinc-400">{k.replace('--color-', '')}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </motion.div>
     );
   };
 
   const renderContent = () => {
+
     switch (view) {
       case 'overview': return renderOverview();
       case 'posts': return renderPosts();
@@ -1944,6 +2817,7 @@ const Dashboard = () => {
       case 'logs': return renderLogs();
       case 'config': return renderProfile();
       case 'mercado-publico': return renderMercadoPublico();
+      case 'design-system': return renderDesignSystem();
       default: return renderOverview();
     }
   };
@@ -2153,6 +3027,13 @@ const Dashboard = () => {
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${view === 'mercado-publico' ? 'bg-[#FF5F1F] text-white shadow-lg shadow-[#FF5F1F]/20' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}
           >
             <ShoppingBag className="w-5 h-5" /> Mercado Público
+          </button>
+
+          <button 
+            onClick={() => setView('design-system')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${view === 'design-system' ? 'bg-[#FF5F1F] text-white shadow-lg shadow-[#FF5F1F]/20' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}
+          >
+            <Palette className="w-5 h-5" /> Sistema de Diseño
           </button>
 
         </nav>

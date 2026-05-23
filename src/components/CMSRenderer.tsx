@@ -92,8 +92,8 @@ const BlueprintComputer = () => (
     transition={{ duration: 1.2, ease: "easeOut" }}
     className="relative hidden lg:block w-[500px] h-[400px] flex-shrink-0"
   >
-    <div className="absolute inset-0 bg-[#FF5F1F]/5 blur-[100px] rounded-full" />
-    <svg viewBox="0 0 400 300" fill="none" className="w-full h-full text-[#FF5F1F]/40 stroke-[0.5]">
+    <div className="absolute inset-0 bg-[var(--color-primary)]/5 blur-[100px] rounded-full" />
+    <svg viewBox="0 0 400 300" fill="none" className="w-full h-full text-[var(--color-primary)]/40 stroke-[0.5]">
       <motion.rect 
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
@@ -174,7 +174,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
       <div className="space-y-8">
         <h1 className="text-6xl font-black uppercase italic tracking-tighter leading-none">{title}</h1>
         <p className="text-xl text-zinc-500 leading-relaxed font-medium">{content}</p>
-        <button className="px-10 py-5 bg-[#FF5F1F] rounded-2xl text-xs font-black uppercase tracking-widest text-shadow shadow-xl shadow-[#FF5F1F]/20">Explorar ahora</button>
+        <button className="px-10 py-5 bg-[var(--color-primary)] rounded-2xl text-xs font-black uppercase tracking-widest text-shadow shadow-xl shadow-[#FF5F1F]/20">Explorar ahora</button>
       </div>
       {image && (
         <div className="rounded-[48px] overflow-hidden border border-zinc-800 shadow-2xl aspect-square">
@@ -198,9 +198,9 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   ),
   Breadcrumbs: ({ dark }) => (
     <nav className="flex items-center gap-2 mb-8 text-[10px] font-mono uppercase tracking-[0.2em] font-black">
-      <span className={dark ? 'text-zinc-400' : 'text-zinc-500 hover:text-[#FF5F1F] cursor-pointer'}>Inicio</span>
+      <span className={dark ? 'text-zinc-400' : 'text-zinc-500 hover:text-[var(--color-primary)] cursor-pointer'}>Inicio</span>
       <span className="text-zinc-600">/</span>
-      <span className="text-[#FF5F1F]">Páginas de Arquitectura</span>
+      <span className="text-[var(--color-primary)]">Páginas de Arquitectura</span>
     </nav>
   ),
   BentoGrid: () => (
@@ -210,12 +210,12 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
         <p className="text-zinc-500">Expresividad visual maximalista integrada en un diseño bento.</p>
       </div>
       <div className="col-span-2 bg-zinc-900/50 rounded-3xl p-8 border border-zinc-800"></div>
-      <div className="bg-[#FF5F1F] rounded-3xl flex items-center justify-center"><Zap className="w-12 h-12 text-white" /></div>
+      <div className="bg-[var(--color-primary)] rounded-3xl flex items-center justify-center"><Zap className="w-12 h-12 text-white" /></div>
       <div className="bg-zinc-900 rounded-3xl border border-zinc-800"></div>
     </div>
   ),
   Banner: ({ text, type }) => (
-    <div className={`py-4 px-8 rounded-2xl flex items-center gap-4 my-8 font-mono uppercase text-[10px] font-bold tracking-widest ${type === 'success' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-[#FF5F1F]/10 text-[#FF5F1F] border border-[#FF5F1F]/20'}`}>
+    <div className={`py-4 px-8 rounded-2xl flex items-center gap-4 my-8 font-mono uppercase text-[10px] font-bold tracking-widest ${type === 'success' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/20'}`}>
       <Bell className="w-4 h-4" /> {text || 'Banner informativo del sistema'}
     </div>
   ),
@@ -237,19 +237,19 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
            <Users className="w-20 h-20" />
         </div>
       </div>
-      <h4 className="text-xl font-black uppercase italic tracking-tight group-hover:text-[#FF5F1F] transition-colors">{name}</h4>
+      <h4 className="text-xl font-black uppercase italic tracking-tight group-hover:text-[var(--color-primary)] transition-colors">{name}</h4>
       <p className="text-[10px] font-mono uppercase text-zinc-500 tracking-widest">{role}</p>
     </div>
   ),
   Newsletter: ({ title, placeholder }) => (
     <div className="bg-zinc-900 rounded-[48px] p-16 border border-zinc-800 text-center space-y-8 my-16">
        <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6">
-          <Mail className="w-8 h-8 text-[#FF5F1F]" />
+          <Mail className="w-8 h-8 text-[var(--color-primary)]" />
        </div>
        <h3 className="text-4xl font-black uppercase italic tracking-tighter">{title || 'Únete a la Vanguardia'}</h3>
        <div className="flex flex-col md:flex-row gap-4 max-w-xl mx-auto">
-          <input className="bg-zinc-950 border border-zinc-800 px-8 py-5 rounded-2xl flex-grow focus:outline-none focus:border-[#FF5F1F] font-mono text-xs uppercase" placeholder={placeholder || 'TU CORREO ELECTRÓNICO'} />
-          <button className="bg-[#FF5F1F] px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest">SUSCRIBIRSE</button>
+          <input className="bg-zinc-950 border border-zinc-800 px-8 py-5 rounded-2xl flex-grow focus:outline-none focus:border-[var(--color-primary)] font-mono text-xs uppercase" placeholder={placeholder || 'TU CORREO ELECTRÓNICO'} />
+          <button className="bg-[var(--color-primary)] px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest">SUSCRIBIRSE</button>
        </div>
     </div>
   ),
@@ -279,7 +279,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
 
     if (loading) return (
       <div className="flex justify-center py-16">
-        <Loader2 className="w-8 h-8 text-[#FF5F1F] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[var(--color-primary)] animate-spin" />
       </div>
     );
 
@@ -305,7 +305,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                     className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-4 left-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono font-bold text-[#FF5F1F] uppercase border border-zinc-200 dark:border-zinc-700">
+                  <div className="absolute top-4 left-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono font-bold text-[var(--color-primary)] uppercase border border-zinc-200 dark:border-zinc-700">
                     {post.category}
                   </div>
                 </div>
@@ -313,9 +313,9 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                   <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-400 uppercase">
                     <Clock className="w-3 h-3" /> 5 MIN
                   </div>
-                  <h3 className="text-xl font-bold leading-tight group-hover:text-[#FF5F1F] transition-colors">{post.title}</h3>
+                  <h3 className="text-xl font-bold leading-tight group-hover:text-[var(--color-primary)] transition-colors">{post.title}</h3>
                   <p className="text-zinc-500 text-sm line-clamp-2">{post.excerpt}</p>
-                  <div className="flex items-center gap-1 text-[10px] font-mono text-[#FF5F1F] uppercase mt-2">
+                  <div className="flex items-center gap-1 text-[10px] font-mono text-[var(--color-primary)] uppercase mt-2">
                     Leer más <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
@@ -345,7 +345,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                 </div>
                 <div className="space-y-3 px-2">
                    <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest">14 de Mayo, 2026 — LECTURA 5 MIN</p>
-                   <h4 className="text-xl font-black uppercase italic tracking-tight leading-tight group-hover:text-[#FF5F1F] transition-colors">La Decadencia Estética de lo Minimalista en la Era de la IA</h4>
+                   <h4 className="text-xl font-black uppercase italic tracking-tight leading-tight group-hover:text-[var(--color-primary)] transition-colors">La Decadencia Estética de lo Minimalista en la Era de la IA</h4>
                 </div>
              </div>
           ))}
@@ -353,7 +353,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
     </div>
   ),
   CTASection: ({ title, buttonText }) => (
-    <div className="bg-[#FF5F1F] p-12 md:p-24 rounded-[64px] my-24 overflow-hidden relative group">
+    <div className="bg-[var(--color-primary)] p-12 md:p-24 rounded-[64px] my-24 overflow-hidden relative group">
        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[300px] font-black text-black/5 select-none pointer-events-none uppercase italic italic-fitter">ACTION</div>
        <div className="relative z-10 text-center space-y-10">
           <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none text-white">{title || '¿Listo para el cambio?'}</h2>
@@ -368,9 +368,9 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
         <div className="text-3xl font-black italic tracking-tighter uppercase">PLANOZERO</div>
         <div className="flex gap-12 text-[10px] font-black uppercase tracking-widest text-zinc-500">
-          <a href="#" className="hover:text-[#FF5F1F]">Agencia</a>
-          <a href="#" className="hover:text-[#FF5F1F]">Trabajos</a>
-          <a href="#" className="hover:text-[#FF5F1F]">Estudio</a>
+          <a href="#" className="hover:text-[var(--color-primary)]">Agencia</a>
+          <a href="#" className="hover:text-[var(--color-primary)]">Trabajos</a>
+          <a href="#" className="hover:text-[var(--color-primary)]">Estudio</a>
         </div>
         <div className="text-[10px] font-mono text-zinc-700 uppercase">{copy || '© 2026 PlanoZero. Todos los derechos reservados.'}</div>
       </div>
@@ -378,7 +378,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   ),
   NotFound: ({ message }) => (
     <div className="flex flex-col items-center justify-center p-24 text-center">
-      <h1 className="text-[150px] font-black italic leading-none text-[#FF5F1F]/10 tracking-tighter">404</h1>
+      <h1 className="text-[150px] font-black italic leading-none text-[var(--color-primary)]/10 tracking-tighter">404</h1>
       <h2 className="text-4xl font-black uppercase tracking-tighter mb-6 italic">{message || 'Página Extraviada'}</h2>
     </div>
   ),
@@ -393,20 +393,20 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
       </motion.h1>
       <p className="text-xl text-zinc-500 max-w-3xl mx-auto mb-12 font-medium leading-relaxed">{subtitle}</p>
       {ctaText && (
-        <button className="bg-[#FF5F1F] text-white px-12 py-6 rounded-2xl font-black uppercase text-sm shadow-2xl shadow-[#FF5F1F]/40 hover:scale-105 transition-transform">
+        <button className="bg-[var(--color-primary)] text-white px-12 py-6 rounded-2xl font-black uppercase text-sm shadow-2xl shadow-[#FF5F1F]/40 hover:scale-105 transition-transform">
           {ctaText}
         </button>
       )}
     </section>
   ),
   Card: ({ title, content, image, link }) => (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-[40px] overflow-hidden group hover:border-[#FF5F1F] transition-all duration-500 hover:-translate-y-2">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-[40px] overflow-hidden group hover:border-[var(--color-primary)] transition-all duration-500 hover:-translate-y-2">
       {image && <img src={image || undefined} alt={title} className="w-full h-64 object-cover grayscale group-hover:grayscale-0 transition-all duration-700" referrerPolicy="no-referrer" />}
       <div className="p-10">
         <h3 className="text-2xl font-black mb-4 uppercase tracking-tighter italic">{title}</h3>
         <p className="text-zinc-500 text-sm mb-8 leading-relaxed line-clamp-3">{content}</p>
         {link && (
-          <a href={link} className="inline-flex items-center gap-2 text-[#FF5F1F] text-xs font-black uppercase tracking-widest group/link">
+          <a href={link} className="inline-flex items-center gap-2 text-[var(--color-primary)] text-xs font-black uppercase tracking-widest group/link">
             DESCUBRIR MÁS <ArrowLeft className="w-4 h-4 rotate-180 group-hover/link:translate-x-1 transition-transform" />
           </a>
         )}
@@ -432,8 +432,8 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
     </figure>
   ),
   Pricing: ({ title, price, features }) => (
-    <div className="bg-zinc-950 border border-zinc-900 p-12 rounded-[48px] text-center hover:border-[#FF5F1F]/30 transition-all">
-      <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#FF5F1F] mb-6">{title}</h4>
+    <div className="bg-zinc-950 border border-zinc-900 p-12 rounded-[48px] text-center hover:border-[var(--color-primary)]/30 transition-all">
+      <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-6">{title}</h4>
       <div className="flex items-center justify-center gap-1 mb-10">
         <span className="text-2xl text-zinc-700">$</span>
         <span className="text-6xl font-black tracking-tighter italic">{price}</span>
@@ -441,29 +441,29 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
       <ul className="space-y-4 mb-12 text-zinc-500 text-sm font-mono uppercase">
         {features?.split('\n').filter(Boolean).map((f: string, i: number) => (
           <li key={i} className="flex items-center justify-center gap-2 italic">
-            <div className="w-1 h-1 bg-[#FF5F1F] rounded-full" /> {f.trim()}
+            <div className="w-1 h-1 bg-[var(--color-primary)] rounded-full" /> {f.trim()}
           </li>
         ))}
       </ul>
-      <button className="w-full py-5 bg-zinc-900 border border-zinc-800 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#FF5F1F] hover:text-white transition-all">
+      <button className="w-full py-5 bg-zinc-900 border border-zinc-800 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[var(--color-primary)] hover:text-white transition-all">
         EMPEZAR AHORA
       </button>
     </div>
   ),
   Testimonial: ({ quote, author }) => (
     <div className="bg-zinc-900/50 p-12 rounded-[48px] border border-zinc-800 relative overflow-hidden">
-      <Quote className="absolute top-8 right-8 w-16 h-16 text-[#FF5F1F]/5 -rotate-12" />
+      <Quote className="absolute top-8 right-8 w-16 h-16 text-[var(--color-primary)]/5 -rotate-12" />
       <p className="text-2xl font-medium text-zinc-300 italic mb-10 leading-snug">"{quote}"</p>
       <div className="flex items-center gap-4">
-        <div className="w-10 h-1 text-[#FF5F1F] rounded-full" />
+        <div className="w-10 h-1 text-[var(--color-primary)] rounded-full" />
         <span className="text-xs font-black uppercase tracking-widest italic">{author}</span>
       </div>
     </div>
   ),
   FAQ: ({ question, answer }) => (
     <div className="mb-6 group">
-      <details className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden cursor-pointer group-open:border-[#FF5F1F]/30 transition-all">
-        <summary className="p-8 list-none flex items-center justify-between font-bold uppercase text-sm tracking-tight text-zinc-300 group-open:text-[#FF5F1F]">
+      <details className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden cursor-pointer group-open:border-[var(--color-primary)]/30 transition-all">
+        <summary className="p-8 list-none flex items-center justify-between font-bold uppercase text-sm tracking-tight text-zinc-300 group-open:text-[var(--color-primary)]">
           {question}
           <div className="w-8 h-8 bg-zinc-800 rounded-xl flex items-center justify-center transition-transform group-open:rotate-180">
             <ChevronRight className="w-4 h-4" />
@@ -477,20 +477,20 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   ),
   Stats: ({ value, label }) => (
     <div className="p-10 bg-zinc-950 border border-zinc-900 rounded-[40px] text-center">
-      <div className="text-5xl font-black text-[#FF5F1F] mb-2 tracking-tighter italic">{value}</div>
+      <div className="text-5xl font-black text-[var(--color-primary)] mb-2 tracking-tighter italic">{value}</div>
       <div className="text-[10px] font-mono text-zinc-700 uppercase tracking-[0.2em]">{label}</div>
     </div>
   ),
   LandingPage: ({ theme }) => (
     <div className={`min-h-screen flex flex-col items-center justify-center p-12 text-center ${theme === 'light' ? 'bg-zinc-100 text-zinc-900' : 'bg-black text-white'}`}>
-       <div className="w-24 h-24 bg-[#FF5F1F] rounded-[32px] flex items-center justify-center mb-10 shadow-2xl shadow-[#FF5F1F]/50">
+       <div className="w-24 h-24 bg-[var(--color-primary)] rounded-[32px] flex items-center justify-center mb-10 shadow-2xl shadow-[#FF5F1F]/50">
           <Rocket className="w-12 h-12 text-white" />
        </div>
        <h1 className="text-8xl font-black uppercase italic tracking-tighter mb-6 leading-none">Lanzamiento Próximo</h1>
        <p className="text-zinc-500 max-w-xl mb-12">Estamos construyendo la próxima evolución del diseño maximalista. Suscríbete para el acceso anticipado.</p>
        <div className="w-full max-w-md flex gap-4">
-          <input className="bg-zinc-900 border border-zinc-800 px-8 py-5 rounded-2xl flex-grow focus:outline-none focus:border-[#FF5F1F]" placeholder="TU EMAIL" />
-          <button className="bg-[#FF5F1F] px-8 rounded-2xl font-black">OK</button>
+          <input className="bg-zinc-900 border border-zinc-800 px-8 py-5 rounded-2xl flex-grow focus:outline-none focus:border-[var(--color-primary)]" placeholder="TU EMAIL" />
+          <button className="bg-[var(--color-primary)] px-8 rounded-2xl font-black">OK</button>
        </div>
     </div>
   ),
@@ -505,7 +505,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   ),
   Content: ({ body }) => (
     <div className="prose prose-invert max-w-none py-16 px-8 bg-zinc-900/20 rounded-[48px] border border-zinc-900/50">
-      <p className="text-zinc-400 leading-loose text-lg font-medium whitespace-pre-wrap selection:bg-[#FF5F1F]/40">{body}</p>
+      <p className="text-zinc-400 leading-loose text-lg font-medium whitespace-pre-wrap selection:bg-[var(--color-primary)]/40">{body}</p>
     </div>
   ),
   Carousel: ({ urls }) => {
@@ -522,11 +522,11 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   },
   Calendar: ({ title }) => (
     <div className="bg-zinc-900 p-12 rounded-[56px] border border-zinc-800 text-center shadow-2xl">
-      <CalendarIcon className="w-12 h-12 text-[#FF5F1F] mx-auto mb-6" />
+      <CalendarIcon className="w-12 h-12 text-[var(--color-primary)] mx-auto mb-6" />
       <h3 className="text-2xl font-black uppercase mb-10 italic tracking-tighter">{title || 'Próximos Eventos'}</h3>
       <div className="grid grid-cols-7 gap-4">
         {Array.from({ length: 31 }).map((_, i) => (
-          <div key={i} className={`aspect-square flex items-center justify-center text-[10px] font-mono rounded-2xl transition-all cursor-pointer ${i === 14 ? 'bg-[#FF5F1F] text-white shadow-lg shadow-[#FF5F1F]/20' : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-white'}`}>
+          <div key={i} className={`aspect-square flex items-center justify-center text-[10px] font-mono rounded-2xl transition-all cursor-pointer ${i === 14 ? 'bg-[var(--color-primary)] text-white shadow-lg shadow-[#FF5F1F]/20' : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-white'}`}>
             {i + 1}
           </div>
         ))}
@@ -535,14 +535,14 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   ),
   Form: ({ formId, submitText }) => (
     <form className="space-y-6 bg-zinc-950 p-12 rounded-[56px] border border-zinc-900 shadow-2xl relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5F1F]/5 rounded-full -mr-16 -mt-16 blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-primary)]/5 rounded-full -mr-16 -mt-16 blur-3xl pointer-events-none" />
       <h3 className="text-3xl font-black uppercase tracking-tighter mb-10 italic">Inscribirse / {formId}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <input type="text" placeholder="NOMBRE COMPLETO" className="bg-zinc-900 border border-zinc-800 rounded-2xl px-8 py-5 focus:outline-none focus:border-[#FF5F1F] text-xs font-mono uppercase tracking-widest placeholder:text-zinc-700" />
-        <input type="email" placeholder="CORREO ELECTRÓNICO" className="bg-zinc-900 border border-zinc-800 rounded-2xl px-8 py-5 focus:outline-none focus:border-[#FF5F1F] text-xs font-mono uppercase tracking-widest placeholder:text-zinc-700" />
+        <input type="text" placeholder="NOMBRE COMPLETO" className="bg-zinc-900 border border-zinc-800 rounded-2xl px-8 py-5 focus:outline-none focus:border-[var(--color-primary)] text-xs font-mono uppercase tracking-widest placeholder:text-zinc-700" />
+        <input type="email" placeholder="CORREO ELECTRÓNICO" className="bg-zinc-900 border border-zinc-800 rounded-2xl px-8 py-5 focus:outline-none focus:border-[var(--color-primary)] text-xs font-mono uppercase tracking-widest placeholder:text-zinc-700" />
       </div>
-      <textarea placeholder="DETALLES ADICIONALES" className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-8 py-5 focus:outline-none focus:border-[#FF5F1F] h-40 text-xs font-mono uppercase tracking-widest placeholder:text-zinc-700" />
-      <button className="group relative w-full bg-[#FF5F1F] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-[#FF5F1F]/20 overflow-hidden">
+      <textarea placeholder="DETALLES ADICIONALES" className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-8 py-5 focus:outline-none focus:border-[var(--color-primary)] h-40 text-xs font-mono uppercase tracking-widest placeholder:text-zinc-700" />
+      <button className="group relative w-full bg-[var(--color-primary)] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-[#FF5F1F]/20 overflow-hidden">
         <span className="relative z-10">{submitText || 'ENVIAR SOLICITUD'}</span>
         <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
       </button>
@@ -617,14 +617,14 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
         onMouseMove={handleMouseMove}
       >
         {/* Blueprint grid — slow parallax layer */}
-        <motion.div style={{ x: gridX, y: gridY }} className="absolute inset-0 text-cyan-400/5 pointer-events-none">
+        <motion.div style={{ x: gridX, y: gridY }} className="absolute inset-0 text-[var(--color-secondary)]/5 pointer-events-none">
           <BlueprintLine className="w-full h-full" />
         </motion.div>
 
         {/* Orange orb — follows cursor */}
         <motion.div
           style={{ x: orbX, y: orbY }}
-          className="absolute top-1/3 left-1/4 w-[700px] h-[700px] bg-[#FF5F1F]/6 blur-[200px] rounded-full pointer-events-none"
+          className="absolute top-1/3 left-1/4 w-[700px] h-[700px] bg-[var(--color-primary)]/6 blur-[200px] rounded-full pointer-events-none"
         />
         {/* Cyan orb — counter-moves */}
         <motion.div
@@ -633,31 +633,31 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
         />
 
         {/* Corner technical annotations */}
-        <div className="absolute top-5 left-6 font-mono text-[7px] text-cyan-400/30 uppercase tracking-widest hidden md:block select-none">X:000.0 / Y:000.0</div>
-        <div className="absolute top-5 right-6 font-mono text-[7px] text-cyan-400/30 uppercase tracking-widest hidden md:block select-none">SYS_STATUS: ONLINE</div>
-        <div className="absolute bottom-5 left-6 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden md:block select-none">PLANOZERO_VER_2.0</div>
-        <div className="absolute bottom-5 right-6 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden md:block select-none">SCL:1:1 / DPI:300</div>
+        <div className="absolute top-5 left-6 font-mono text-[7px] text-[var(--color-secondary)]/30 uppercase tracking-widest hidden md:block select-none">X:000.0 / Y:000.0</div>
+        <div className="absolute top-5 right-6 font-mono text-[7px] text-[var(--color-secondary)]/30 uppercase tracking-widest hidden md:block select-none">SYS_STATUS: ONLINE</div>
+        <div className="absolute bottom-5 left-6 font-mono text-[7px] text-[var(--color-secondary)]/20 uppercase tracking-widest hidden md:block select-none">PLANOZERO_VER_2.0</div>
+        <div className="absolute bottom-5 right-6 font-mono text-[7px] text-[var(--color-secondary)]/20 uppercase tracking-widest hidden md:block select-none">SCL:1:1 / DPI:300</div>
 
         {/* Floating decorative elements — mid parallax */}
-        <motion.div style={{ x: deco1X, y: deco1Y }} className="absolute top-10 right-1/4 hidden xl:block text-cyan-400/25">
+        <motion.div style={{ x: deco1X, y: deco1Y }} className="absolute top-10 right-1/4 hidden xl:block text-[var(--color-secondary)]/25">
           <BlueprintMeasurement label="Scale_Vertical_x2" className="w-40 -rotate-12" />
         </motion.div>
-        <motion.div style={{ x: deco2X, y: deco1Y }} className="absolute left-4 bottom-20 hidden xl:block text-cyan-400/40">
+        <motion.div style={{ x: deco2X, y: deco1Y }} className="absolute left-4 bottom-20 hidden xl:block text-[var(--color-secondary)]/40">
           <BlueprintCrosshair />
         </motion.div>
-        <motion.div style={{ x: deco1X, y: deco2Y }} className="absolute right-8 top-1/2 hidden xl:block text-[#FF5F1F]/25">
+        <motion.div style={{ x: deco1X, y: deco2Y }} className="absolute right-8 top-1/2 hidden xl:block text-[var(--color-primary)]/25">
           <BlueprintCrosshair />
         </motion.div>
 
         <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 w-full relative z-10">
           <div className="max-w-4xl text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-400/5 border border-cyan-400/20 text-[9px] font-mono mb-6 md:mb-8 uppercase tracking-[0.3em] font-black text-cyan-400">
-              <div className="w-1.5 h-1.5 bg-[#FF5F1F] rounded-full animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-400/5 border border-[var(--color-secondary)]/20 text-[9px] font-mono mb-6 md:mb-8 uppercase tracking-[0.3em] font-black text-[var(--color-secondary)]">
+              <div className="w-1.5 h-1.5 bg-[var(--color-primary)] rounded-full animate-pulse" />
               BRAND STRATEGY / EVOLVE
             </div>
             <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter leading-[0.92] mb-8 uppercase text-white">
               {part1 || 'La arquitectura de tu marca,'} <br />
-              <span className="text-[#FF5F1F]">{part2 || 'desde lo esencial.'}</span>
+              <span className="text-[var(--color-primary)]">{part2 || 'desde lo esencial.'}</span>
             </h1>
             <div className="max-w-xl space-y-8">
               <p className="text-base md:text-xl text-zinc-400 font-medium leading-relaxed">
@@ -666,7 +666,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
               <div className="flex flex-wrap gap-4">
                 <button
                   onClick={() => document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-[#FF5F1F] text-white px-8 py-4 font-black transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[#E54E10] shadow-[0_0_40px_rgba(255,95,31,0.3)] text-sm uppercase tracking-[0.2em] group"
+                  className="bg-[var(--color-primary)] text-white px-8 py-4 font-black transition-all duration-300 flex items-center justify-center gap-2 hover:bg-[var(--color-primary-hover)] shadow-[0_0_40px_rgba(255,95,31,0.3)] text-sm uppercase tracking-[0.2em] group"
                 >
                   {ctaText || "LET'S BUILD"}
                   <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
@@ -724,15 +724,15 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
     return (
       <section className="max-w-5xl mx-auto py-24 relative px-6" id="servicios">
         <div className="absolute -left-32 top-1/4 rotate-90 hidden xl:block">
-          <BlueprintMeasurement label="Scale_Vertical_x4" className="w-64 text-cyan-400/30" />
+          <BlueprintMeasurement label="Scale_Vertical_x4" className="w-64 text-[var(--color-secondary)]/30" />
         </div>
         <div className="absolute -right-12 top-0 hidden xl:block">
-          <BlueprintCrosshair className="text-cyan-400/40" />
+          <BlueprintCrosshair className="text-[var(--color-secondary)]/40" />
         </div>
-        <div className="absolute top-6 right-0 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden lg:block select-none">MODULE_ID: SVC / COUNT: 04</div>
+        <div className="absolute top-6 right-0 font-mono text-[7px] text-[var(--color-secondary)]/20 uppercase tracking-widest hidden lg:block select-none">MODULE_ID: SVC / COUNT: 04</div>
 
         <div className="text-center mb-14 px-4">
-          <span className="text-[9px] font-mono tracking-[0.4em] text-[#FF5F1F] uppercase mb-4 block font-black">{subtitle || 'Nuestros Servicios'}</span>
+          <span className="text-[9px] font-mono tracking-[0.4em] text-[var(--color-primary)] uppercase mb-4 block font-black">{subtitle || 'Nuestros Servicios'}</span>
           <h2 className="text-4xl md:text-5xl lg:text-7xl font-black mb-6 italic tracking-tighter uppercase leading-none text-white">{title || 'Soluciones integrales de diseño'}</h2>
           <p className="text-zinc-500 max-w-3xl mx-auto text-base font-medium leading-relaxed">Soluciones integrales pensadas para elevar tu marca, desde la estrategia inicial hasta la ejecución visual en todos los puntos de contacto.</p>
         </div>
@@ -741,7 +741,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
           {services.map((service, idx) => (
             <div 
               key={idx}
-              className={`border transition-all duration-500 ${active === idx ? 'border-[#FF5F1F]/40 bg-zinc-900' : 'border-zinc-800 bg-zinc-950/50 hover:border-zinc-700'}`}
+              className={`border transition-all duration-500 ${active === idx ? 'border-[var(--color-primary)]/40 bg-zinc-900' : 'border-zinc-800 bg-zinc-950/50 hover:border-zinc-700'}`}
             >
               <button 
                 className="w-full p-5 md:p-7 flex items-center justify-between text-left focus:outline-none"
@@ -749,12 +749,12 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
               >
                 <div className="flex items-center gap-5">
                   <span className="font-mono text-[8px] text-zinc-600 tracking-widest hidden md:block">[{String(idx + 1).padStart(2, '0')}]</span>
-                  <div className={`p-3 transition-all duration-500 ${active === idx ? 'bg-[#FF5F1F] text-white' : 'bg-zinc-900 text-zinc-500 border border-zinc-800'}`}>
+                  <div className={`p-3 transition-all duration-500 ${active === idx ? 'bg-[var(--color-primary)] text-white' : 'bg-zinc-900 text-zinc-500 border border-zinc-800'}`}>
                     <service.icon className="w-5 h-5" />
                   </div>
                   <h3 className="text-lg md:text-2xl font-black italic uppercase tracking-tighter leading-none text-white">{service.title}</h3>
                 </div>
-                <div className={`w-8 h-8 border flex items-center justify-center transition-all duration-500 ${active === idx ? 'bg-[#FF5F1F] border-[#FF5F1F] text-white' : 'border-zinc-700 text-zinc-500'}`}>
+                <div className={`w-8 h-8 border flex items-center justify-center transition-all duration-500 ${active === idx ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-zinc-700 text-zinc-500'}`}>
                   {active === idx ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                 </div>
               </button>
@@ -772,7 +772,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-10">
                         {service.points.map((point, pIdx) => (
                           <div key={pIdx} className="flex items-center gap-3 group">
-                            <div className="w-1.5 h-1.5 bg-[#FF5F1F] flex-shrink-0" />
+                            <div className="w-1.5 h-1.5 bg-[var(--color-primary)] flex-shrink-0" />
                             <span className="text-sm font-black uppercase tracking-tighter leading-none text-zinc-300 group-hover:text-white transition-colors">{point}</span>
                           </div>
                         ))}
@@ -791,62 +791,62 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   ExperienceBanner: ({ title, subtitle, points, ctaText }) => (
     <section className="py-20 md:py-28 px-6 md:px-12 bg-zinc-900 border-y border-zinc-800 relative overflow-hidden" id="experiencia">
       {/* Blueprint grid */}
-      <div className="absolute inset-0 text-cyan-400/5 pointer-events-none">
+      <div className="absolute inset-0 text-[var(--color-secondary)]/5 pointer-events-none">
         <BlueprintLine className="w-full h-full" />
       </div>
-      <div className="absolute top-4 right-6 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden md:block select-none">MODULE: EXPERIENCE / ID: EXP_01</div>
+      <div className="absolute top-4 right-6 font-mono text-[7px] text-[var(--color-secondary)]/20 uppercase tracking-widest hidden md:block select-none">MODULE: EXPERIENCE / ID: EXP_01</div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 items-center max-w-7xl mx-auto relative z-10">
         <div className="space-y-8">
           <div>
-            <span className="text-[9px] font-mono tracking-[0.4em] text-[#FF5F1F] uppercase mb-4 block font-black">{subtitle || 'NUESTRO BACKGROUND'}</span>
+            <span className="text-[9px] font-mono tracking-[0.4em] text-[var(--color-primary)] uppercase mb-4 block font-black">{subtitle || 'NUESTRO BACKGROUND'}</span>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black italic uppercase tracking-tighter leading-none text-white">{title || 'Años de experiencia, una nueva visión.'}</h2>
           </div>
           <div className="space-y-4 text-zinc-400 text-base md:text-lg font-medium leading-relaxed">
             <p>PlanoZero nace como un estudio enfocado en la excelencia visual, pero nuestro equipo cuenta con un historial comprobado en la creación y posicionamiento de marcas exitosas.</p>
             <p className="text-sm opacity-80">Agenda una sesión estratégica de 30 minutos. Hablaremos de la visión de tu marca y te mostraremos nuestro portafolio adaptado a tu industria.</p>
           </div>
-          <button className="bg-[#FF5F1F] text-white px-8 py-4 font-black flex items-center gap-4 shadow-[0_0_40px_rgba(255,95,31,0.2)] hover:shadow-[0_0_60px_rgba(255,95,31,0.4)] hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-[0.2em] group">
+          <button className="bg-[var(--color-primary)] text-white px-8 py-4 font-black flex items-center gap-4 shadow-[0_0_40px_rgba(255,95,31,0.2)] hover:shadow-[0_0_60px_rgba(255,95,31,0.4)] hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-[0.2em] group">
             <Calendar className="w-5 h-5 group-hover:rotate-12 transition-transform" />
             {ctaText || 'Agendar Sesión'}
           </button>
         </div>
 
         <div className="relative">
-          <div className="absolute inset-0 bg-[#FF5F1F]/5 blur-[100px] rounded-full" />
+          <div className="absolute inset-0 bg-[var(--color-primary)]/5 blur-[100px] rounded-full" />
           <motion.div 
             whileHover={{ y: -6 }}
             className="relative bg-zinc-950 border border-zinc-700 p-8 md:p-10 shadow-2xl overflow-hidden group"
           >
             {/* Blueprint grid on card */}
             <div className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
-              <BlueprintLine className="text-cyan-400" />
+              <BlueprintLine className="text-[var(--color-secondary)]" />
             </div>
             
             <div className="flex items-center gap-5 mb-8 relative z-10">
-              <div className="w-12 h-12 bg-[#FF5F1F]/10 border border-[#FF5F1F]/30 flex items-center justify-center text-[#FF5F1F]">
+              <div className="w-12 h-12 bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/30 flex items-center justify-center text-[var(--color-primary)]">
                 <Calendar className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">Discovery Call</h3>
-                <p className="text-[9px] text-cyan-400/50 font-mono uppercase tracking-[0.2em] mt-1">Google Meet / Zoom — 30 Min</p>
+                <p className="text-[9px] text-[var(--color-secondary)]/50 font-mono uppercase tracking-[0.2em] mt-1">Google Meet / Zoom — 30 Min</p>
               </div>
             </div>
             
             <div className="space-y-2 relative z-10">
               {(points || 'Presentación de portafolio,Auditoría de marca y objetivos').split(',').map((item: string, i: number) => (
-                <div key={i} className="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 hover:border-[#FF5F1F]/50 group/item transition-all duration-300">
+                <div key={i} className="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 hover:border-[var(--color-primary)]/50 group/item transition-all duration-300">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-[8px] text-cyan-400/40 tracking-widest">[{String(i + 1).padStart(2, '0')}]</span>
+                    <span className="font-mono text-[8px] text-[var(--color-secondary)]/40 tracking-widest">[{String(i + 1).padStart(2, '0')}]</span>
                     <span className="text-sm font-black uppercase tracking-tighter leading-none text-white">{item.trim()}</span>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-zinc-600 group-hover/item:text-[#FF5F1F] transition-colors" />
+                  <ArrowRight className="w-4 h-4 text-zinc-600 group-hover/item:text-[var(--color-primary)] transition-colors" />
                 </div>
               ))}
             </div>
 
             <div className="absolute bottom-3 right-3 opacity-30">
-              <BlueprintCrosshair className="text-cyan-400" />
+              <BlueprintCrosshair className="text-[var(--color-secondary)]" />
             </div>
           </motion.div>
         </div>
@@ -857,13 +857,13 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   PhilosophyGrid: ({ title, subtitle, part1Title, part1Desc, part2Title, part2Desc }) => (
     <section className="py-20 md:py-28 relative overflow-hidden px-6 bg-zinc-950">
       {/* Blueprint grid */}
-      <div className="absolute inset-0 text-cyan-400/[0.04] pointer-events-none">
+      <div className="absolute inset-0 text-[var(--color-secondary)]/[0.04] pointer-events-none">
         <BlueprintLine className="w-full h-full" />
       </div>
-      <div className="absolute top-4 left-6 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden md:block select-none">MODULE: PHILOSOPHY / ID: PHI_01</div>
+      <div className="absolute top-4 left-6 font-mono text-[7px] text-[var(--color-secondary)]/20 uppercase tracking-widest hidden md:block select-none">MODULE: PHILOSOPHY / ID: PHI_01</div>
       
       <div className="relative z-10 text-center mb-12 md:mb-16">
-        <span className="text-[9px] font-mono tracking-[0.4em] text-[#FF5F1F] uppercase mb-5 block font-black">{subtitle || 'NUESTRA FILOSOFÍA'}</span>
+        <span className="text-[9px] font-mono tracking-[0.4em] text-[var(--color-primary)] uppercase mb-5 block font-black">{subtitle || 'NUESTRA FILOSOFÍA'}</span>
         <h2 className="text-4xl md:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter max-w-5xl mx-auto leading-none text-white">{title || 'Diseñamos desde lo esencial para construir lo extraordinario.'}</h2>
         <div className="max-w-3xl mx-auto mt-8 text-zinc-400 text-base font-medium leading-relaxed">
           <p>PlanoZero no es solo un estudio de diseño; somos arquitectos de identidad. En un ecosistema saturado de ruido visual, la claridad es el activo más valioso de una marca.</p>
@@ -876,9 +876,9 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
           className="p-10 md:p-14 bg-zinc-900/60 hover:bg-zinc-900 flex flex-col gap-8 relative overflow-hidden group transition-colors duration-300"
         >
           <div className="absolute top-4 right-4 opacity-20 group-hover:opacity-50 transition-opacity">
-            <BlueprintCrosshair className="text-cyan-400 w-8 h-8" />
+            <BlueprintCrosshair className="text-[var(--color-secondary)] w-8 h-8" />
           </div>
-          <div className="text-6xl font-black text-cyan-400/20 font-mono italic tracking-tighter">01.</div>
+          <div className="text-6xl font-black text-[var(--color-secondary)]/20 font-mono italic tracking-tighter">01.</div>
           <h3 className="text-3xl font-black italic uppercase tracking-tighter leading-none text-white">{part1Title || 'Plano: El Blueprint.'}</h3>
           <p className="text-zinc-500 text-base leading-relaxed font-medium">{part1Desc || 'La base estructurada, la arquitectura visual y el diseño meticuloso. Representa el plano maestro sobre el cual planificamos y proyectamos el futuro de tu marca.'}</p>
         </TiltCard3D>
@@ -888,9 +888,9 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
           className="p-10 md:p-14 bg-zinc-900/30 hover:bg-zinc-900/60 flex flex-col gap-8 relative overflow-hidden border-l border-zinc-800 group transition-colors duration-300"
         >
           <div className="absolute top-4 right-4 opacity-20 group-hover:opacity-50 transition-opacity">
-            <BlueprintCrosshair className="text-[#FF5F1F] w-8 h-8" />
+            <BlueprintCrosshair className="text-[var(--color-primary)] w-8 h-8" />
           </div>
-          <div className="text-6xl font-black text-[#FF5F1F]/20 font-mono italic tracking-tighter">02.</div>
+          <div className="text-6xl font-black text-[var(--color-primary)]/20 font-mono italic tracking-tighter">02.</div>
           <h3 className="text-3xl font-black italic uppercase tracking-tighter leading-none text-white">{part2Title || 'Zero: La Esencia.'}</h3>
           <p className="text-zinc-500 text-base leading-relaxed font-medium">{part2Desc || 'El lienzo en blanco. Evoca nuestra mentalidad de trabajo: cero fricciones, cero ruido visual, volviendo siempre a lo que es verdaderamente esencial para conectar.'}</p>
         </TiltCard3D>
@@ -940,13 +940,13 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
     return (
       <section className="py-20 md:py-32 px-6 relative overflow-hidden bg-zinc-900 border-y border-zinc-800" id="proceso" ref={sectionRef}>
         {/* Blueprint grid background */}
-        <div className="absolute inset-0 text-cyan-400/5 pointer-events-none">
+        <div className="absolute inset-0 text-[var(--color-secondary)]/5 pointer-events-none">
           <BlueprintLine className="w-full h-full" />
         </div>
-        <div className="absolute top-4 right-6 font-mono text-[7px] text-cyan-400/20 uppercase tracking-widest hidden md:block select-none">MODULE: PROCESS / STEPS: 04</div>
+        <div className="absolute top-4 right-6 font-mono text-[7px] text-[var(--color-secondary)]/20 uppercase tracking-widest hidden md:block select-none">MODULE: PROCESS / STEPS: 04</div>
         
         <div className="text-center mb-14 md:mb-20 relative z-10">
-          <span className="text-[9px] font-mono tracking-[0.5em] text-[#FF5F1F] uppercase mb-5 block font-black">{subtitle || 'NUESTRO PROCESO'}</span>
+          <span className="text-[9px] font-mono tracking-[0.5em] text-[var(--color-primary)] uppercase mb-5 block font-black">{subtitle || 'NUESTRO PROCESO'}</span>
           <h2 className="text-4xl md:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter leading-none text-white">{title || 'Movimiento Hacia Adelante'}</h2>
         </div>
 
@@ -954,9 +954,9 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
           {/* Blueprint connecting line */}
           <div className="absolute top-[1.75rem] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#FF5F1F]/30 to-transparent hidden md:block" />
           <div className="absolute top-[1.4rem] left-0 w-full hidden md:flex items-center justify-between px-24">
-            <span className="font-mono text-[7px] text-cyan-400/25 tracking-widest">X_AXIS_01</span>
-            <span className="font-mono text-[7px] text-cyan-400/25 tracking-widest">FLOW_CONV_99</span>
-            <span className="font-mono text-[7px] text-cyan-400/25 tracking-widest">FIN_STAGE</span>
+            <span className="font-mono text-[7px] text-[var(--color-secondary)]/25 tracking-widest">X_AXIS_01</span>
+            <span className="font-mono text-[7px] text-[var(--color-secondary)]/25 tracking-widest">FLOW_CONV_99</span>
+            <span className="font-mono text-[7px] text-[var(--color-secondary)]/25 tracking-widest">FIN_STAGE</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8 lg:gap-14">
@@ -970,7 +970,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                 className="relative z-10 text-center md:text-left group"
               >
                 <motion.div
-                  className="w-14 h-14 bg-zinc-950 border border-[#FF5F1F]/60 flex items-center justify-center font-mono font-bold text-[#FF5F1F] text-sm mb-6 mx-auto md:mx-0 shadow-[0_0_20px_rgba(255,95,31,0.1)] cursor-default"
+                  className="w-14 h-14 bg-zinc-950 border border-[var(--color-primary)]/60 flex items-center justify-center font-mono font-bold text-[var(--color-primary)] text-sm mb-6 mx-auto md:mx-0 shadow-[0_0_20px_rgba(255,95,31,0.1)] cursor-default"
                   whileHover={{ backgroundColor: '#FF5F1F', color: '#fff', scale: 1.1 }}
                   transition={{ duration: 0.2 }}
                 >
@@ -988,8 +988,8 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
 
   PartnersCloud: ({ title, urls }) => (
     <div className="py-14 bg-zinc-950 border-y border-zinc-800 flex flex-col items-center justify-center gap-8 px-6 relative overflow-hidden">
-      <div className="absolute inset-0 text-cyan-400/[0.03] pointer-events-none"><BlueprintLine className="w-full h-full" /></div>
-       <p className="font-mono text-[9px] uppercase tracking-[0.4em] font-black text-[#FF5F1F] relative z-10">{title || 'CON QUÉ TRABAJAMOS:'}</p>
+      <div className="absolute inset-0 text-[var(--color-secondary)]/[0.03] pointer-events-none"><BlueprintLine className="w-full h-full" /></div>
+       <p className="font-mono text-[9px] uppercase tracking-[0.4em] font-black text-[var(--color-primary)] relative z-10">{title || 'CON QUÉ TRABAJAMOS:'}</p>
        <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 grayscale opacity-30 hover:opacity-70 hover:grayscale-0 transition-all duration-1000 relative z-10">
           {(urls || 'WordPress, Webflow, Sitefinity, Google Ads, Meta Business, Shopify Partner, AI Studio Google').split(',').map((u: string, i: number) => {
              const lower = u.trim().toLowerCase();
@@ -1071,7 +1071,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
       return (
         <section className="py-12 px-6 bg-zinc-950 flex items-center justify-center text-center">
           <div className="space-y-4 max-w-md">
-            <div className="w-14 h-14 bg-[#FF5F1F]/10 rounded-full flex items-center justify-center mx-auto text-[#FF5F1F]">
+            <div className="w-14 h-14 bg-[var(--color-primary)]/10 rounded-full flex items-center justify-center mx-auto text-[var(--color-primary)]">
                <CheckCircle2 className="w-7 h-7" />
             </div>
             <div className="space-y-2">
@@ -1080,7 +1080,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
             </div>
             <button 
               onClick={() => { setSubmitted(false); resetCaptcha(); setFormData({name:'', company:'', position:'', email:'', phone:'', idea:''}); }}
-              className="text-[#FF5F1F] font-bold uppercase tracking-[0.3em] text-xs hover:tracking-[0.4em] transition-all"
+              className="text-[var(--color-primary)] font-bold uppercase tracking-[0.3em] text-xs hover:tracking-[0.4em] transition-all"
             >
               ENVIAR OTRA IDEA →
             </button>
@@ -1096,14 +1096,14 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
             <div className="relative">
               <h2 className="text-3xl md:text-4xl font-black tracking-tighter uppercase leading-[0.9] italic relative z-10">
                 {part1 || 'Inicia tu'} <br />
-                <span className="text-[#FF5F1F]">{part2 || 'proyecto'}</span>
+                <span className="text-[var(--color-primary)]">{part2 || 'proyecto'}</span>
               </h2>
             </div>
             
             <div className="space-y-4">
               <div className="flex items-center gap-4 group">
-                <div className="w-10 h-10 bg-zinc-900 flex items-center justify-center border border-zinc-800 group-hover:bg-[#FF5F1F] group-hover:border-[#FF5F1F] transition-all duration-300 shrink-0">
-                  <Mail className="w-4 h-4 text-[#FF5F1F] group-hover:text-white transition-all" />
+                <div className="w-10 h-10 bg-zinc-900 flex items-center justify-center border border-zinc-800 group-hover:bg-[var(--color-primary)] group-hover:border-[var(--color-primary)] transition-all duration-300 shrink-0">
+                  <Mail className="w-4 h-4 text-[var(--color-primary)] group-hover:text-white transition-all" />
                 </div>
                 <div>
                   <p className="text-[9px] font-black font-mono text-zinc-500 uppercase tracking-[0.3em] leading-none">Email</p>
@@ -1111,8 +1111,8 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                 </div>
               </div>
               <div className="flex items-center gap-4 group">
-                <div className="w-10 h-10 bg-zinc-900 flex items-center justify-center border border-zinc-800 group-hover:bg-[#FF5F1F] group-hover:border-[#FF5F1F] transition-all duration-300 shrink-0">
-                  <Phone className="w-4 h-4 text-[#FF5F1F] group-hover:text-white transition-all" />
+                <div className="w-10 h-10 bg-zinc-900 flex items-center justify-center border border-zinc-800 group-hover:bg-[var(--color-primary)] group-hover:border-[var(--color-primary)] transition-all duration-300 shrink-0">
+                  <Phone className="w-4 h-4 text-[var(--color-primary)] group-hover:text-white transition-all" />
                 </div>
                 <div>
                   <p className="text-[9px] font-black font-mono text-zinc-500 uppercase tracking-[0.3em] leading-none">WhatsApp</p>
@@ -1120,7 +1120,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                 </div>
               </div>
             </div>
-            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-900 font-black italic uppercase tracking-widest text-[#FF5F1F]/40 flex items-center gap-4 text-xs">
+            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-900 font-black italic uppercase tracking-widest text-[var(--color-primary)]/40 flex items-center gap-4 text-xs">
                <span>Santiago, Chile</span>
                <div className="w-1.5 h-1.5 bg-zinc-300 dark:bg-zinc-800 rounded-full" />
                <span>Operación Global</span>
@@ -1139,7 +1139,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
                     placeholder="Tu nombre" 
-                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[#FF5F1F] transition-all font-medium placeholder:text-zinc-400" 
+                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[var(--color-primary)] transition-all font-medium placeholder:text-zinc-400" 
                    />
                 </div>
                 <div className="space-y-1">
@@ -1148,7 +1148,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                     value={formData.company}
                     onChange={e => setFormData({...formData, company: e.target.value})}
                     placeholder="Empresa" 
-                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[#FF5F1F] transition-all font-medium placeholder:text-zinc-400" 
+                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[var(--color-primary)] transition-all font-medium placeholder:text-zinc-400" 
                    />
                 </div>
               </div>
@@ -1160,7 +1160,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                     value={formData.position}
                     onChange={e => setFormData({...formData, position: e.target.value})}
                     placeholder="Tu cargo" 
-                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[#FF5F1F] transition-all font-medium placeholder:text-zinc-400" 
+                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[var(--color-primary)] transition-all font-medium placeholder:text-zinc-400" 
                    />
                 </div>
                 <div className="space-y-1">
@@ -1171,7 +1171,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                     value={formData.email}
                     onChange={e => setFormData({...formData, email: e.target.value})}
                     placeholder="tu@email.com" 
-                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[#FF5F1F] transition-all font-medium placeholder:text-zinc-400" 
+                    className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[var(--color-primary)] transition-all font-medium placeholder:text-zinc-400" 
                    />
                 </div>
               </div>
@@ -1182,7 +1182,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                   value={formData.phone}
                   onChange={e => setFormData({...formData, phone: e.target.value})}
                   placeholder="+56 9 ..." 
-                  className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[#FF5F1F] transition-all font-medium placeholder:text-zinc-400" 
+                  className="w-full text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 outline-none focus:border-[var(--color-primary)] transition-all font-medium placeholder:text-zinc-400" 
                  />
               </div>
 
@@ -1193,13 +1193,13 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                   value={formData.idea}
                   onChange={e => setFormData({...formData, idea: e.target.value})}
                   placeholder="Describe la visión de tu proyecto" 
-                  className="w-full h-24 text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 outline-none focus:border-[#FF5F1F] resize-none transition-all font-medium placeholder:text-zinc-400 leading-snug" 
+                  className="w-full h-24 text-sm bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 outline-none focus:border-[var(--color-primary)] resize-none transition-all font-medium placeholder:text-zinc-400 leading-snug" 
                  />
               </div>
 
               <div className="bg-zinc-50 dark:bg-zinc-800/80 p-3 rounded-xl border border-zinc-200 dark:border-zinc-700/50 flex flex-row items-center justify-between gap-4">
                  <div className="space-y-0.5">
-                    <span className="text-[9px] font-black font-mono text-[#FF5F1F] uppercase tracking-[0.3em] leading-none">Anti-Spam</span>
+                    <span className="text-[9px] font-black font-mono text-[var(--color-primary)] uppercase tracking-[0.3em] leading-none">Anti-Spam</span>
                     <p className="text-sm font-black italic tracking-tighter leading-none">¿Cuánto es {captcha.a} + {captcha.b}?</p>
                  </div>
                  <input 
@@ -1208,13 +1208,13 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
                   value={captchaInput}
                   onChange={e => setCaptchaInput(e.target.value)}
                   placeholder="?"
-                  className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 w-20 text-center font-black text-base focus:border-[#FF5F1F] transition-all"
+                  className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 w-20 text-center font-black text-base focus:border-[var(--color-primary)] transition-all"
                  />
               </div>
 
               <button 
                 disabled={loading}
-                className="group relative w-full py-3 bg-[#FF5F1F] text-white font-black rounded-xl shadow-lg uppercase tracking-[0.15em] italic text-sm hover:scale-[1.02] active:scale-95 transition-all duration-300 overflow-hidden"
+                className="group relative w-full py-3 bg-[var(--color-primary)] text-white font-black rounded-xl shadow-lg uppercase tracking-[0.15em] italic text-sm hover:scale-[1.02] active:scale-95 transition-all duration-300 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center justify-center gap-3">
                   {loading ? 'ENVIANDO...' : 'ENVIAR MENSAJE'}
