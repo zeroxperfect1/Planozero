@@ -24,8 +24,9 @@ interface Post {
   title: string;
   excerpt: string;
   date: any;
-  author: string;
+  author?: string;
   authorId?: string;
+  author_id?: string;
   author_email?: string;
   authorImage?: string;
   category: string;
@@ -207,18 +208,18 @@ const Blog = () => {
                     {post.authorImage ? (
                       <img 
                         src={post.authorImage} 
-                        alt={post.author}
+                        alt={post.author || 'Autor'}
                         className="w-8 h-8 rounded-full object-cover border border-zinc-200 dark:border-zinc-700" 
                         referrerPolicy="no-referrer"
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700">
                         <span className="text-[10px] font-mono text-[#FF5F1F] font-bold">
-                          {post.author.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                          {(post.author || post.author_email || 'PZ').split(/[ @]/)[0].slice(0, 2).toUpperCase()}
                         </span>
                       </div>
                     )}
-                    <span className="text-[10px] font-mono text-zinc-500 font-medium tracking-tight truncate max-w-[120px]">{post.author}</span>
+                    <span className="text-[10px] font-mono text-zinc-500 font-medium tracking-tight truncate max-w-[120px]">{post.author || (post.author_email?.split('@')[0]) || 'PlanoZero'}</span>
                   </div>
                   <Link to={`/blog/${post.slug || post.id}`} className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-[#FF5F1F] hover:border-[#FF5F1F] hover:text-white transition-all transform group-hover:rotate-45 shrink-0 ml-2">
                     <ArrowRight className="w-5 h-5" />

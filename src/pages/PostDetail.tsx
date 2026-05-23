@@ -16,7 +16,9 @@ interface Post {
   content: string;
   excerpt: string;
   date: any;
-  author: string;
+  author?: string;
+  author_id?: string;
+  author_email?: string;
   authorImage?: string;
   category: string;
   image: string;
@@ -24,6 +26,81 @@ interface Post {
   created_at?: string;
   createdAt?: any;
 }
+
+// ── Custom ReactMarkdown components for rich editorial typography ────────────
+const mdComponents: React.ComponentProps<typeof ReactMarkdown>['components'] = {
+  h1: ({ children }) => (
+    <h2 className="text-3xl md:text-4xl font-black tracking-tighter uppercase italic leading-none mt-14 mb-6 text-zinc-900 dark:text-white border-b border-zinc-100 dark:border-zinc-800 pb-4">
+      {children}
+    </h2>
+  ),
+  h2: ({ children }) => (
+    <h3 className="text-2xl md:text-3xl font-black tracking-tight uppercase mt-12 mb-4 text-zinc-900 dark:text-white flex items-center gap-3 before:content-[''] before:w-6 before:h-[3px] before:bg-[#FF5F1F] before:flex-shrink-0">
+      {children}
+    </h3>
+  ),
+  h3: ({ children }) => (
+    <h4 className="text-xl font-bold tracking-tight mt-8 mb-3 text-zinc-800 dark:text-zinc-100">
+      {children}
+    </h4>
+  ),
+  p: ({ children }) => (
+    <p className="text-lg leading-[1.85] text-zinc-600 dark:text-zinc-400 mb-6 font-normal">
+      {children}
+    </p>
+  ),
+  strong: ({ children }) => (
+    <strong className="font-black text-zinc-900 dark:text-white">
+      {children}
+    </strong>
+  ),
+  em: ({ children }) => (
+    <em className="italic text-[#FF5F1F] not-italic font-medium" style={{ fontStyle: 'italic' }}>
+      {children}
+    </em>
+  ),
+  blockquote: ({ children }) => (
+    <blockquote className="my-8 pl-6 border-l-4 border-[#FF5F1F] bg-zinc-50 dark:bg-zinc-900/50 py-4 pr-6 rounded-r-2xl text-xl italic text-zinc-700 dark:text-zinc-300 font-medium leading-relaxed">
+      {children}
+    </blockquote>
+  ),
+  ul: ({ children }) => (
+    <ul className="mb-6 space-y-2 text-zinc-600 dark:text-zinc-400">
+      {children}
+    </ul>
+  ),
+  ol: ({ children }) => (
+    <ol className="mb-6 space-y-2 text-zinc-600 dark:text-zinc-400 list-decimal list-inside">
+      {children}
+    </ol>
+  ),
+  li: ({ children }) => (
+    <li className="flex items-start gap-3 text-lg leading-relaxed">
+      <span className="w-1.5 h-1.5 rounded-full bg-[#FF5F1F] flex-shrink-0 mt-3" />
+      <span>{children}</span>
+    </li>
+  ),
+  code: ({ children, className }) => {
+    const isBlock = className?.includes('language-');
+    return isBlock ? (
+      <pre className="my-6 bg-zinc-950 text-zinc-100 rounded-2xl p-6 overflow-x-auto text-sm font-mono border border-zinc-800">
+        <code>{children}</code>
+      </pre>
+    ) : (
+      <code className="bg-zinc-100 dark:bg-zinc-800 text-[#FF5F1F] rounded px-2 py-0.5 text-sm font-mono font-medium">
+        {children}
+      </code>
+    );
+  },
+  a: ({ href, children }) => (
+    <a href={href} className="text-[#FF5F1F] font-bold underline underline-offset-4 decoration-[#FF5F1F]/30 hover:decoration-[#FF5F1F] transition-all" target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+      {children}
+    </a>
+  ),
+  hr: () => (
+    <hr className="my-12 border-0 h-px bg-gradient-to-r from-transparent via-zinc-300 dark:via-zinc-700 to-transparent" />
+  ),
+};
 
 const ShareModal = ({ isOpen, onClose, title, url }: { isOpen: boolean, onClose: () => void, title: string, url: string }) => {
   const [copied, setCopied] = useState(false);
@@ -269,58 +346,46 @@ const PostDetail = () => {
                   {post.authorImage ? (
                     <img 
                       src={post.authorImage} 
-                      alt={post.author}
+                      alt={post.author || 'Autor'}
                       className="w-10 h-10 rounded-full object-cover border border-zinc-200 dark:border-zinc-700" 
                       referrerPolicy="no-referrer"
                     />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center">
                       <span className="text-xs font-mono text-[#FF5F1F] font-bold">
-                        {post.author.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                        {(post.author || post.author_email || 'PZ').split(/[ @]/)[0].slice(0, 2).toUpperCase()}
                       </span>
                     </div>
                   )}
-                  <span className="font-bold">{post.author}</span>
+                  <span className="font-bold">{post.author || post.author_email?.split('@')[0] || 'PlanoZero'}</span>
                 </div>
               </div>
             </div>
 
             <div className="lg:col-span-3">
-              <div 
-                className="prose prose-zinc dark:prose-invert max-w-none 
-                  prose-h1:text-4xl prose-h1:md:text-5xl prose-h1:font-black prose-h1:tracking-tighter prose-h1:uppercase prose-h1:italic
-                  prose-h2:text-3xl prose-h2:font-black prose-h2:tracking-tight prose-h2:uppercase prose-h2:italic
-                  prose-p:text-lg prose-p:leading-relaxed text-zinc-600 dark:text-zinc-400
-                  prose-blockquote:border-l-4 prose-blockquote:border-[#FF5F1F] prose-blockquote:bg-zinc-50 dark:prose-blockquote:bg-zinc-900/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-3xl
-                  prose-img:rounded-[40px] prose-img:shadow-2xl prose-img:border prose-img:border-zinc-200 dark:prose-img:border-zinc-800
-                  prose-a:text-[#FF5F1F] prose-a:font-bold prose-a:no-underline hover:prose-a:underline"
-              >
+              <article className="max-w-none">
                 {(() => {
-                  let content = post.content;
-                  
-                  // Comprehensive check for HTML entities
-                  const hasEntities = /&[a-z0-9]+;|&#[0-9]+;|&#x[a-f0-9]+;/i.test(content);
-                  
-                  if (hasEntities) {
+                  let content = post.content || '';
+
+                  // Decode HTML entities if needed
+                  if (/&[a-z0-9]+;|&#[0-9]+;|&#x[a-f0-9]+;/i.test(content)) {
                     const txt = document.createElement('textarea');
                     txt.innerHTML = content;
                     content = txt.value;
-                    // Double decoding for common edge cases
                     if (/&[a-z0-9]+;|&#[0-9]+;|&#x[a-f0-9]+;/i.test(content)) {
                       txt.innerHTML = content;
                       content = txt.value;
                     }
                   }
 
-                  // If it's definitely HTML or was decoded into HTML
+                  // Raw HTML fallback
                   if (/<[a-z][\s\S]*>/i.test(content)) {
-                    return <div dangerouslySetInnerHTML={{ __html: content }} />;
+                    return <div className="[&_h1]:text-3xl [&_h1]:font-black [&_h1]:uppercase [&_h1]:mt-12 [&_h1]:mb-6 [&_h2]:text-2xl [&_h2]:font-black [&_h2]:uppercase [&_h2]:mt-10 [&_h2]:mb-4 [&_p]:text-lg [&_p]:leading-relaxed [&_p]:mb-5 [&_p]:text-zinc-600 [&_strong]:font-black [&_strong]:text-zinc-900" dangerouslySetInnerHTML={{ __html: content }} />;
                   }
-                  
-                  // Fallback to Markdown
-                  return <ReactMarkdown>{content}</ReactMarkdown>;
+
+                  return <ReactMarkdown components={mdComponents}>{content}</ReactMarkdown>;
                 })()}
-              </div>
+              </article>
             </div>
           </div>
 
