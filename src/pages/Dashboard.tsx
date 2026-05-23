@@ -5,6 +5,35 @@ import { handleFileUpload, deleteImageFromFirebase } from '../services/storageSe
 import api from '../services/api';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, User } from 'firebase/auth';
 import { motion, AnimatePresence } from 'motion/react';
+// ─── Material UI ────────────────────────────────────────────────────────────
+import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import MuiButton from '@mui/material/Button';
+import MuiCard from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import MuiTextField from '@mui/material/TextField';
+import MuiChip from '@mui/material/Chip';
+import MuiFab from '@mui/material/Fab';
+import MuiSwitch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import MuiAlert from '@mui/material/Alert';
+import MuiAvatar from '@mui/material/Avatar';
+import MuiBadge from '@mui/material/Badge';
+import MuiLinearProgress from '@mui/material/LinearProgress';
+import MuiSlider from '@mui/material/Slider';
+import AddIcon from '@mui/icons-material/Add';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShareIcon from '@mui/icons-material/Share';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import IconButton from '@mui/material/IconButton';
+import CardHeader from '@mui/material/CardHeader';
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Divider from '@mui/material/Divider';
+
 import { 
   Plus, 
   Trash2, 
@@ -106,6 +135,125 @@ const DEFAULT_DESIGN_TOKENS: Record<string, string> = {
   '--font-body':            "'Inter', system-ui, sans-serif",
   '--font-mono':            "'JetBrains Mono', monospace",
   '--glow-intensity':       '0.30',
+};
+
+// ─── Material Design 3 presets ────────────────────────────────────────────────
+const MD3_PRESETS: Record<string, { label: string; emoji: string; tokens: Record<string, string> }> = {
+  'md3-light': {
+    label: 'MD3 Light',
+    emoji: '☀️',
+    tokens: {
+      '--color-primary':        '#6750A4',
+      '--color-primary-hover':  '#4F378B',
+      '--color-secondary':      '#625B71',
+      '--color-bg':             '#FFFBFE',
+      '--color-surface':        '#FFFBFE',
+      '--color-surface-raised': '#ECE6F0',
+      '--color-border':         '#CAC4D0',
+      '--color-text':           '#1C1B1F',
+      '--color-text-muted':     '#49454F',
+      '--radius-sm':            '4px',
+      '--radius-md':            '12px',
+      '--radius-lg':            '16px',
+      '--radius-xl':            '28px',
+      '--font-heading':         "'Roboto', system-ui, sans-serif",
+      '--font-body':            "'Roboto', system-ui, sans-serif",
+      '--font-mono':            "'Roboto Mono', monospace",
+      '--glow-intensity':       '0.10',
+    }
+  },
+  'md3-dark': {
+    label: 'MD3 Dark',
+    emoji: '🌙',
+    tokens: {
+      '--color-primary':        '#D0BCFF',
+      '--color-primary-hover':  '#B69DF8',
+      '--color-secondary':      '#CCC2DC',
+      '--color-bg':             '#1C1B1F',
+      '--color-surface':        '#1C1B1F',
+      '--color-surface-raised': '#2B2930',
+      '--color-border':         '#49454F',
+      '--color-text':           '#E6E1E5',
+      '--color-text-muted':     '#CAC4D0',
+      '--radius-sm':            '4px',
+      '--radius-md':            '12px',
+      '--radius-lg':            '16px',
+      '--radius-xl':            '28px',
+      '--font-heading':         "'Roboto', system-ui, sans-serif",
+      '--font-body':            "'Roboto', system-ui, sans-serif",
+      '--font-mono':            "'Roboto Mono', monospace",
+      '--glow-intensity':       '0.15',
+    }
+  },
+  'md3-teal': {
+    label: 'MD3 Teal',
+    emoji: '🌊',
+    tokens: {
+      '--color-primary':        '#006874',
+      '--color-primary-hover':  '#00494E',
+      '--color-secondary':      '#4A6267',
+      '--color-bg':             '#FAFDFD',
+      '--color-surface':        '#FAFDFD',
+      '--color-surface-raised': '#DBE4E6',
+      '--color-border':         '#BFC8CA',
+      '--color-text':           '#161D1E',
+      '--color-text-muted':     '#3F484A',
+      '--radius-sm':            '4px',
+      '--radius-md':            '12px',
+      '--radius-lg':            '16px',
+      '--radius-xl':            '28px',
+      '--font-heading':         "'Roboto', system-ui, sans-serif",
+      '--font-body':            "'Roboto', system-ui, sans-serif",
+      '--font-mono':            "'Roboto Mono', monospace",
+      '--glow-intensity':       '0.12',
+    }
+  },
+  'md3-orange': {
+    label: 'MD3 Orange',
+    emoji: '🔥',
+    tokens: {
+      '--color-primary':        '#9D4300',
+      '--color-primary-hover':  '#7A3400',
+      '--color-secondary':      '#77574B',
+      '--color-bg':             '#FFFBFF',
+      '--color-surface':        '#FFFBFF',
+      '--color-surface-raised': '#FFDBC9',
+      '--color-border':         '#D6BFB8',
+      '--color-text':           '#21130C',
+      '--color-text-muted':     '#53413A',
+      '--radius-sm':            '4px',
+      '--radius-md':            '12px',
+      '--radius-lg':            '16px',
+      '--radius-xl':            '28px',
+      '--font-heading':         "'Roboto', system-ui, sans-serif",
+      '--font-body':            "'Roboto', system-ui, sans-serif",
+      '--font-mono':            "'Roboto Mono', monospace",
+      '--glow-intensity':       '0.12',
+    }
+  },
+  'md3-green': {
+    label: 'MD3 Green',
+    emoji: '🌿',
+    tokens: {
+      '--color-primary':        '#1A6B35',
+      '--color-primary-hover':  '#0E4E25',
+      '--color-secondary':      '#516351',
+      '--color-bg':             '#FBFDF7',
+      '--color-surface':        '#FBFDF7',
+      '--color-surface-raised': '#DAE5D7',
+      '--color-border':         '#BFC9BC',
+      '--color-text':           '#181D18',
+      '--color-text-muted':     '#3D4B3C',
+      '--radius-sm':            '4px',
+      '--radius-md':            '12px',
+      '--radius-lg':            '16px',
+      '--radius-xl':            '28px',
+      '--font-heading':         "'Roboto', system-ui, sans-serif",
+      '--font-body':            "'Roboto', system-ui, sans-serif",
+      '--font-mono':            "'Roboto Mono', monospace",
+      '--glow-intensity':       '0.10',
+    }
+  },
 };
 
 function applyDesignTokens(tokens: Record<string, string>) {
@@ -793,9 +941,10 @@ const Dashboard = () => {
 
   // ─ Design System state
   const [dsTokens, setDsTokens] = useState<Record<string, string>>(DEFAULT_DESIGN_TOKENS);
-  const [dsTab, setDsTab] = useState<'colors' | 'typography' | 'spacing' | 'effects'>('colors');
+  const [dsTab, setDsTab] = useState<'colors' | 'typography' | 'spacing' | 'effects' | 'material'>('colors');
   const [dsSaving, setDsSaving] = useState(false);
   const [dsLoaded, setDsLoaded] = useState(false);
+  const [activeMdPreset, setActiveMdPreset] = useState<string | null>(null);
 
   const MP_CATEGORIES_KEYWORDS = {
     'DISEÑO': ['diseño', 'arquitectura', 'gráfico', 'industrial', 'urbanismo', 'paisaje', 'interiores', 'render'],
@@ -2381,9 +2530,45 @@ Datos:
       { id: 'typography', label: 'Tipografía', icon: <TypeIcon className="w-4 h-4" /> },
       { id: 'spacing',    label: 'Bordes',     icon: <Sliders className="w-4 h-4" /> },
       { id: 'effects',    label: 'Efectos',    icon: <Wand2 className="w-4 h-4" /> },
+      { id: 'material',   label: 'Material',   icon: <span className="text-sm">M</span> },
     ] as const;
 
     const glowIntensity = Math.round(parseFloat(dsTokens['--glow-intensity'] ?? '0.30') * 100);
+
+    // ── MUI Theme synced from dsTokens ───────────────────────────────────────
+    const isMdDark = dsTokens['--color-bg'] !== '#FFFBFE' && dsTokens['--color-bg'] !== '#FAFDFD' && dsTokens['--color-bg'] !== '#FFFBFF' && dsTokens['--color-bg'] !== '#FBFDF7' && dsTokens['--color-bg'] !== '#FFFBFF';
+    const muiTheme = createTheme({
+      palette: {
+        mode: isMdDark ? 'dark' : 'light',
+        primary:   { main: dsTokens['--color-primary']        ?? '#6750A4' },
+        secondary: { main: dsTokens['--color-secondary']      ?? '#625B71' },
+        background: {
+          default: dsTokens['--color-bg']      ?? '#FFFBFE',
+          paper:   dsTokens['--color-surface'] ?? '#FFFBFE',
+        },
+        text: {
+          primary:   dsTokens['--color-text']       ?? '#1C1B1F',
+          secondary: dsTokens['--color-text-muted'] ?? '#49454F',
+        },
+        divider: dsTokens['--color-border'] ?? '#CAC4D0',
+      },
+      typography: {
+        fontFamily: dsTokens['--font-body'] ?? "'Roboto', system-ui, sans-serif",
+        h6: { fontFamily: dsTokens['--font-heading'] ?? "'Roboto', system-ui, sans-serif" },
+        h5: { fontFamily: dsTokens['--font-heading'] ?? "'Roboto', system-ui, sans-serif" },
+      },
+      shape: { borderRadius: parseInt(dsTokens['--radius-md'] ?? '12') },
+      components: {
+        MuiButton: {
+          styleOverrides: {
+            root: { textTransform: 'none', fontWeight: 600, letterSpacing: '0.01em' },
+          },
+        },
+        MuiCard: {
+          styleOverrides: { root: { borderRadius: parseInt(dsTokens['--radius-lg'] ?? '16') } },
+        },
+      },
+    });
 
     // ── Live Preview Component ───────────────────────────────────────────────
     const LivePreview = () => (
@@ -2770,6 +2955,197 @@ Datos:
                         <Copy className="w-3 h-3" /> Copiar al portapapeles
                       </button>
                     </div>
+                  </motion.div>
+                )}
+
+                {/* ─── Material Design ─── */}
+                {dsTab === 'material' && (
+                  <motion.div key="material" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
+
+                    {/* Header */}
+                    <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-[#6750A4]/10 to-[#625B71]/5 border border-[#6750A4]/20 rounded-2xl">
+                      <div className="w-10 h-10 bg-[#6750A4] rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg shadow-[#6750A4]/30">M</div>
+                      <div>
+                        <p className="text-sm font-black text-white">Material Design 3</p>
+                        <p className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">Google Material You — Componentes y tokens MD3</p>
+                      </div>
+                    </div>
+
+                    {/* Preset selector */}
+                    <div>
+                      <label className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-500 block mb-3">Presets de Color MD3</label>
+                      <div className="grid grid-cols-3 gap-2 mb-2">
+                        {Object.entries(MD3_PRESETS).map(([key, preset]) => (
+                          <button
+                            key={key}
+                            onClick={() => {
+                              const next = { ...dsTokens, ...preset.tokens };
+                              setDsTokens(next);
+                              applyDesignTokens(next);
+                              setActiveMdPreset(key);
+                            }}
+                            className={`flex flex-col items-start gap-1 p-3 rounded-xl border transition-all text-left ${
+                              activeMdPreset === key
+                                ? 'border-[#6750A4] bg-[#6750A4]/10'
+                                : 'border-zinc-800 bg-zinc-900 hover:border-zinc-600'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between w-full mb-1">
+                              <span className="text-base">{preset.emoji}</span>
+                              <div className="flex gap-1">
+                                <div className="w-3 h-3 rounded-full border border-zinc-700" style={{ background: preset.tokens['--color-primary'] }} />
+                                <div className="w-3 h-3 rounded-full border border-zinc-700" style={{ background: preset.tokens['--color-bg'] }} />
+                              </div>
+                            </div>
+                            <span className="text-[9px] font-mono uppercase tracking-widest text-zinc-300">{preset.label}</span>
+                          </button>
+                        ))}
+                        <button
+                          onClick={() => { setDsTokens(DEFAULT_DESIGN_TOKENS); applyDesignTokens(DEFAULT_DESIGN_TOKENS); setActiveMdPreset(null); }}
+                          className={`flex flex-col items-start gap-1 p-3 rounded-xl border transition-all text-left ${
+                            activeMdPreset === null
+                              ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/10'
+                              : 'border-zinc-800 bg-zinc-900 hover:border-zinc-600'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between w-full mb-1">
+                            <span className="text-base">⚡</span>
+                            <div className="flex gap-1">
+                              <div className="w-3 h-3 rounded-full border border-zinc-700" style={{ background: '#FF5F1F' }} />
+                              <div className="w-3 h-3 rounded-full border border-zinc-700" style={{ background: '#09090B' }} />
+                            </div>
+                          </div>
+                          <span className="text-[9px] font-mono uppercase tracking-widest text-zinc-300">PlanoZero</span>
+                        </button>
+                      </div>
+                      <p className="text-[9px] font-mono text-zinc-600 px-1">Los colores del preset se aplican al editor — puedes seguir editándolos manualmente.</p>
+                    </div>
+
+                    {/* MUI Component Gallery */}
+                    <div>
+                      <label className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-500 block mb-3">Componentes Material UI en vivo</label>
+                      <MuiThemeProvider theme={muiTheme}>
+                        <Box sx={{
+                          p: 3,
+                          borderRadius: 3,
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          bgcolor: 'background.default',
+                          '& *': { fontFamily: 'inherit' }
+                        }}>
+                          <Typography variant="caption" sx={{ letterSpacing: '0.2em', textTransform: 'uppercase', color: 'text.secondary', fontWeight: 700, display: 'block', mb: 2 }}>
+                            Material You Components — Render en Tiempo Real
+                          </Typography>
+
+                          {/* Typography */}
+                          <Box sx={{ mb: 3 }}>
+                            <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>Arquitectura de Marca</Typography>
+                            <Typography variant="body2" color="text.secondary">Soluciones de diseño estratégico para empresas con visión.</Typography>
+                            <Typography variant="caption" sx={{ fontFamily: "'Roboto Mono', monospace", color: 'primary.main', display: 'block', mt: 0.5 }}>
+                              const design = 'material3';
+                            </Typography>
+                          </Box>
+
+                          <Divider sx={{ mb: 3 }} />
+
+                          {/* Buttons */}
+                          <Box sx={{ mb: 3 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Botones</Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center' }}>
+                              <MuiButton variant="contained" color="primary" disableElevation>Contained</MuiButton>
+                              <MuiButton variant="outlined" color="primary">Outlined</MuiButton>
+                              <MuiButton variant="text" color="primary">Text</MuiButton>
+                              <MuiFab color="primary" size="small" aria-label="add"><AddIcon /></MuiFab>
+                              <IconButton color="primary"><FavoriteIcon /></IconButton>
+                            </Box>
+                          </Box>
+
+                          {/* Chips */}
+                          <Box sx={{ mb: 3 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Chips</Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                              <MuiChip label="Branding" color="primary" />
+                              <MuiChip label="Web Design" color="secondary" variant="outlined" />
+                              <MuiChip label="Fotografía" variant="outlined" />
+                              <MuiChip label="Publicidad" color="primary" variant="outlined" />
+                            </Box>
+                          </Box>
+
+                          {/* Card */}
+                          <Box sx={{ mb: 3 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Card</Typography>
+                            <MuiCard elevation={2} sx={{ maxWidth: '100%' }}>
+                              <CardHeader
+                                avatar={<MuiAvatar sx={{ bgcolor: 'primary.main' }}>P</MuiAvatar>}
+                                action={<IconButton><MoreVertIcon /></IconButton>}
+                                title="PlanoZero Studio"
+                                subheader="Diseño Estratégico"
+                              />
+                              <CardContent>
+                                <Typography variant="body2" color="text.secondary">
+                                  Transformamos negocios a través del diseño visual con propósito y precisión estratégica.
+                                </Typography>
+                              </CardContent>
+                              <CardActions>
+                                <IconButton aria-label="add to favorites"><FavoriteIcon /></IconButton>
+                                <IconButton aria-label="share"><ShareIcon /></IconButton>
+                                <MuiButton size="small" color="primary">Ver más</MuiButton>
+                              </CardActions>
+                            </MuiCard>
+                          </Box>
+
+                          {/* TextField + Switch */}
+                          <Box sx={{ mb: 3 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Inputs y Controles</Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                              <MuiTextField label="Tu idea de negocio" variant="outlined" size="small" fullWidth placeholder="Cuéntanos..." />
+                              <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                                <FormControlLabel control={<MuiSwitch defaultChecked color="primary" />} label="Modo activo" />
+                                <FormControlLabel control={<MuiSwitch color="secondary" />} label="Notificaciones" />
+                              </Box>
+                            </Box>
+                          </Box>
+
+                          {/* Alert + Progress */}
+                          <Box sx={{ mb: 2 }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Feedback</Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                              <MuiAlert severity="success" variant="filled">Proyecto guardado exitosamente.</MuiAlert>
+                              <MuiAlert severity="info" variant="outlined">Nueva licitación disponible en Mercado Público.</MuiAlert>
+                              <Box>
+                                <Typography variant="caption" color="text.secondary" gutterBottom>Progreso del proyecto — 72%</Typography>
+                                <MuiLinearProgress variant="determinate" value={72} color="primary" sx={{ height: 8, borderRadius: 4, mt: 0.5 }} />
+                              </Box>
+                              <MuiSlider defaultValue={65} aria-label="Intensidad" color="primary" />
+                            </Box>
+                          </Box>
+
+                        </Box>
+                      </MuiThemeProvider>
+                    </div>
+
+                    {/* Token comparison */}
+                    <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-2xl">
+                      <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-zinc-600 mb-3">Tokens activos vs MD3 estándar</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { label: 'Primary', current: dsTokens['--color-primary'], md3: '#6750A4' },
+                          { label: 'Secondary', current: dsTokens['--color-secondary'], md3: '#625B71' },
+                          { label: 'Background', current: dsTokens['--color-bg'], md3: '#FFFBFE' },
+                          { label: 'Surface', current: dsTokens['--color-surface'], md3: '#FFFBFE' },
+                        ].map(row => (
+                          <div key={row.label} className="flex items-center gap-2 p-2 bg-zinc-900 rounded-lg">
+                            <div className="flex gap-1">
+                              <div className="w-4 h-4 rounded border border-zinc-700" style={{ background: row.current }} title="Actual" />
+                              <div className="w-4 h-4 rounded border border-zinc-700" style={{ background: row.md3 }} title="MD3 estándar" />
+                            </div>
+                            <span className="text-[9px] font-mono text-zinc-400">{row.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[8px] font-mono text-zinc-700 mt-2">Izquierda: tu tema actual · Derecha: MD3 estándar</p>
+                    </div>
+
                   </motion.div>
                 )}
 
