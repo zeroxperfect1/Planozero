@@ -2,15 +2,17 @@
   RewriteEngine On
   RewriteBase /
 
+  # Deshabilitar listado de directorios
+  Options -Indexes
+
   # No reescribir /api/ ni /uploads/
   RewriteRule ^api(/.*)?$ - [L]
   RewriteRule ^uploads(/.*)?$ - [L]
 
-  # Servir archivos y carpetas existentes directo
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d
+  # Servir solo ARCHIVOS existentes directo (no directorios — van a React SPA)
+  RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule ^ - [L]
 
-  # Todo lo demás → React SPA
+  # Todo lo demás (rutas React, directorios como /blog) → React SPA
   RewriteRule ^ /index.html [L]
 </IfModule>
