@@ -281,25 +281,25 @@ const ServicesAccordion = () => {
   const services = [
     {
       title: "Branding",
-      description: "Descubrimos la esencia de tu negocio para transformarla en una narrativa visual poderosa. Desde la auditoría de ecosistema y el posicionamiento estratégico, hasta identidades corporativas y manuales de marca que aseguran una presencia coherente y dominante.",
+      description: "Partimos donde otros no llegan: entendiendo por qué existe tu negocio. Desde ahí construimos identidades visuales que tienen coherencia real, no solo estética. Auditoría, posicionamiento, sistema de marca completo.",
       points: ["Auditoría de Ecosistema y Estrategia", "Sistemas de Identidad Visual Escalable", "Documentación Técnica de Marca", "Narrativa y Posicionamiento de Voz"],
       icon: PenTool
     },
     {
       title: "DISEÑO UX/UI",
-      description: "Diseño de experiencias centrada en la interacción humana. Construímos sistemas de diseño atómicos y flujos lógicos que eliminan la fricción, optimizan la conversión y garantizan una usabilidad intuitiva en productos digitales complejos.",
+      description: "Diseñamos interfaces que tienen lógica, no solo forma. Flujos que eliminan fricción sin que el usuario se dé cuenta, sistemas que escalan cuando el producto crece y prototipos que se testean antes de construirse.",
       points: ["Arquitectura de Información y Wireframing", "Sistemas de Diseño Atómico", "Prototipado de Alta Fidelidad", "Diseño de Interfaces Líquidas (Móvil/Web)"],
       icon: Layers
     },
     {
       title: "Desarrollo Digital",
-      description: "Armamos infraestructuras digitales end-to-end que fusionan escalabilidad técnica con agilidad operativa. Desde la modernización de sistemas legacy hasta arquitecturas DXP, equilibramos frontends de alto rendimiento con backends robustos. Integramos No-Code, Low-Code y Vibe Code para dar autonomía a marketing sin comprometer la seguridad de TI.",
+      description: "Construimos lo que diseñamos. Desde sitios con arquitectura sólida hasta plataformas digitales que marketing puede operar sin depender de TI. Priorizamos velocidad real y código limpio sobre soluciones que se ven bien solo en la demo.",
       points: ["Evolución de Ecosistemas Legacy y DXP", "Arquitecturas No-Code, Low-Code y Vibe Code", "Optimización Crítica de Core Web Vitals", "Gobernanza y Autonomía Operativa"],
       icon: Monitor
     },
     {
       title: "Marketing Digital",
-      description: "Estrategias de crecimiento basadas en datos y análisis. Optimizamos cada etapa del funnel de marketing para capturar, convertir y retener audiencias mediante el uso inteligente de plataformas digitales y automatización.",
+      description: "Estrategia digital sin humo. Armamos campañas que convierten porque están bien pensadas desde el principio, no porque tiremos presupuesto hasta que algo funcione.",
       points: ["Growth Marketing y Atribución", "Estrategia en Redes Sociales", "Optimización de Embudos de Conversión", "Analítica Avanzada y Dashboards de Rendimiento"],
       icon: Cpu
     }
@@ -316,8 +316,8 @@ const ServicesAccordion = () => {
       
       <div className="text-center mb-10 px-4">
         <span className="text-xs font-mono tracking-widest text-[#FF5F1F] uppercase mb-2 block">Nuestros Servicios</span>
-        <h2 className="text-3xl md:text-5xl font-bold mb-4 italic tracking-tight">Soluciones integrales de diseño</h2>
-        <p className="text-zinc-500 max-w-2xl mx-auto text-sm">Soluciones integrales pensadas para elevar tu marca, desde la estrategia inicial hasta la implementación en todos los puntos de contacto.</p>
+        <h2 className="text-3xl md:text-5xl font-bold mb-4 italic tracking-tight">Lo que hacemos bien</h2>
+        <p className="text-zinc-500 max-w-2xl mx-auto text-sm">Cuatro áreas donde trabajamos en serio, con equipos especializados y resultados que se pueden medir.</p>
       </div>
 
       <div className="space-y-4">
@@ -380,8 +380,8 @@ const ExperienceCTA = () => (
           <h2 className="text-3xl md:text-5xl font-bold leading-tight">Años de experiencia, una nueva visión.</h2>
         </div>
         <div className="space-y-4 text-zinc-500 text-sm md:text-base">
-          <p>PlanoZero nace como un estudio enfocado en la excelencia visual, pero nuestro equipo cuenta con un historial comprobado en la creación y posicionamiento de marcas exitosas.</p>
-          <p>Agenda una sesión estratégica de 30 minutos. Hablaremos de la visión de tu marca y te mostraremos nuestro portafolio adaptado a tu industria.</p>
+          <p>PlanoZero nació de un equipo con años trabajando en branding y posicionamiento para marcas reales. No empezamos de cero con cada proyecto: llegamos con contexto.</p>
+          <p>Agenda una llamada de 30 minutos. Sin presentaciones corporativas: te mostramos trabajo relevante para tu sector y hablamos directo de lo que necesitas.</p>
         </div>
         <Button 
           className="w-full md:w-auto px-6 py-4 h-auto text-base"
@@ -444,8 +444,8 @@ const Philosophy = () => (
       <span className="text-xs font-mono tracking-widest text-[#FF5F1F] uppercase mb-3 block">NUESTRA FILOSOFÍA</span>
       <h2 className="text-3xl md:text-5xl font-bold max-w-4xl mx-auto">Diseñamos desde lo esencial para construir lo extraordinario.</h2>
       <div className="max-w-3xl mx-auto mt-6 md:mt-8 space-y-4 text-zinc-500 text-sm md:text-base leading-relaxed">
-        <p>PlanoZero no es solo un estudio de diseño; somos arquitectos de identidad. Creemos firmemente que, en un ecosistema saturado de ruido visual, la claridad es el activo más valioso de una marca.</p>
-        <p>Nuestro equipo garantiza que cada decisión visual tenga un propósito comercial real y medible.</p>
+        <p>PlanoZero no es un estudio más. Somos un equipo con un punto de vista claro: cuando hay demasiado ruido, la marca que gana es la que tiene algo real que decir.</p>
+        <p>Por eso cada proyecto empieza con preguntas incómodas. Y las decisiones visuales tienen que responder a algo concreto, no solo verse bien.</p>
       </div>
     </div>
 
@@ -456,7 +456,7 @@ const Philosophy = () => (
       >
         <div className="text-6xl font-black text-[#FF5F1F]/20 font-mono">01.</div>
         <h3 className="text-3xl font-bold">Plano: El Blueprint.</h3>
-        <p className="text-zinc-500 text-lg">La base estructurada, la arquitectura visual y el diseño meticuloso. Representa el plano maestro sobre el cual planificamos y proyectamos el futuro de tu marca.</p>
+        <p className="text-zinc-500 text-lg">Un proyecto bien hecho empieza con un plano. Antes de diseñar una línea, entendemos la estructura: objetivos, mercado, competencia, audiencia. Eso es lo que hace que el resultado tenga sentido.</p>
       </motion.div>
 
       <motion.div 
@@ -465,7 +465,7 @@ const Philosophy = () => (
       >
         <div className="text-6xl font-black text-[#FF5F1F]/20 font-mono">02.</div>
         <h3 className="text-3xl font-bold">Zero: La Esencia.</h3>
-        <p className="text-zinc-500 text-lg">El lienzo en blanco. Evoca nuestra mentalidad de trabajo: cero fricciones, cero ruido visual, volviendo siempre a lo que es verdaderamente esencial para conectar.</p>
+        <p className="text-zinc-500 text-lg">Partimos de cero con cada marca porque copiar lo que funciona para otros no es estrategia. El lienzo en blanco no es falta de referencias: es disciplina para no contaminar el proceso.</p>
       </motion.div>
     </div>
   </section>
@@ -473,26 +473,10 @@ const Philosophy = () => (
 
 const ProcessTimeline = () => {
   const steps = [
-    { 
-      num: '01', 
-      title: 'Descubrimiento', 
-      desc: 'Iniciamos con una auditoría profunda. Analizamos datos y objetivos para trazar un roadmap estratégico que alinee tu visión con las demandas del mercado.' 
-    },
-    { 
-      num: '02', 
-      title: 'Identidad', 
-      desc: 'Diseñamos lenguajes visuales escalables. Construimos sistemas modulares que transmiten autoridad y coherencia en cada punto de contacto.' 
-    },
-    { 
-      num: '03', 
-      title: 'Aplicación', 
-      desc: 'Transformamos conceptos en arquitecturas digitales. Desarrollamos interfaces fluidas y estrategias UX/UI diseñadas para convertir y retener.' 
-    },
-    { 
-      num: '04', 
-      title: 'Lanzamiento', 
-      desc: 'Llevamos tu proyecto al mercado con precisión. Incluimos optimización post-lanzamiento para que tu marca domine y evolucione continuamente.' 
-    }
+    { num: '01', title: 'Descubrimiento', desc: 'Antes de diseñar una sola pantalla, hacemos las preguntas difíciles. ¿Qué problema resuelves realmente? ¿Por qué te elegiría alguien? Eso define todo lo que viene después.' },
+    { num: '02', title: 'Identidad', desc: 'Traducimos lo que encontramos en un lenguaje visual que funciona en cualquier soporte. Sin atajos ni plantillas: sistemas que comunican algo específico sobre ti.' },
+    { num: '03', title: 'Aplicación', desc: 'Llevamos el sistema a donde vive: web, app, campañas, puntos de venta. Diseñamos para que cada pieza refuerce a las demás.' },
+    { num: '04', title: 'Lanzamiento', desc: 'Salimos al aire con todo revisado. Y nos quedamos: el trabajo post-lanzamiento suele ser donde se gana o se pierde lo que se construyó.' }
   ];
 
   return (
@@ -960,7 +944,7 @@ export default function Home() {
               </motion.h1>
               <motion.div variants={itemVariants} className="max-w-xl space-y-8 md:space-y-10">
                 <p className="text-lg md:text-2xl text-zinc-500 dark:text-zinc-400 font-medium leading-tight">
-                  Estudio de branding y diseño estratégico enfocado en la precisión técnica y la narrativa visual. Descubrimos la esencia de tu negocio para materializarla en arquitecturas digitales que redefinen el estándar de tu industria.
+                  Somos un estudio de branding y diseño con obsesión por la precisión. Trabajamos con marcas que quieren comunicar algo real y duradero, no solo verse bien por un tiempo.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Button 
@@ -1016,7 +1000,7 @@ export default function Home() {
                   <span className="text-[#FF5F1F]">proyecto?</span>
                 </h2>
                 <p className="mt-2 text-sm text-zinc-500 max-w-xs leading-relaxed font-medium">
-                  Transformamos tus ideas en realidades digitales de alto impacto.
+                  Cuéntanos qué tienes en mente. Sin formularios eternos, sin reuniones previas a la reunión.
                 </p>
               </div>
 
