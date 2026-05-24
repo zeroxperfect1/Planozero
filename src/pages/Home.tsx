@@ -283,25 +283,29 @@ const ServicesAccordion = () => {
       title: "Branding",
       description: "Partimos donde otros no llegan: entendiendo por qué existe tu negocio. Desde ahí construimos identidades visuales que tienen coherencia real, no solo estética. Auditoría, posicionamiento, sistema de marca completo.",
       points: ["Auditoría de Ecosistema y Estrategia", "Sistemas de Identidad Visual Escalable", "Documentación Técnica de Marca", "Narrativa y Posicionamiento de Voz"],
-      icon: PenTool
+      icon: PenTool,
+      path: "/agencia-branding"
     },
     {
       title: "DISEÑO UX/UI",
       description: "Diseñamos interfaces que tienen lógica, no solo forma. Flujos que eliminan fricción sin que el usuario se dé cuenta, sistemas que escalan cuando el producto crece y prototipos que se testean antes de construirse.",
       points: ["Arquitectura de Información y Wireframing", "Sistemas de Diseño Atómico", "Prototipado de Alta Fidelidad", "Diseño de Interfaces Líquidas (Móvil/Web)"],
-      icon: Layers
+      icon: Layers,
+      path: "/diseno-ux-ui"
     },
     {
       title: "Desarrollo Digital",
       description: "Construimos lo que diseñamos. Desde sitios con arquitectura sólida hasta plataformas digitales que marketing puede operar sin depender de TI. Priorizamos velocidad real y código limpio sobre soluciones que se ven bien solo en la demo.",
       points: ["Evolución de Ecosistemas Legacy y DXP", "Arquitecturas No-Code, Low-Code y Vibe Code", "Optimización Crítica de Core Web Vitals", "Gobernanza y Autonomía Operativa"],
-      icon: Monitor
+      icon: Monitor,
+      path: "/diseno-web"
     },
     {
       title: "Marketing Digital",
       description: "Estrategia digital sin humo. Armamos campañas que convierten porque están bien pensadas desde el principio, no porque tiremos presupuesto hasta que algo funcione.",
       points: ["Growth Marketing y Atribución", "Estrategia en Redes Sociales", "Optimización de Embudos de Conversión", "Analítica Avanzada y Dashboards de Rendimiento"],
-      icon: Cpu
+      icon: Cpu,
+      path: "/agencia-marketing-digital"
     }
   ];
 
@@ -362,6 +366,18 @@ const ServicesAccordion = () => {
                           <span className="text-sm font-medium">{point}</span>
                         </div>
                       ))}
+                    </div>
+                    {/* Boton a la pagina del servicio */}
+                    <div className="pt-4 flex items-center gap-4">
+                      <Link
+                        to={service.path}
+                        className="inline-flex items-center gap-2 bg-[#FF5F1F] text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-[#E54E10] transition-all shadow-lg shadow-[#FF5F1F]/20 hover:shadow-[#FF5F1F]/30 hover:gap-3"
+                      >
+                        Ver servicio completo <ArrowUpRight className="w-4 h-4" />
+                      </Link>
+                      <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest hidden sm:block">
+                        planozero.cl{service.path}
+                      </span>
                     </div>
                   </div>
                 </motion.div>
