@@ -222,8 +222,27 @@ jobs:
           dangerous-clean-slate: false
           log-level: standard
 
-      # 12. Notificación de éxito
+      # 12. Auto-seed de blog posts (idempotente — solo inserta posts nuevos)
+      - name: 🌱 Auto-seed Blog Posts
+        continue-on-error: true
+        env:
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASS: ${{ secrets.MYSQL_PASS }}
+        run: |
+          SEED_KEY=$(echo -n "${MYSQL_USER}:${MYSQL_PASS}" | sha256sum | awk '{print $1}')
+          RESULT=$(curl -s -w "\n%{http_code}" -X POST https://planozero.cl/api/seed-runner.php \
+            -H "X-Seed-Key: $SEED_KEY" \
+            --max-time 30)
+          HTTP_CODE=$(echo "$RESULT" | tail -1)
+          BODY=$(echo "$RESULT" | head -1)
+          echo "HTTP $HTTP_CODE → $BODY"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "⚠️  Seed returned HTTP $HTTP_CODE — check logs"
+          fi
+
+      # 13. Notificación de éxito
       - name: ✅ Deploy completado
         if: success()
         run: echo "🎉 Deploy exitoso a planozero.cl en $(date)"
+
 
