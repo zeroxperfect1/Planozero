@@ -181,7 +181,8 @@ const Blog = () => {
              <p className="text-zinc-500 font-mono text-sm uppercase">Sin publicaciones por el momento.</p>
           </div>
         ) : (
-          <AnimatePresence mode="wait">
+          <>
+            <AnimatePresence mode="wait">
             <motion.div
               key={`${selectedCategory}-${currentPage}`}
               initial={{ opacity: 0, y: 12 }}
@@ -313,6 +314,7 @@ const Blog = () => {
               </button>
             </motion.div>
           )}
+          </>
         )}
 
       </main>
