@@ -33,6 +33,7 @@ import { Helmet } from 'react-helmet-async';
 import { CMSPageData, CMSZoneRenderer } from '../components/CMSRenderer';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
+import BlueprintLoader from '../components/BlueprintLoader';
 
 const GridBackground = () => (
   <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-20">
@@ -197,12 +198,7 @@ const CMSPage = () => {
   }, [slug]);
 
   if (loading && !page) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center space-y-6">
-        <Loader2 className="w-12 h-12 animate-spin text-[#FF5F1F]" />
-        <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-widest animate-pulse">Iniciando Ecosistema...</p>
-      </div>
-    );
+    return <BlueprintLoader />;
   }
 
   if (error && !page) {

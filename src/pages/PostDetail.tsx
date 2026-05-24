@@ -8,6 +8,7 @@ import { ArrowLeft, Clock, Calendar, User, ArrowRight, Share2, Twitter, Linkedin
 import { Helmet } from 'react-helmet-async';
 import ReactMarkdown from 'react-markdown';
 import { AnimatePresence } from 'motion/react';
+import BlueprintLoader from '../components/BlueprintLoader';
 
 interface Post {
   id: string;
@@ -248,11 +249,7 @@ const PostDetail = () => {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-zinc-950">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-[#FF5F1F]"></div>
-      </div>
-    );
+    return <BlueprintLoader label="CARGANDO NOTA..." />;
   }
 
   if (!post) {

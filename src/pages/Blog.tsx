@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet-async';
 import Logo from '../components/Logo';
 import Footer from '../components/Footer';
 import api from '../services/api';
+import BlueprintLoader from '../components/BlueprintLoader';
 
 const BlogMeasurement = ({ label, className = "" }: { label: string; className?: string }) => (
   <div className={`flex flex-col items-center gap-1 ${className}`}>
@@ -173,8 +174,8 @@ const Blog = () => {
         )}
         
         {loading ? (
-          <div className="flex justify-center py-20">
-             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#FF5F1F]"></div>
+          <div className="flex justify-center py-16">
+            <BlueprintLoader fullScreen={false} label="CARGANDO NOTAS..." />
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20 bg-zinc-50 dark:bg-zinc-900 rounded-[48px] border border-dashed border-zinc-200 dark:border-zinc-800">
