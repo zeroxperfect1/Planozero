@@ -65,9 +65,10 @@ const FALLBACK_HOME: any = {
         id: 'pz-hero',
         type: 'MainHero',
         props: {
-          part1: 'La arquitectura de tu marca,',
-          part2: 'desde lo esencial.',
-          subtitle: 'Estudio de branding y diseño estratégico enfocado en la precisión técnica y la narrativa visual. Descubrimos la esencia de tu negocio para materializarla en arquitecturas digitales que redefinen el estándar de tu industria.',
+          part1: 'La arquitectura',
+          part2: 'de tu marca,',
+          part3: 'desde lo esencial.',
+          subtitle: 'Somos un estudio de branding y diseño con obsesión por la precisión. Trabajamos con marcas que quieren comunicar algo real y duradero, no solo verse bien por un tiempo.',
           ctaText: "LET'S BUILD"
         }
       },

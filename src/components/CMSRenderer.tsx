@@ -751,8 +751,8 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
               className="text-5xl md:text-7xl lg:text-8xl xl:text-[100px] font-black tracking-tighter leading-[0.9] mb-8 uppercase text-white max-w-5xl"
             >
               {part1 || 'La arquitectura'}<br />
-              {'de tu marca,'}<br />
-              <span className="text-[var(--color-primary)]">{part2 || 'desde lo esencial.'}</span>
+              {part2 || 'de tu marca,'}<br />
+              <span className="text-[var(--color-primary)]">{part3 || 'desde lo esencial.'}</span>
             </motion.h1>
 
             {/* Divider + subtitle + CTA in a row */}
