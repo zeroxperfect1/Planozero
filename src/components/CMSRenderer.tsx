@@ -255,7 +255,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
       </div>
       {image && (
         <div className="rounded-[48px] overflow-hidden border border-zinc-800 shadow-2xl aspect-square">
-          <img src={image || undefined} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" alt="Hero split" referrerPolicy="no-referrer" />
+          <img src={image || undefined} loading="lazy" decoding="async" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" alt="Hero split" referrerPolicy="no-referrer" />
         </div>
       )}
     </section>
@@ -478,7 +478,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
   ),
   Card: ({ title, content, image, link }) => (
     <div className="bg-zinc-900 border border-zinc-800 rounded-[40px] overflow-hidden group hover:border-[var(--color-primary)] transition-all duration-500 hover:-translate-y-2">
-      {image && <img src={image || undefined} alt={title} className="w-full h-64 object-cover grayscale group-hover:grayscale-0 transition-all duration-700" referrerPolicy="no-referrer" />}
+      {image && <img src={image || undefined} loading="lazy" decoding="async" alt={title} className="w-full h-64 object-cover grayscale group-hover:grayscale-0 transition-all duration-700" referrerPolicy="no-referrer" />}
       <div className="p-10">
         <h3 className="text-2xl font-black mb-4 uppercase tracking-tighter italic">{title}</h3>
         <p className="text-zinc-500 text-sm mb-8 leading-relaxed line-clamp-3">{content}</p>
@@ -591,7 +591,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
       <div className="flex gap-8 overflow-x-auto py-12 snap-x no-scrollbar -mx-6 px-6">
         {images.map((url: string, i: number) => (
           <div key={i} className="min-w-[400px] h-[550px] rounded-[56px] overflow-hidden snap-center shadow-2xl border border-zinc-800">
-            <img src={url || undefined} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" alt="Carousel item" referrerPolicy="no-referrer" />
+            <img src={url || undefined} loading="lazy" decoding="async" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" alt="Carousel item" referrerPolicy="no-referrer" />
           </div>
         ))}
       </div>
@@ -699,6 +699,9 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
           <img
             src={heroBg}
             alt=""
+            role="presentation"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-full object-cover object-center"
           />
         </motion.div>

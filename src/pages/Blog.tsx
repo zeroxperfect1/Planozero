@@ -217,6 +217,10 @@ const Blog = () => {
                       <img
                         src={post.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80&auto=format&fit=crop'}
                         alt={post.title}
+                        width={800}
+                        height={500}
+                        loading="lazy"
+                        decoding="async"
                         onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80&auto=format&fit=crop'; }}
                         className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                         referrerPolicy="no-referrer"
@@ -246,7 +250,11 @@ const Blog = () => {
                       {post.authorImage ? (
                         <img
                           src={post.authorImage}
-                          alt={post.author || 'Autor'}
+                          alt={post.author || 'Autor PLANOZERO'}
+                          width={32}
+                          height={32}
+                          loading="lazy"
+                          decoding="async"
                           className="w-8 h-8 rounded-full object-cover border border-zinc-200 dark:border-zinc-700"
                           referrerPolicy="no-referrer"
                         />

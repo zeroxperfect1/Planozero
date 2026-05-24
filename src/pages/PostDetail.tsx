@@ -366,6 +366,10 @@ const PostDetail = () => {
             <img
               src={post.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80&auto=format&fit=crop'}
               alt={post.title}
+              width={1200}
+              height={514}
+              fetchPriority="high"
+              decoding="async"
               onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80&auto=format&fit=crop'; }}
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
@@ -380,7 +384,11 @@ const PostDetail = () => {
                   {post.authorImage ? (
                     <img 
                       src={post.authorImage} 
-                      alt={post.author || 'Autor'}
+                      alt={post.author || 'Autor PLANOZERO'}
+                      width={40}
+                      height={40}
+                      loading="lazy"
+                      decoding="async"
                       className="w-10 h-10 rounded-full object-cover border border-zinc-200 dark:border-zinc-700" 
                       referrerPolicy="no-referrer"
                     />
@@ -457,6 +465,10 @@ const PostDetail = () => {
                         <img 
                           src={rPost.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop'} 
                           alt={rPost.title} 
+                          width={800}
+                          height={500}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
                           referrerPolicy="no-referrer"
                         />

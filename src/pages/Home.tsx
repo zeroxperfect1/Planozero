@@ -318,6 +318,9 @@ const ServicesAccordion = () => {
         <span className="text-xs font-mono tracking-widest text-[#FF5F1F] uppercase mb-2 block">Nuestros Servicios</span>
         <h2 className="text-3xl md:text-5xl font-bold mb-4 italic tracking-tight">Lo que hacemos bien</h2>
         <p className="text-zinc-500 max-w-2xl mx-auto text-sm">Cuatro áreas donde trabajamos en serio, con equipos especializados y resultados que se pueden medir.</p>
+        <p className="text-zinc-600 dark:text-zinc-500 max-w-xl mx-auto text-xs font-mono mt-2 tracking-wide">
+          Agencia de branding · Diseño UX/UI · Marketing digital · Publicidad digital — Santiago, Chile
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -978,11 +981,11 @@ export default function Home() {
           >
              <p className="font-mono text-[10px] uppercase tracking-widest font-bold text-[#FF5F1F]">CON QUÉ TRABAJAMOS:</p>
              <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
-                <img src="https://cdn.simpleicons.org/wordpress/808080" alt="WordPress" className="h-7 md:h-9 object-contain" referrerPolicy="no-referrer" />
-                <img src="https://cdn.simpleicons.org/webflow/808080" alt="Webflow" className="h-5 md:h-7 object-contain" referrerPolicy="no-referrer" />
-                <img src="https://cdn.simpleicons.org/blueprint/808080" alt="PlanoZero" className="h-7 md:h-9 object-contain" referrerPolicy="no-referrer" />
-                <img src="https://cdn.simpleicons.org/googleads/808080" alt="Google Ads" className="h-7 md:h-9 object-contain" referrerPolicy="no-referrer" />
-                <img src="https://cdn.simpleicons.org/meta/808080" alt="Meta Business" className="h-7 md:h-9 object-contain" referrerPolicy="no-referrer" />
+                <img src="https://cdn.simpleicons.org/wordpress/808080" alt="WordPress" loading="lazy" decoding="async" className="h-7 md:h-9 object-contain" referrerPolicy="no-referrer" />
+                <img src="https://cdn.simpleicons.org/webflow/808080" alt="Webflow" loading="lazy" decoding="async" className="h-5 md:h-7 object-contain" referrerPolicy="no-referrer" />
+                <img src="https://cdn.simpleicons.org/blueprint/808080" alt="PlanoZero" loading="lazy" decoding="async" className="h-7 md:h-9 object-contain" referrerPolicy="no-referrer" />
+                <img src="https://cdn.simpleicons.org/googleads/808080" alt="Google Ads" loading="lazy" decoding="async" className="h-7 md:h-9 object-contain" referrerPolicy="no-referrer" />
+                <img src="https://cdn.simpleicons.org/meta/808080" alt="Meta Business" loading="lazy" decoding="async" className="h-7 md:h-9 object-contain" referrerPolicy="no-referrer" />
              </div>
           </motion.div>
         </div>
