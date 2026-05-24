@@ -27,7 +27,7 @@ const Footer = () => {
           <div className="lg:col-span-2 space-y-8">
             <Logo className="scale-110 origin-left" />
             <p className="text-zinc-400 text-lg max-w-sm leading-relaxed">
-              Estudio de diseño estratégico y branding enfocado en la precisión técnica y la narrativa visual.
+              Branding y diseño digital desde Santiago. Trabajamos con marcas que tienen algo concreto que decir.
             </p>
             <div className="flex gap-4">
               <motion.a 
@@ -67,7 +67,7 @@ const Footer = () => {
                   <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-[#FF5F1F]/10 transition-colors">
                     <Phone className="w-4 h-4 text-[#FF5F1F]" />
                   </div>
-                  <span className="text-sm font-medium">+56 9 5530 8095</span>
+                  <span className="text-sm font-medium">+569 5530 8095</span>
                 </a>
               </li>
             </ul>
@@ -78,7 +78,7 @@ const Footer = () => {
             <div className="space-y-2">
               <p className="text-zinc-400 text-sm leading-relaxed">
                 Santiago, Chile<br />
-                Trabajando de forma remota para el mundo.
+                Con clientes en toda la región.
               </p>
             </div>
           </div>
