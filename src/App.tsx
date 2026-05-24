@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import Blog from './pages/Blog';
@@ -6,6 +6,12 @@ import PostDetail from './pages/PostDetail';
 import Dashboard from './pages/Dashboard';
 import CMSPage from './pages/CMSPage';
 import Portfolio from './pages/Portfolio';
+
+const ServiceBranding       = lazy(() => import('./pages/services/ServiceBranding'));
+const ServiceUXUI           = lazy(() => import('./pages/services/ServiceUXUI'));
+const ServiceMarketing      = lazy(() => import('./pages/services/ServiceMarketing'));
+const ServiceWeb            = lazy(() => import('./pages/services/ServiceWeb'));
+const ServicePublicidad     = lazy(() => import('./pages/services/ServicePublicidad'));
 
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
@@ -58,6 +64,12 @@ export default function App() {
             <Route path="/blog/:id" element={<PostDetail />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/portafolio" element={<Portfolio />} />
+            {/* Service landing pages */}
+            <Route path="/agencia-branding" element={<Suspense fallback={null}><ServiceBranding /></Suspense>} />
+            <Route path="/diseno-ux-ui" element={<Suspense fallback={null}><ServiceUXUI /></Suspense>} />
+            <Route path="/agencia-marketing-digital" element={<Suspense fallback={null}><ServiceMarketing /></Suspense>} />
+            <Route path="/diseno-web" element={<Suspense fallback={null}><ServiceWeb /></Suspense>} />
+            <Route path="/agencia-publicidad" element={<Suspense fallback={null}><ServicePublicidad /></Suspense>} />
             <Route path="/:slug" element={<CMSPage />} />
           </Routes>
         </Router>
