@@ -267,41 +267,72 @@ const PostDetail = () => {
         <html lang="es-CL" />
         <title>{`${post.title} | PLANOZERO`}</title>
         <meta name="description" content={post.excerpt} />
-        <meta property="og:title" content={`${post.title} | PLANOZERO`} />
-        <meta property="og:description" content={post.excerpt} />
-        {post.image && <meta property="og:image" content={post.image} />}
+        <link rel="canonical" href={`https://www.planozero.cl/blog/${post.slug || post.id}`} />
+        {post.keywords && <meta name="keywords" content={post.keywords} />}
+        <meta name="author" content={post.author} />
+
+        {/* Open Graph */}
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="es_CL" />
+        <meta property="og:site_name" content="PLANOZERO" />
+        <meta property="og:url" content={`https://www.planozero.cl/blog/${post.slug || post.id}`} />
+        <meta property="og:title" content={`${post.title} | PLANOZERO`} />
+        <meta property="og:description" content={post.excerpt} />
+        {post.image
+          ? <meta property="og:image" content={post.image} />
+          : <meta property="og:image" content="https://www.planozero.cl/og-blog.png" />}
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="article:published_time" content={post.created_at || post.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()} />
         <meta property="article:author" content={post.author} />
         <meta property="article:section" content={post.category} />
-        {post.keywords && <meta name="keywords" content={post.keywords} />}
-        <meta name="author" content={post.author} />
+
+        {/* Twitter Card (completa) */}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${post.title} | PLANOZERO`} />
+        <meta name="twitter:description" content={post.excerpt} />
+        <meta name="twitter:image" content={post.image || 'https://www.planozero.cl/og-blog.png'} />
+
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            "headline": post.title,
-            "description": post.excerpt,
-            "image": post.image,
-            "datePublished": post.created_at || post.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-            "author": {
-              "@type": "Person",
-              "name": post.author
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "PLANOZERO",
-              "logo": {
-                "@type": "ImageObject",
-                "url": `${window.location.origin}/logo.svg`
+            "@graph": [
+              {
+                "@type": "BlogPosting",
+                "@id": `https://www.planozero.cl/blog/${post.slug || post.id}#article`,
+                "headline": post.title,
+                "description": post.excerpt,
+                "image": post.image || "https://www.planozero.cl/og-blog.png",
+                "datePublished": post.created_at || post.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+                "dateModified": post.updated_at || post.created_at || new Date().toISOString(),
+                "inLanguage": "es-CL",
+                "author": {
+                  "@type": "Person",
+                  "name": post.author,
+                  "url": "https://www.planozero.cl"
+                },
+                "publisher": {
+                  "@id": "https://www.planozero.cl/#organization"
+                },
+                "mainEntityOfPage": {
+                  "@type": "WebPage",
+                  "@id": `https://www.planozero.cl/blog/${post.slug || post.id}`
+                },
+                "keywords": post.keywords || post.category,
+                "articleSection": post.category,
+                "isPartOf": {
+                  "@id": "https://www.planozero.cl/blog#blog"
+                }
+              },
+              {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                  { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://www.planozero.cl/" },
+                  { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.planozero.cl/blog" },
+                  { "@type": "ListItem", "position": 3, "name": post.title, "item": `https://www.planozero.cl/blog/${post.slug || post.id}` }
+                ]
               }
-            },
-            "mainEntityOfPage": {
-              "@type": "WebPage",
-              "@id": `${window.location.origin}/blog/${post.slug || post.id}`
-            }
+            ]
           })}
         </script>
       </Helmet>

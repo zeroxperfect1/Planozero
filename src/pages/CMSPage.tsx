@@ -225,7 +225,26 @@ const CMSPage = () => {
     <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans selection:bg-[#FF5F1F] selection:text-white transition-colors duration-500 overflow-x-hidden">
       <Helmet>
         <title>{page.title} | PLANOZERO</title>
-        <meta name="description" content={`Página de ${page.title} en Planozero.cl - Estudio de Branding y Diseño Estratégico`} />
+        <meta name="description" content={page.metaDescription || `${page.title} — PLANOZERO, agencia de branding y diseño UX en Santiago, Chile.`} />
+        <link rel="canonical" href={`https://www.planozero.cl/${slug === 'inicio' ? '' : slug}`} />
+        <link rel="alternate" hreflang="es-CL" href={`https://www.planozero.cl/${slug === 'inicio' ? '' : slug}`} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="es_CL" />
+        <meta property="og:site_name" content="PLANOZERO" />
+        <meta property="og:url" content={`https://www.planozero.cl/${slug === 'inicio' ? '' : slug}`} />
+        <meta property="og:title" content={`${page.title} | PLANOZERO`} />
+        <meta property="og:description" content={page.metaDescription || `${page.title} — PLANOZERO, agencia de branding y diseño UX en Santiago, Chile.`} />
+        <meta property="og:image" content="https://www.planozero.cl/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${page.title} | PLANOZERO`} />
+        <meta name="twitter:description" content={page.metaDescription || `${page.title} — PLANOZERO, agencia de branding y diseño UX en Santiago, Chile.`} />
+        <meta name="twitter:image" content="https://www.planozero.cl/og-image.png" />
       </Helmet>
 
       <div className="relative flex-grow flex flex-col">

@@ -84,39 +84,51 @@ const Blog = () => {
     <div className="min-h-screen flex flex-col bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans selection:bg-[#FF5F1F] selection:text-white pt-20">
       <Helmet>
         <html lang="es-CL" />
-        <title>Journal | PLANOZERO Agency</title>
-        <meta name="description" content="Perspectivas sobre estrategia, branding y artesanía digital de alta gama. Explora nuestros últimos artículos sobre la creación de marcas preparadas para el futuro." />
-        
-        {/* Open Graph / Facebook */}
+        <title>Blog de Branding y Marketing Digital | PLANOZERO Journal</title>
+        <meta name="description" content="Artículos sobre branding, diseño UX, marketing digital y publicidad digital. Perspectivas del equipo de PLANOZERO, agencia de branding en Santiago, Chile." />
+        <link rel="canonical" href="https://www.planozero.cl/blog" />
+
+        {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="es_CL" />
-        <meta property="og:url" content={window.location.href} />
-        <meta property="og:title" content="Journal | PLANOZERO Agency" />
-        <meta property="og:description" content="Perspectivas sobre estrategia, branding y artesanía digital de alta gama." />
-        <meta property="og:image" content={`${window.location.origin}/og-blog.png`} />
+        <meta property="og:url" content="https://www.planozero.cl/blog" />
+        <meta property="og:title" content="Blog de Branding y Marketing Digital | PLANOZERO" />
+        <meta property="og:description" content="Artículos sobre branding, diseño UX, marketing digital y publicidad digital. Perspectivas del equipo de PLANOZERO, agencia en Santiago, Chile." />
+        <meta property="og:image" content="https://www.planozero.cl/og-blog.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="PLANOZERO" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content={window.location.href} />
-        <meta name="twitter:title" content="Journal | PLANOZERO Agency" />
-        <meta name="twitter:description" content="Perspectivas sobre estrategia, branding y artesanía digital de alta gama." />
-        <meta name="twitter:image" content={`${window.location.origin}/og-blog.png`} />
+        <meta name="twitter:url" content="https://www.planozero.cl/blog" />
+        <meta name="twitter:title" content="Blog de Branding y Marketing Digital | PLANOZERO" />
+        <meta name="twitter:description" content="Artículos sobre branding, diseño UX, marketing digital y publicidad digital. Agencia PLANOZERO, Santiago, Chile." />
+        <meta name="twitter:image" content="https://www.planozero.cl/og-blog.png" />
 
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "Blog",
-            "name": "PLANOZERO Journal",
-            "url": window.location.href,
-            "description": "Perspectivas sobre la creación de marcas preparadas para el futuro.",
-            "publisher": {
-              "@type": "Organization",
-              "name": "PLANOZERO",
-              "logo": {
-                "@type": "ImageObject",
-                "url": `${window.location.origin}/logo.svg`
+            "@graph": [
+              {
+                "@type": "Blog",
+                "@id": "https://www.planozero.cl/blog#blog",
+                "name": "PLANOZERO Journal",
+                "url": "https://www.planozero.cl/blog",
+                "description": "Artículos sobre branding, diseño UX, marketing digital y publicidad digital desde Santiago, Chile.",
+                "inLanguage": "es-CL",
+                "publisher": {
+                  "@id": "https://www.planozero.cl/#organization"
+                }
+              },
+              {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                  { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://www.planozero.cl/" },
+                  { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.planozero.cl/blog" }
+                ]
               }
-            }
+            ]
           })}
         </script>
       </Helmet>

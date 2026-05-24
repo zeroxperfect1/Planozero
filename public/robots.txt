@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /api/
+Disallow: /uploads/
 
 # Block non-beneficial AI training scrapers
 User-agent: GPTBot
@@ -8,4 +11,8 @@ Disallow: /
 User-agent: CCBot
 Disallow: /
 
-Sitemap: https://www.planozero.cl/sitemap.xml
+User-agent: anthropic-ai
+Disallow: /
+
+# Sitemap dinámico (incluye todos los posts)
+Sitemap: https://www.planozero.cl/api/sitemap.php
