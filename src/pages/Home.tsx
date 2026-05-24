@@ -935,11 +935,12 @@ export default function Home() {
                 <div className="w-1.5 h-1.5 bg-[#FF5F1F] rounded-full" />
                 BRAND STRATEGY / EVOLVE
               </motion.div>
-              <motion.h1 
+              <motion.h1
                 variants={itemVariants}
                 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter leading-[0.95] md:leading-[0.85] mb-8 uppercase"
               >
-                La arquitectura de tu marca, <br />
+                La arquitectura<br />
+                de tu marca,<br />
                 <span className="text-[#FF5F1F]">desde lo esencial.</span>
               </motion.h1>
               <motion.div variants={itemVariants} className="max-w-xl space-y-8 md:space-y-10">
