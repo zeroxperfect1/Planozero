@@ -151,7 +151,11 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_FIREBASE_DATABASE_ID: ${{ secrets.VITE_FIREBASE_DATABASE_ID }}
 
-      # 6. Deploy frontend compilado
+      # 6. Asegurarse que uploads/ existe localmente antes de FTP
+      - name: 📁 Crear uploads/ si no existe
+        run: mkdir -p uploads
+
+      # 7. Deploy frontend compilado (HTML + JS + CSS + assets)
       - name: 📡 Deploy Frontend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -164,10 +168,37 @@ jobs:
             **/.git*
             **/.git*/**
             **/node_modules/**
+            **/blog/**
+            **/portfolio/**
           dangerous-clean-slate: false
+          state-name: .ftp-state-frontend
           log-level: standard
 
-      # 7. Deploy carpeta uploads/
+      # 8. Deploy imágenes del blog (force-upload con clean-slate para garantizar subida)
+      - name: 🖼️ Deploy Blog Images
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.planozero.cl
+          username: deploy@planozero.cl
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/client/blog/
+          server-dir: ./blog/
+          dangerous-clean-slate: true
+          log-level: standard
+
+      # 9. Deploy imágenes del portafolio
+      - name: 🖼️ Deploy Portfolio Images
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.planozero.cl
+          username: deploy@planozero.cl
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/client/portfolio/
+          server-dir: ./portfolio/
+          dangerous-clean-slate: true
+          log-level: standard
+
+      # 10. Deploy carpeta uploads/
       - name: 🖼️ Sync uploads/
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -179,7 +210,7 @@ jobs:
           dangerous-clean-slate: false
           log-level: minimal
 
-      # 8. Deploy API PHP completa (incluye config.php generado)
+      # 11. Deploy API PHP completa (incluye config.php generado)
       - name: 🐘 Deploy PHP API
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -191,7 +222,8 @@ jobs:
           dangerous-clean-slate: false
           log-level: standard
 
-      # 9. Notificación de éxito
+      # 12. Notificación de éxito
       - name: ✅ Deploy completado
         if: success()
         run: echo "🎉 Deploy exitoso a planozero.cl en $(date)"
+
