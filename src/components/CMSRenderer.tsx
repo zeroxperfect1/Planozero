@@ -666,7 +666,7 @@ export const WIDGET_COMPONENTS: Record<string, React.FC<any>> = {
 
   // --- New PlanoZero Advanced Widgets ---
 
-  MainHero: ({ title, part1, part2, subtitle, ctaText, bgImage }) => {
+  MainHero: ({ title, part1, part2, part3, subtitle, ctaText, bgImage }) => {
     const rawX = useMotionValue(0.5);
     const rawY = useMotionValue(0.5);
     const springCfg = { damping: 32, stiffness: 50 };
