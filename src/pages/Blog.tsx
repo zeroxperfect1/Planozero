@@ -176,10 +176,11 @@ const Blog = () => {
                 className="group flex flex-col h-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-[32px] hover:shadow-2xl hover:shadow-[#FF5F1F]/5 transition-all duration-500"
               >
                 <Link to={`/blog/${post.slug || post.id}`} className="block">
-                  <div className="relative overflow-hidden rounded-2xl aspect-[16/10] mb-8 bg-zinc-100">
-                    <img 
-                      src={post.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop'} 
+                  <div className="relative aspect-[16/10] rounded-2xl overflow-hidden mb-5 bg-zinc-100 dark:bg-zinc-900">
+                    <img
+                      src={post.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80&auto=format&fit=crop'}
                       alt={post.title}
+                      onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80&auto=format&fit=crop'; }}
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                       referrerPolicy="no-referrer"
                     />

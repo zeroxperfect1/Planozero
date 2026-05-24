@@ -17,7 +17,8 @@
 <p style="color:#71717a;font-size:.8rem">Inicia sesión con la cuenta de admin y luego actualiza el autor de los posts ya publicados.</p>
 <button id="btnLogin" onclick="loginGoogle()">① Iniciar Sesión con Google</button>
 <button id="btnUpdate" onclick="updateAuthorInfo()" disabled style="background:#22d3ee;color:#09090b">② Actualizar Autor en todos los Posts</button>
-<button id="btnSeed" onclick="seedPosts()" disabled style="background:#27272a">③ Re-publicar 5 Posts (solo si no existen)</button>
+<button id="btnImages" onclick="updateImages()" disabled style="background:#8b5cf6;color:#fff">③ Actualizar Imágenes → Unsplash</button>
+<button id="btnSeed" onclick="seedPosts()" disabled style="background:#27272a">④ Re-publicar 5 Posts (solo si no existen)</button>
 <pre id="log">Esperando acción...\n</pre>
 
 <script type="module">
@@ -304,6 +305,7 @@ window.loginGoogle = async function() {
     log.innerHTML += '<span class="done">✓ Sesión iniciada como: ' + name + '\n</span>';
     if (photo) log.innerHTML += '<span class="ok">  📸 Foto de perfil: ' + photo.substring(0,60) + '...\n</span>';
     document.getElementById('btnUpdate').disabled = false;
+    document.getElementById('btnImages').disabled = false;
     document.getElementById('btnSeed').disabled = false;
     document.getElementById('btnLogin').disabled = true;
   } catch(e) {
@@ -368,6 +370,71 @@ window.updateAuthorInfo = async function() {
   }
 
   btn.textContent = '✓ Completado';
+};
+
+// Curated Unsplash images matched by slug
+const SLUG_IMAGES = {
+  'arquitectura-de-marca-identidad-sistemica':
+    'https://images.unsplash.com/photo-1634084462412-b54873c0a56d?w=1200&q=80&auto=format&fit=crop',
+  'ux-diseno-experiencias-conversion':
+    'https://images.unsplash.com/photo-1587440871875-191322ee64b0?w=1200&q=80&auto=format&fit=crop',
+  'experiencia-de-marca-puntos-de-contacto':
+    'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1200&q=80&auto=format&fit=crop',
+  'marketing-digital-2025-estrategias-conversion':
+    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80&auto=format&fit=crop',
+  'sistema-de-diseno-ventaja-competitiva-marcas-premium':
+    'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=1200&q=80&auto=format&fit=crop',
+};
+
+window.updateImages = async function() {
+  const log = document.getElementById('log');
+  const btn = document.getElementById('btnImages');
+  btn.disabled = true;
+  btn.textContent = 'Actualizando imágenes...';
+
+  const user = window._auth.currentUser;
+  log.innerHTML += '\n<span class="ok">→ Buscando posts para actualizar imágenes...\n</span>';
+
+  try {
+    const token = await user.getIdToken(true);
+    const res = await fetch('/api/posts.php', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const posts = await res.json();
+    if (!Array.isArray(posts)) throw new Error('Respuesta inesperada');
+
+    let updated = 0;
+    for (const post of posts) {
+      const imgUrl = SLUG_IMAGES[post.slug];
+      if (!imgUrl) {
+        log.innerHTML += '<span style="color:#71717a">  ⊘ Sin imagen mapeada para: ' + post.slug + '\n</span>';
+        continue;
+      }
+      try {
+        const t = await user.getIdToken(true);
+        const r = await fetch('/api/posts.php?id=' + post.id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + t },
+          body: JSON.stringify({ image: imgUrl })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'HTTP ' + r.status);
+        updated++;
+        log.innerHTML += '<span class="done">  ✓ "' + post.title.substring(0,40) + '..." imagen actualizada\n</span>';
+      } catch(e) {
+        log.innerHTML += '<span class="err">  ✗ ' + post.slug + ': ' + e.message + '\n</span>';
+      }
+      log.scrollTop = log.scrollHeight;
+    }
+
+    log.innerHTML += '\n<span class="done">══════════════════════════════\n';
+    log.innerHTML += updated + '/' + posts.length + ' imágenes actualizadas a Unsplash.\n</span>';
+    log.innerHTML += '<span class="ok">Recarga /blog para verificar.\n</span>';
+  } catch(e) {
+    log.innerHTML += '<span class="err">✗ Error: ' + e.message + '\n</span>';
+  }
+
+  btn.textContent = '✓ Imágenes actualizadas';
 };
 
 window.seedPosts = async function() {

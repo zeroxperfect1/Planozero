@@ -335,7 +335,13 @@ const PostDetail = () => {
           </h1>
 
           <div className="relative aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] rounded-2xl md:rounded-[40px] overflow-hidden mb-8 md:mb-16 grayscale hover:grayscale-0 transition-all duration-1000">
-            <img src={post.image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop'} alt={post.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+            <img
+              src={post.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80&auto=format&fit=crop'}
+              alt={post.title}
+              onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80&auto=format&fit=crop'; }}
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-24">
