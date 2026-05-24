@@ -10,6 +10,7 @@ export default function ServiceMarketing() {
       canonical="https://www.planozero.cl/agencia-marketing-digital"
       schemaService="Servicio de Marketing Digital y Publicidad"
       tag="Marketing Digital · Publicidad · Santiago, Chile"
+      heroBg="/service-marketing.jpg"
       headline={
         <>
           Marketing que<br />

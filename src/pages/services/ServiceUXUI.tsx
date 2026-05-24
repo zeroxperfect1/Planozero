@@ -10,6 +10,7 @@ export default function ServiceUXUI() {
       canonical="https://www.planozero.cl/diseno-ux-ui"
       schemaService="Servicio de Diseño UX/UI"
       tag="Experiencia de Usuario · Santiago, Chile"
+      heroBg="/service-uxui.jpg"
       headline={<>Interfaces que<br /><span className="text-[#FF5F1F]">se entienden solas</span></>}
       subheadline="Diseñamos interfaces que funcionan antes de que alguien las vea. Cada decisión tiene una razón — de arquitectura, de flujo, de contexto — no solo de estética."
       intro={

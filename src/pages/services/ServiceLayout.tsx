@@ -25,6 +25,7 @@ interface ServicePageProps {
   headline: React.ReactNode;
   subheadline: string;
   ctaLabel?: string;
+  heroBg?: string;
 
   // Body
   intro: React.ReactNode;
@@ -66,7 +67,7 @@ const FAQItem = ({ q, a }: ServiceFAQ) => {
 // ── Main Layout ───────────────────────────────────────────────────────────────
 export const ServicePage: React.FC<ServicePageProps> = ({
   title, metaTitle, metaDescription, canonical, schemaService, faqSchema,
-  tag, headline, subheadline, ctaLabel = 'Hablemos de tu proyecto',
+  tag, headline, subheadline, ctaLabel = 'Hablemos de tu proyecto', heroBg,
   intro, points, process, faqs, relatedLinks = []
 }) => {
 
@@ -126,11 +127,26 @@ export const ServicePage: React.FC<ServicePageProps> = ({
 
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
       <section className="relative min-h-[72vh] flex flex-col justify-end pb-16 pt-32 px-6 overflow-hidden bg-zinc-950">
+        {/* Hero background image */}
+        {heroBg && (
+          <div className="absolute inset-0">
+            <img
+              src={heroBg}
+              alt=""
+              role="presentation"
+              fetchPriority="high"
+              decoding="async"
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
+        )}
         {/* Blueprint grid */}
-        <div className="absolute inset-0 opacity-[0.06]"
-          style={{ backgroundImage: 'linear-gradient(#FF5F1F 1px, transparent 1px), linear-gradient(90deg, #FF5F1F 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+        <div
+          className="absolute inset-0 opacity-[0.06]"
+          style={{ backgroundImage: 'linear-gradient(#FF5F1F 1px, transparent 1px), linear-gradient(90deg, #FF5F1F 1px, transparent 1px)', backgroundSize: '48px 48px' }}
+        />
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-zinc-950/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/75 to-zinc-950/40" />
 
         <div className="relative z-10 max-w-5xl mx-auto w-full">
           {/* Breadcrumb */}

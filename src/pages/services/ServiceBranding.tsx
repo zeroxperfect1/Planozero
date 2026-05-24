@@ -10,6 +10,7 @@ export default function ServiceBranding() {
       canonical="https://www.planozero.cl/agencia-branding"
       schemaService="Servicio de Branding y Identidad Visual"
       tag="Branding · Identidad Visual · Santiago, Chile"
+      heroBg="/service-branding.jpg"
       headline={
         <>
           Tu marca<br />
