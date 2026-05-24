@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import { ArrowLeft, Clock, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ArrowLeft, Clock, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import Logo from '../components/Logo';
@@ -35,16 +35,28 @@ interface Post {
   createdAt?: any;
 }
 
+const POSTS_PER_PAGE = 6;
+
 const Blog = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('TODAS');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const categories = ['TODAS', ...Array.from(new Set(posts.map(p => p.category).filter(Boolean)))];
 
-  const filteredPosts = selectedCategory === 'TODAS' 
-    ? posts 
+  const filteredPosts = selectedCategory === 'TODAS'
+    ? posts
     : posts.filter(p => p.category === selectedCategory);
+
+  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
+  const paginatedPosts = filteredPosts.slice(
+    (currentPage - 1) * POSTS_PER_PAGE,
+    currentPage * POSTS_PER_PAGE
+  );
+
+  // Reset to page 1 when category changes
+  useEffect(() => { setCurrentPage(1); }, [selectedCategory]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -153,6 +165,10 @@ const Blog = () => {
                 {cat === 'TODAS' ? 'NOTAS_RECIENTES' : cat}
               </button>
             ))}
+            {/* Post count */}
+            <span className="ml-auto self-center text-[10px] font-mono text-zinc-400 uppercase tracking-widest">
+              {filteredPosts.length} notas · pág {currentPage}/{totalPages || 1}
+            </span>
           </div>
         )}
         
@@ -165,70 +181,138 @@ const Blog = () => {
              <p className="text-zinc-500 font-mono text-sm uppercase">Sin publicaciones por el momento.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredPosts.map((post, i) => (
-              <motion.article
-                key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="group flex flex-col h-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-[32px] hover:shadow-2xl hover:shadow-[#FF5F1F]/5 transition-all duration-500"
-              >
-                <Link to={`/blog/${post.slug || post.id}`} className="block">
-                  <div className="relative aspect-[16/10] rounded-2xl overflow-hidden mb-5 bg-zinc-100 dark:bg-zinc-900">
-                    <img
-                      src={post.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80&auto=format&fit=crop'}
-                      alt={post.title}
-                      onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80&auto=format&fit=crop'; }}
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute top-4 left-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono font-bold text-[#FF5F1F] uppercase border border-zinc-200 dark:border-zinc-700">
-                      {post.category}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 text-[10px] font-mono text-zinc-400 mb-4 uppercase tracking-widest">
-                    <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> 5 MIN DE LECTURA</span>
-                    <span>/</span>
-                    <span>{post.created_at ? new Date(post.created_at).toLocaleDateString('es-CL') : (post.date?.toDate?.()?.toLocaleDateString('es-CL') || post.date)}</span>
-                  </div>
-
-                  <h2 className="text-2xl font-bold mb-4 group-hover:text-[#FF5F1F] transition-colors leading-tight">
-                    {post.title}
-                  </h2>
-
-                  <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed mb-6 flex-grow">
-                    {post.excerpt?.replace(/<[^>]*>?/gm, '')}
-                  </p>
-                </Link>
-
-                <div className="flex items-center justify-between pt-6 border-t border-zinc-100 dark:border-zinc-800 mt-auto">
-                  <div className="flex items-center gap-3">
-                    {post.authorImage ? (
-                      <img 
-                        src={post.authorImage} 
-                        alt={post.author || 'Autor'}
-                        className="w-8 h-8 rounded-full object-cover border border-zinc-200 dark:border-zinc-700" 
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${selectedCategory}-${currentPage}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              {paginatedPosts.map((post, i) => (
+                <motion.article
+                  key={post.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06 }}
+                  className="group flex flex-col h-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-[32px] hover:shadow-2xl hover:shadow-[#FF5F1F]/5 transition-all duration-500"
+                >
+                  <Link to={`/blog/${post.slug || post.id}`} className="block">
+                    <div className="relative aspect-[16/10] rounded-2xl overflow-hidden mb-5 bg-zinc-100 dark:bg-zinc-900">
+                      <img
+                        src={post.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80&auto=format&fit=crop'}
+                        alt={post.title}
+                        onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80&auto=format&fit=crop'; }}
+                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                         referrerPolicy="no-referrer"
                       />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700">
-                        <span className="text-[10px] font-mono text-[#FF5F1F] font-bold">
-                          {(post.author || post.author_email || 'PZ').split(/[ @]/)[0].slice(0, 2).toUpperCase()}
-                        </span>
+                      <div className="absolute top-4 left-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-mono font-bold text-[#FF5F1F] uppercase border border-zinc-200 dark:border-zinc-700">
+                        {post.category}
                       </div>
-                    )}
-                    <span className="text-[10px] font-mono text-zinc-500 font-medium tracking-tight truncate max-w-[120px]">{post.author || (post.author_email?.split('@')[0]) || 'PlanoZero'}</span>
-                  </div>
-                  <Link to={`/blog/${post.slug || post.id}`} className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-[#FF5F1F] hover:border-[#FF5F1F] hover:text-white transition-all transform group-hover:rotate-45 shrink-0 ml-2">
-                    <ArrowRight className="w-5 h-5" />
+                    </div>
+
+                    <div className="flex items-center gap-4 text-[10px] font-mono text-zinc-400 mb-4 uppercase tracking-widest">
+                      <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> 5 MIN DE LECTURA</span>
+                      <span>/</span>
+                      <span>{post.created_at ? new Date(post.created_at).toLocaleDateString('es-CL') : (post.date?.toDate?.()?.toLocaleDateString('es-CL') || post.date)}</span>
+                    </div>
+
+                    <h2 className="text-2xl font-bold mb-4 group-hover:text-[#FF5F1F] transition-colors leading-tight">
+                      {post.title}
+                    </h2>
+
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed mb-6 flex-grow">
+                      {post.excerpt?.replace(/<[^>]*>?/gm, '')}
+                    </p>
                   </Link>
-                </div>
-              </motion.article>
-            ))}
-          </div>
+
+                  <div className="flex items-center justify-between pt-6 border-t border-zinc-100 dark:border-zinc-800 mt-auto">
+                    <div className="flex items-center gap-3">
+                      {post.authorImage ? (
+                        <img
+                          src={post.authorImage}
+                          alt={post.author || 'Autor'}
+                          className="w-8 h-8 rounded-full object-cover border border-zinc-200 dark:border-zinc-700"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border border-zinc-200 dark:border-zinc-700">
+                          <span className="text-[10px] font-mono text-[#FF5F1F] font-bold">
+                            {(post.author || post.author_email || 'PZ').split(/[ @]/)[0].slice(0, 2).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <span className="text-[10px] font-mono text-zinc-500 font-medium tracking-tight truncate max-w-[120px]">{post.author || (post.author_email?.split('@')[0]) || 'PlanoZero'}</span>
+                    </div>
+                    <Link to={`/blog/${post.slug || post.id}`} className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 flex items-center justify-center hover:bg-[#FF5F1F] hover:border-[#FF5F1F] hover:text-white transition-all transform group-hover:rotate-45 shrink-0 ml-2">
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                  </div>
+                </motion.article>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* ── Paginación ─────────────────────────────────────────────────────── */}
+          {totalPages > 1 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="flex items-center justify-center gap-2 mt-16"
+            >
+              {/* Prev */}
+              <button
+                onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                disabled={currentPage === 1}
+                className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 hover:border-[#FF5F1F] hover:text-[#FF5F1F] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                aria-label="Página anterior"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                const isActive = page === currentPage;
+                // Show first, last, current ±1, and ellipsis
+                const showPage = page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+                const showEllipsisBefore = page === currentPage - 2 && currentPage > 3;
+                const showEllipsisAfter  = page === currentPage + 2 && currentPage < totalPages - 2;
+
+                if (showEllipsisBefore || showEllipsisAfter) {
+                  return <span key={`ell-${page}`} className="text-zinc-300 dark:text-zinc-600 font-mono text-sm px-1">···</span>;
+                }
+                if (!showPage) return null;
+
+                return (
+                  <button
+                    key={page}
+                    onClick={() => { setCurrentPage(page); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    className={`w-10 h-10 rounded-full text-[11px] font-mono font-bold transition-all ${
+                      isActive
+                        ? 'bg-[#FF5F1F] text-white shadow-lg shadow-[#FF5F1F]/25 scale-110'
+                        : 'border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:border-[#FF5F1F] hover:text-[#FF5F1F]'
+                    }`}
+                    aria-label={`Página ${page}`}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+
+              {/* Next */}
+              <button
+                onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                disabled={currentPage === totalPages}
+                className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 hover:border-[#FF5F1F] hover:text-[#FF5F1F] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                aria-label="Página siguiente"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
         )}
 
       </main>
