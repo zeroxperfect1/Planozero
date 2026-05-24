@@ -10,7 +10,7 @@ export default function ServiceWeb() {
       canonical="https://www.planozero.cl/diseno-web"
       schemaService="Servicio de Diseño y Desarrollo Web"
       tag="Desarrollo Web · Santiago, Chile"
-      headline={<>Sitios web que<br /><span className="text-[#FF5F1F]">duran en el tiempo</span></>}
+      headline={<>Tu sitio web<br /><span className="text-[#FF5F1F]">hecho para convertir</span></>}
       subheadline="Construimos lo que diseñamos. Sitios rápidos, código limpio y plataformas que el equipo puede operar sin depender de nosotros para cada cambio."
       intro={
         <>

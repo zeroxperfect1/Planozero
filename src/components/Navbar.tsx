@@ -17,28 +17,28 @@ interface MenuItem {
 const SERVICES_MEGA = [
   {
     title: 'Branding',
-    description: 'Identidad visual, posicionamiento y sistema de marca completo.',
+    description: 'Tu marca merece más que un logo. Identidad visual, posicionamiento y sistema completo.',
     path: '/agencia-branding',
     icon: PenTool,
     tag: 'Estrategia'
   },
   {
     title: 'Diseño UX/UI',
-    description: 'Interfaces con lógica real. Flujos que eliminan fricción.',
+    description: 'Interfaces que se entienden solas. Flujos sin fricción, sistemas que escalan.',
     path: '/diseno-ux-ui',
     icon: Layers,
     tag: 'Experiencia'
   },
   {
-    title: 'Desarrollo Digital',
-    description: 'Sitios rápidos y plataformas que marketing puede operar.',
+    title: 'Diseño Web',
+    description: 'Tu sitio web hecho para convertir. Rápido, bien construido, fácil de operar.',
     path: '/diseno-web',
     icon: Monitor,
     tag: 'Tecnología'
   },
   {
-    title: 'Marketing Digital',
-    description: 'Campañas que convierten. Estrategia sin humo.',
+    title: 'Marketing y Publicidad',
+    description: 'Marketing que trae clientes reales. Pauta digital, SEO y estrategia sin humo.',
     path: '/agencia-marketing-digital',
     icon: Cpu,
     tag: 'Performance'

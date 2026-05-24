@@ -12,8 +12,8 @@ export default function ServiceBranding() {
       tag="Branding · Identidad Visual · Santiago, Chile"
       headline={
         <>
-          Agencia de<br />
-          <span className="text-[#FF5F1F]">Branding</span>
+          Tu marca<br />
+          <span className="text-[#FF5F1F]">merece más que un logo</span>
         </>
       }
       subheadline="Construimos marcas desde lo que son, no desde lo que quisieran parecer. Identidad visual, posicionamiento y sistema de marca para empresas que quieren durar."
